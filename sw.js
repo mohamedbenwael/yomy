@@ -1,24 +1,40 @@
-// Service Worker لتطبيق «يومي»
-const CACHE = 'yomy-v1';
+/* sw.js — Service Worker لتطبيق «يومي»
+   مسؤول عن إظهار الإشعارات وفتح التطبيق عند الضغط عليها.
+   مقصود إنه بسيط: مفيش تخزين/كاش علشان مايحصلش إن النسخة القديمة تفضل ظاهرة. */
 
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  self.skipWaiting();           // فعّل النسخة الجديدة فورًا
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(self.clients.claim());
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());  // امسك الصفحات المفتوحة على طول
 });
 
-// network-first مع fallback للكاش (عشان يشتغل أوفلاين)
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(e.request))
+// لو وصلت رسالة من الصفحة (احتياطي)
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data.type === 'notify') {
+    self.registration.showNotification('يومي 🌿', {
+      body: data.body || '',
+      icon: data.icon || '',
+      badge: data.icon || '',
+      tag: data.tag || 'yomy',
+      renotify: true,
+      dir: 'rtl',
+      lang: 'ar'
+    });
+  }
+});
+
+// عند الضغط على الإشعار: افتح التطبيق أو رجّعه للواجهة
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if ('focus' in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow('./');
+    })
   );
 });

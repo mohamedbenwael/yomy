@@ -1139,7 +1139,7 @@ async function toggleNotif(){
   let perm=Notification.permission;
   if(perm!=='granted') perm=await Notification.requestPermission();
   if(perm==='granted'){ save('notif:on',true); startNotifLoop();
-    try{new Notification('يومي 🌿',{body:'الإشعارات اشتغلت! هفكّرك بصلواتك وعاداتك.'});}catch(e){}
+    fireNotif('الإشعارات اشتغلت! هفكّرك بصلواتك وعاداتك.','test');
     toast('الإشعارات اشتغلت ✓'); renderTop();
   } else { toast('لازم تسمح بالإشعارات من المتصفّح'); }
 }
@@ -1166,18 +1166,23 @@ function checkNotifsNow(){
     if(n.prayer && today.prayers[n.prayer]) return;
     if(n.habit && today.habits[n.habit]) return;
     if(n.check && !n.check(today)) return;
-    fireNotif(n.msg);
+    fireNotif(n.msg,n.k);
     save(firedKey(n.k),true);
   });
 }
-function fireNotif(body){
-  try{
-    if(navigator.serviceWorker && navigator.serviceWorker.controller && navigator.serviceWorker.ready){
-      navigator.serviceWorker.ready.then(reg=>reg.showNotification('يومي 🌿',{body,icon:ICON_URI,badge:ICON_URI,tag:'yomy',dir:'rtl',lang:'ar'})).catch(()=>{
-        new Notification('يومي 🌿',{body,icon:ICON_URI});
-      });
-    } else { new Notification('يومي 🌿',{body,icon:ICON_URI}); }
-  }catch(e){ console.warn('notif',e); }
+function fireNotif(body,key){
+  // على أندرويد Chrome لازم الإشعار يتبعت من الـ service worker، مش بـ new Notification
+  if(!('serviceWorker' in navigator)){
+    try{ new Notification('يومي 🌿',{body,icon:ICON_URI}); }catch(e){ console.warn('notif',e); }
+    return;
+  }
+  navigator.serviceWorker.ready.then(reg=>{
+    reg.showNotification('يومي 🌿',{
+      body, icon:ICON_URI, badge:ICON_URI,
+      tag:'yomy-'+(key||'msg'), renotify:true,
+      dir:'rtl', lang:'ar'
+    });
+  }).catch(e=>console.warn('notif',e));
 }
 boot();
 </script>
