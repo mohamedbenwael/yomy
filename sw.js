@@ -10,6 +10,12 @@ self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());  // امسك الصفحات المفتوحة على طول
 });
 
+// معالج fetch بسيط: يمرّر كل الطلبات للشبكة عادي (من غير تخزين).
+// وجوده بيساعد كروم على تثبيت التطبيق كـ WebAPK نضيف من غير علامة كروم.
+self.addEventListener('fetch', event => {
+  event.respondWith(fetch(event.request));
+});
+
 // لو وصلت رسالة من الصفحة (احتياطي)
 self.addEventListener('message', event => {
   const data = event.data || {};
