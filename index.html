@@ -321,18 +321,53 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 .tabbtn.on .ic{filter:none;opacity:1;transform:translateY(-1px)}
 .tabpane{animation:fadeTab .25s ease}
 @keyframes fadeTab{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.wsec{animation:fadeTab .2s ease}
+.ws-nav{display:flex;flex-direction:column;gap:11px;margin-top:6px}
+.ws-navbtn{display:flex;align-items:center;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px 17px;cursor:pointer;font-family:inherit;text-align:right;width:100%}
+.ws-navbtn:active{transform:scale(.99)}
+.ws-navbtn .ic{font-size:26px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:var(--green-soft);border-radius:14px;flex-shrink:0}
+.ws-navbtn .tt{font-family:'Reem Kufi';font-size:16px;color:var(--ink);display:block}
+.ws-navbtn .ss{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+.ws-navbtn .ar{margin-right:auto;font-size:22px;color:var(--faint)}
+.ws-back{background:none;border:none;color:var(--green);font-family:'Reem Kufi';font-size:14px;font-weight:600;cursor:pointer;padding:6px 0 12px;display:block}
 
 /* ===== شكل المصحف ===== */
 .mushaf{background:linear-gradient(180deg,#FBF7EC,#F7F1E1);border:1px solid #e7dcc0;border-radius:18px;padding:18px 17px;box-shadow:inset 0 0 0 2px rgba(231,220,192,.5)}
 .mushaf .ayat{font-family:'Amiri Quran',serif;font-size:23px;line-height:2.5;color:#2a2418;text-align:justify;text-align-last:center;direction:rtl}
 .mushaf .anum{font-family:'Amiri Quran',serif;color:#b8924a;font-size:20px;padding:0 2px}
-.mushaf .aclick{cursor:pointer;border-radius:6px;transition:background .15s}
+.mushaf .aclick{cursor:pointer;border-radius:6px;transition:background .15s;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .mushaf .aclick:active{background:rgba(184,146,74,.15)}
+.mushaf .aclick.marked{background:rgba(214,69,52,.16);box-shadow:0 0 0 2px rgba(214,69,52,.55);border-radius:7px}
+.ward-mark-btn{width:100%;margin-bottom:12px;background:#fdecea;border:1px solid #f1c4bc;color:#b3392b;font-family:'Reem Kufi';font-size:13.5px;font-weight:600;padding:11px;border-radius:13px;cursor:pointer}
+.ward-taf-btn{width:100%;margin-bottom:12px;background:#eef4fb;border:1px solid #cfe0f5;color:#1E54B0;font-family:'Reem Kufi';font-size:13.5px;font-weight:600;padding:11px;border-radius:13px;cursor:pointer}
 .mushaf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:'Reem Kufi';font-size:14px;color:#8a6d35}
 .aod-box{background:linear-gradient(180deg,#FBF7EC,#F6EFDD);border:1px solid #e7dcc0;border-radius:16px;padding:15px;margin-bottom:14px}
 .aod-tag{font-size:12px;color:#b8924a;font-weight:800;margin-bottom:9px;font-family:'Tajawal'}
 .aod-ayah{font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;text-align:center;margin-bottom:11px}
 .aod-tafsir{font-size:13.5px;line-height:1.95;color:#6a5b3e;border-top:1px dashed #d8c69a;padding-top:11px}
+
+/* ===== شاشة الأمان ===== */
+.safe-ov{position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#0f2942,#14344f);color:#fff;display:none;flex-direction:column;overflow-y:auto;padding:26px 22px calc(26px + env(safe-area-inset-bottom));text-align:center}
+.safe-ov.show{display:flex}
+.safe-breath{width:150px;height:150px;border-radius:50%;margin:6px auto 14px;background:radial-gradient(circle,rgba(95,151,230,.5),rgba(95,151,230,.05));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#cfe3ff;animation:breathe 10s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.7);opacity:.6}45%,55%{transform:scale(1.1);opacity:1}}
+.safe-power{font-family:'Reem Kufi';font-size:17px;line-height:1.95;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:18px;margin:6px 0 14px;text-align:right}
+.safe-verse{font-family:'Amiri Quran',serif;font-size:21px;line-height:2.4;margin:4px 0 6px}
+.safe-verse-src{font-size:12px;color:#9fc1ec;margin-bottom:16px}
+.safe-timer{font-size:40px;font-weight:800;font-family:'Reem Kufi';letter-spacing:2px;margin:6px 0}
+.safe-hint{font-size:13px;color:#bcd2ee;margin-bottom:14px;line-height:1.7}
+.safe-steps{text-align:right;background:rgba(255,255,255,.06);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-size:14px;line-height:2}
+.safe-btn{width:100%;border:none;border-radius:15px;padding:15px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
+.safe-done{background:#2ecc71;color:#063}
+.safe-done:disabled{background:rgba(255,255,255,.15);color:#9fb3cc;cursor:not-allowed}
+.safe-exit{background:transparent;color:#9fc1ec;border:1px solid rgba(255,255,255,.2)!important}
+/* شجرة الصفا */
+.safa-card{background:linear-gradient(180deg,#eaf7ee,#dff0e6);border:1px solid #bfe3c9;border-radius:var(--r);padding:20px;text-align:center}
+.safa-tree{font-size:64px;line-height:1.2;margin:4px 0}
+.safa-days{font-family:'Reem Kufi';font-size:30px;color:#1f8a4c;font-weight:700}
+.safa-lbl{font-size:13px;color:#3c7d57;margin-bottom:12px}
+.safa-stage{display:inline-block;font-size:12px;font-weight:800;color:#1f8a4c;background:#cdeed6;padding:4px 12px;border-radius:20px;margin-bottom:8px}
+.safa-reset{background:none;border:none;color:#9bb0a4;font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:inherit}
 </style>
 </head>
 <body>
@@ -356,6 +391,7 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
   </div>
   <div class="topstats">
     <button class="bell" id="bellBtn" onclick="toggleNotifs()" title="الإشعارات">🔔</button>
+    <button class="bell" id="safeBtn" onclick="openSafety()" title="أمان" style="background:#FDEEE9">🛡️</button>
     <div class="streak" id="streakBox" title="أيام متتالية">🔥 <span id="streakN">0</span></div>
     <div class="coin" onclick="openAccounts()"><div><div class="lbl">فلوسك</div><span id="totalMoney">0</span></div></div>
     <div class="ring">
@@ -419,25 +455,39 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 
   <!-- ===== تاب العبادة ===== -->
   <div class="tabpane" id="pane-worship" style="display:none">
-  <div class="praytimes" id="prayTimes" style="display:none"></div>
-
-  <div class="section">
-    <div class="section-head"><h2><span class="ico">🕌</span> الصلاة</h2><span class="meta" id="prayMeta">0/5</span></div>
-    <div class="card" id="prayers"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-head"><h2><span class="ico">📿</span> الأذكار</h2><span class="meta" id="adhkarMeta"></span></div>
-    <div id="adhkarTabs" style="display:flex;gap:8px;margin-bottom:12px">
-      <button id="tabAM" onclick="setAdhkarTab('m')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌅 الصباح</button>
-      <button id="tabPM" onclick="setAdhkarTab('e')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌙 المساء</button>
+  <!-- صفحة العبادة الرئيسية: الصلاة + أزرار -->
+  <div id="ws-home">
+    <div class="praytimes" id="prayTimes" style="display:none"></div>
+    <div class="section">
+      <div class="section-head"><h2><span class="ico">🕌</span> الصلاة</h2><span class="meta" id="prayMeta">0/5</span></div>
+      <div class="card" id="prayers"></div>
     </div>
-    <div id="adhkarList"></div>
+    <div class="ws-nav">
+      <button class="ws-navbtn" onclick="showWorship('adhkar')"><span class="ic">📿</span><span class="tt">الأذكار</span><span class="ss">أذكار الصباح والمساء</span><span class="ar">‹</span></button>
+      <button class="ws-navbtn" onclick="showWorship('ward')"><span class="ic">📖</span><span class="tt">الورد القرآني</span><span class="ss">وردك وتفسيره</span><span class="ar">‹</span></button>
+    </div>
   </div>
 
-  <div class="section">
-    <div class="section-head"><h2><span class="ico">📖</span> الورد القرآني</h2><span class="meta"></span></div>
-    <div class="mini-card" id="wardCard" style="display:none"></div>
+  <!-- الأذكار -->
+  <div class="wsec" id="ws-adhkar" style="display:none">
+    <button class="ws-back" onclick="showWorship('home')">‹ رجوع للعبادة</button>
+    <div class="section">
+      <div class="section-head"><h2><span class="ico">📿</span> الأذكار</h2><span class="meta" id="adhkarMeta"></span></div>
+      <div id="adhkarTabs" style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="tabAM" onclick="setAdhkarTab('m')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌅 الصباح</button>
+        <button id="tabPM" onclick="setAdhkarTab('e')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌙 المساء</button>
+      </div>
+      <div id="adhkarList"></div>
+    </div>
+  </div>
+
+  <!-- الورد -->
+  <div class="wsec" id="ws-ward" style="display:none">
+    <button class="ws-back" onclick="showWorship('home')">‹ رجوع للعبادة</button>
+    <div class="section">
+      <div class="section-head"><h2><span class="ico">📖</span> الورد القرآني</h2><span class="meta"></span></div>
+      <div class="mini-card" id="wardCard" style="display:none"></div>
+    </div>
   </div>
   </div><!-- /pane-worship -->
 
@@ -446,6 +496,11 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
   <div class="section">
     <div class="section-head"><h2><span class="ico">🌿</span> عاداتي</h2><span class="meta" id="habitMeta">0/9</span></div>
     <div class="habits" id="habits"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2><span class="ico">🌱</span> أيام الصفا</h2><span class="meta"></span></div>
+    <div class="safa-card" id="safaCard"></div>
   </div>
 
   <div class="section">
@@ -479,6 +534,26 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
   <button class="tabbtn" data-tab="money" onclick="showTab('money')"><span class="ic">🪙</span>فلوسي</button>
 </div>
 
+<div class="safe-ov" id="safeOv">
+  <div style="max-width:480px;margin:0 auto;width:100%">
+    <div style="font-family:'Reem Kufi';font-size:19px;margin-bottom:4px">🛡️ لحظة وقفة</div>
+    <div class="safe-hint">خُد نَفَسك مع الدايرة، واقرا، والوقت ده ليك إنت.</div>
+    <div class="safe-breath" id="safeBreath">اشهق… ازفر…</div>
+    <div class="safe-verse" id="safeVerse"></div>
+    <div class="safe-verse-src" id="safeVerseSrc"></div>
+    <div class="safe-power" id="safePower"></div>
+    <div class="safe-steps">
+      الخطوات دلوقتي:<br>
+      ١) قوم من مكانك واتوضّى 💧<br>
+      ٢) اشرب مية واطلع من الأوضة 🚪<br>
+      ٣) كمّل نَفَسك مع الدايرة 🫁<br>
+      ٤) افتح وردك أو اتصل بحد 📖
+    </div>
+    <div class="safe-timer" id="safeTimer">5:00</div>
+    <button class="safe-btn safe-done" id="safeDoneBtn" onclick="safePassed()" disabled>… استنى الوقت يخلص</button>
+    <button class="safe-btn safe-exit" onclick="closeSafety()">إغلاق</button>
+  </div>
+</div>
 <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
 <div class="celebrate" id="celebrate"><div class="msg"><div class="em" id="celEm">🎉</div><div class="t" id="celT"></div><div class="s" id="celS"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -489,6 +564,11 @@ const $=id=>document.getElementById(id);
 function showTab(name){
   ['home','worship','day','money'].forEach(t=>{ const p=$('pane-'+t); if(p)p.style.display=(t===name)?'block':'none'; });
   document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('on',b.getAttribute('data-tab')===name));
+  if(name==='worship')showWorship('home');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showWorship(name){
+  ['home','adhkar','ward'].forEach(s=>{ const el=$(s==='home'?'ws-home':'ws-'+s); if(el)el.style.display=(s===name)?'block':'none'; });
   window.scrollTo({top:0,behavior:'smooth'});
 }
 const CUR='ج';
@@ -639,7 +719,7 @@ function monthAvg(){
   return cnt?Math.round(sum/cnt):0;
 }
 
-function render(){renderDate();renderInspo();renderHero();renderNow();renderPrayTimes();renderReminder();renderChallenge();renderBreakfast();renderWard();renderPrayers();renderAdhkar();renderHabits();renderTasks();renderMoney();renderTop();renderProgress();renderWeekly();}
+function render(){renderDate();renderInspo();renderHero();renderNow();renderPrayTimes();renderReminder();renderChallenge();renderBreakfast();renderWard();renderPrayers();renderAdhkar();renderHabits();renderSafa();renderTasks();renderMoney();renderTop();renderProgress();renderWeekly();}
 function renderDate(){
   const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
   const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -956,11 +1036,39 @@ async function fetchWard(start){
 }
 let _wardData=null,_wardKey=null,_wardFlat=null;
 function openTafsirPage(p){window.open('https://quran.com/page/'+p,'_blank');}
+function getMark(){return load('quran:mark',null);}
+function setMark(m){save('quran:mark',m);}
+function markHere(i){
+  const a=_wardFlat&&_wardFlat[i]; if(!a)return;
+  setMark({start:wardStartPage(),idx:i});
+  if(_wardData)paintWard(_wardData,wardStartPage());
+  toast('📍 علّمنا وقفتك عند '+a.surah+' ﴿'+a.n+'﴾');
+  const el=$('wa_'+i); if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function goToMark(){
+  const m=getMark(); if(!m)return; const el=$('wa_'+m.idx);
+  if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.transition='background .3s'; }
+}
+function fullTafsir(){
+  const box=$('wardTaf'); if(!box||!_wardFlat||!_wardFlat.length)return;
+  let h=`<div style="background:#fff;border:1px solid #e7dcc0;border-radius:14px;padding:4px 15px 15px">
+    <div style="font-family:'Reem Kufi';font-size:15px;color:#8a6d35;text-align:center;padding:13px 0 4px">📚 تفسير وردك — التفسير الميسّر</div>`;
+  _wardFlat.forEach(a=>{
+    h+=`<div style="border-top:1px solid #f0e6cf;padding:13px 0">
+      <div style="font-family:'Amiri Quran',serif;font-size:18px;line-height:2.25;color:#2a2418;margin-bottom:9px">${a.text} <span style="color:#b8924a">﴿${a.n}﴾</span></div>
+      <div style="font-size:13.5px;line-height:1.95;color:#5a4d35"><b style="color:#b8924a">${a.surah} ﴿${a.n}﴾: </b>${a.tafsir||'—'}</div>
+    </div>`;
+  });
+  h+=`</div>`;
+  box.innerHTML=h;
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function wardTaf(i){
   const a=_wardFlat&&_wardFlat[i]; const box=$('wardTaf'); if(!a||!box)return;
   box.innerHTML=`<div style="background:#fff;border:1px solid #e7dcc0;border-radius:14px;padding:13px">
     <div style="font-size:12px;color:#b8924a;font-weight:800;margin-bottom:7px;font-family:'Tajawal'">📖 تفسير ${a.surah} ﴿${a.n}﴾</div>
-    <div style="font-size:13.5px;line-height:1.95;color:#5a4d35">${a.tafsir||'—'}</div></div>`;
+    <div style="font-size:13.5px;line-height:1.95;color:#5a4d35;margin-bottom:10px">${a.tafsir||'—'}</div>
+    <button onclick="markHere(${i})" style="background:#fdecea;border:1px solid #f1c4bc;color:#b3392b;font-weight:700;font-size:13px;font-family:inherit;padding:9px 14px;border-radius:11px;cursor:pointer;width:100%">📍 علّمت وقفتي هنا</button></div>`;
   box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function renderWard(){
@@ -986,24 +1094,52 @@ function loadWardContent(start){
   fetchWard(start).then(data=>{ _wardData=data;_wardKey=key; if($('wardContent'))paintWard(data,start); })
     .catch(()=>{ const c=$('wardContent'); if(c)c.innerHTML=`<div style="color:#8b97a8;font-size:13px;text-align:center;padding:10px">تعذّر تحميل الآيات (محتاج نت). صفحاتك: ${start}–${Math.min(QURAN_PAGES,start+QURAN_PER_DAY-1)}.<br><button onclick="loadWardContent(${start})" style="margin-top:8px;background:#EEF4FB;border:none;color:#2E6FD6;font-weight:700;padding:8px 16px;border-radius:10px;font-family:inherit;cursor:pointer">جرّب تاني</button></div>`; });
 }
+// اختيار عدد من الآيات عشوائيًا لكن ثابت طوال اليوم (بذرة = تاريخ اليوم)
+function pickDailyAyat(flat,n){
+  const len=flat.length; n=Math.min(n,len); const idxs=[]; let x=hashStr(ymd(cursor))>>>0;
+  let guard=0;
+  while(idxs.length<n && guard<len*5){ x=(x*1103515245+12345)>>>0; const i=x%len; if(idxs.indexOf(i)<0)idxs.push(i); guard++; }
+  idxs.sort((a,b)=>a-b); return idxs.map(i=>flat[i]);
+}
 function paintWard(data,start){
   const cont=$('wardContent'); if(!cont)return;
   const flat=[]; data.forEach(pg=>pg.ayahs.forEach(a=>flat.push(a)));
   _wardFlat=flat;
   if(!flat.length){cont.innerHTML='';return;}
   const end=Math.min(QURAN_PAGES,start+QURAN_PER_DAY-1);
-  const aod=flat[hashStr(ymd(cursor))%flat.length];
-  let html=`<div class="aod-box">
-      <div class="aod-tag">🌟 آية اليوم — ${aod.surah} ﴿${aod.n}﴾</div>
+  const mark=getMark(); const markIdx=(mark&&mark.start===start)?mark.idx:-1;
+  const dayAyat=pickDailyAyat(flat,10); // ١٠ آيات عشوائية ثابتة لليوم (مش ترتيب أهمية)
+  let html=`<div class="aod-tag" style="text-align:center;margin-bottom:10px">🌟 آيات اليوم — جرعة مختارة بتتغيّر كل يوم</div>`;
+  dayAyat.forEach(aod=>{
+    html+=`<div class="aod-box">
+      <div class="aod-tag">${aod.surah} ﴿${aod.n}﴾</div>
       <div class="aod-ayah">${aod.text}</div>
       <div class="aod-tafsir">${aod.tafsir||'—'}</div>
-    </div>
-    <div class="mushaf">
-      <div class="mushaf-head"><span>📖 صفحات ${start}–${end}</span><span>اضغط أي آية لتفسيرها</span></div>
+    </div>`;
+  });
+  if(markIdx>=0){ html+=`<button class="ward-mark-btn" onclick="goToMark()">📍 رجّعني لآخر وقفة (${flat[markIdx].surah} ﴿${flat[markIdx].n}﴾)</button>`; }
+  html+=`<button class="ward-taf-btn" onclick="fullTafsir()">📚 اقرأ تفسير الورد كامل</button>`;
+  html+=`<div class="mushaf">
+      <div class="mushaf-head"><span>📖 صفحات ${start}–${end}</span><span>ضغطة = تفسير · مطوّلة = علّم وقفتك</span></div>
       <div class="ayat">`;
-  flat.forEach((a,i)=>{ html+=`<span class="aclick" onclick="wardTaf(${i})">${a.text} <span class="anum">﴿${a.n}﴾</span></span> `; });
+  flat.forEach((a,i)=>{ html+=`<span class="aclick${i===markIdx?' marked':''}" id="wa_${i}" data-i="${i}">${a.text} <span class="anum">﴿${a.n}﴾</span></span> `; });
   html+=`</div></div><div id="wardTaf" style="margin-top:12px"></div>`;
   cont.innerHTML=html;
+  bindAyahEvents();
+}
+// ضغطة عادية = تفسير · ضغطة مطوّلة (نصف ثانية) = تعليم الوقفة
+function bindAyahEvents(){
+  document.querySelectorAll('#wardContent .ayat .aclick').forEach(el=>{
+    const i=+el.dataset.i; let timer=null, longFired=false;
+    const start=()=>{ longFired=false; timer=setTimeout(()=>{ longFired=true; markHere(i); if(navigator.vibrate)navigator.vibrate(30); },500); };
+    const cancel=()=>{ if(timer){clearTimeout(timer);timer=null;} };
+    const end=e=>{ if(timer){clearTimeout(timer);timer=null;} if(longFired){ if(e&&e.cancelable)e.preventDefault(); return; } wardTaf(i); };
+    el.addEventListener('pointerdown',start);
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointercancel',cancel);
+    el.addEventListener('pointerleave',cancel);
+    el.addEventListener('contextmenu',e=>e.preventDefault());
+  });
 }
 
 // ===== الأذكار (صباح/مساء) — قرآن من مصدر موثوق + أذكار نبوية بنصها المعتمد =====
@@ -1400,6 +1536,120 @@ function gate(){
     $('lockInput').onkeydown=e=>{if(e.key==='Enter')submit();};
   });
 }
+// ===== أيام الصفا (شجرة بتكبر) =====
+function getClean(){return load('life:clean',{start:ymd(todayD()),best:0});}
+function setClean(c){save('life:clean',c);}
+function cleanDays(){
+  const c=getClean(); const s=new Date(c.start+'T00:00:00'); const t=todayD();
+  const d=Math.floor((t-s)/86400000); return d<0?0:d;
+}
+function safaStage(d){
+  if(d>=60)return {t:'🌳',n:'شجرة وارفة',next:null};
+  if(d>=30)return {t:'🌳',n:'شجرة',next:60};
+  if(d>=14)return {t:'🪴',n:'نبتة قوية',next:30};
+  if(d>=7) return {t:'🌿',n:'بُرعم',next:14};
+  if(d>=3) return {t:'🌿',n:'وريقات',next:7};
+  if(d>=1) return {t:'🌱',n:'شتلة',next:3};
+  return {t:'🌱',n:'بذرة',next:1};
+}
+function renderSafa(){
+  const box=$('safaCard'); if(!box)return;
+  const c=getClean(); const d=cleanDays(); const best=Math.max(c.best||0,d);
+  if(best!==c.best){c.best=best;setClean(c);}
+  const st=safaStage(d);
+  const nextTxt=st.next?`فاضل ${st.next-d} يوم للمرحلة الجاية`:'وصلت لأعلى مرحلة 🌟';
+  box.innerHTML=`<div class="safa-stage">${st.n}</div>
+    <div class="safa-tree">${st.t}</div>
+    <div class="safa-days">${d}</div>
+    <div class="safa-lbl">يوم صفا متّصل · ${nextTxt}</div>
+    <div style="font-size:12px;color:#5a8a6e">🏆 أطول فترة: ${best} يوم</div>
+    <button class="safa-reset" onclick="resetClean()">حصلت انتكاسة — أبدأ من جديد</button>`;
+}
+function resetClean(){
+  if(!confirm('نبدأ العدّ من جديد من النهاردة؟ كل بداية فيها أمل 🌱'))return;
+  const c=getClean(); c.best=Math.max(c.best||0,cleanDays()); c.start=ymd(todayD()); setClean(c);
+  renderSafa(); toast('بداية جديدة 🌱 ربنا معاك');
+}
+
+// ===== أداة الأمان 🛡️ =====
+const SAFE_SECS=300, SAFE_ROTATE=13000; // تبديل المحتوى كل 13 ثانية
+const SAFE_AYAT=[
+  {r:'24:30',s:'النور ٣٠'},{r:'79:40',s:'النازعات ٤٠'},{r:'12:53',s:'يوسف ٥٣'},
+  {r:'39:53',s:'الزمر ٥٣'},{r:'13:28',s:'الرعد ٢٨'},{r:'40:60',s:'غافر ٦٠'},
+  {r:'2:286',s:'البقرة ٢٨٦'},{r:'29:69',s:'العنكبوت ٦٩'},{r:'94:5',s:'الشرح ٥'}
+];
+const SAFE_HADITH=[
+  {t:'مَن يَستعفِفْ يُعِفَّهُ اللهُ، ومَن يَستغنِ يُغنِهِ اللهُ.',s:'متفق عليه'},
+  {t:'الحياءُ لا يأتي إلّا بخير.',s:'متفق عليه'},
+  {t:'احفَظِ اللهَ يَحفَظْكَ، احفَظِ اللهَ تَجِدْهُ تُجاهَك.',s:'رواه الترمذي'},
+  {t:'كلُّ ابنِ آدمَ خطّاء، وخيرُ الخطّائينَ التوّابون.',s:'رواه الترمذي'},
+  {t:'اتَّقِ اللهَ حيثُما كنتَ، وأَتبِعِ السيِّئةَ الحسنةَ تَمحُها.',s:'رواه الترمذي'}
+];
+const SAFE_LINES=[
+  'الشهوة دي موجة… هتعدّي. استنّى بس وما تتحركش ناحيتها.',
+  'إنت أقوى منها. كل ثانية بتقاوم فيها، إنت بتكسب.',
+  'فاكر إحساس الندم بعدها؟ ما تكرّرهوش النهاردة.',
+  'دلوقتي بالظبط هو الفرق بين النسخة اللي عايز تكونها والقديمة.',
+  'قوم اتحرّك دلوقتي — اتوضّى أو اطلع — كسر اللحظة بحركة.'
+];
+const SAFE_FALLBACK=[
+  {t:'وَأَن لَّيْسَ لِلْإِنسَٰنِ إِلَّا مَا سَعَىٰ',s:'النجم ٣٩'},
+  {t:'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًا',s:'الطلاق ٢'}
+];
+let _safeRot=null, _safeQT=null, _safePool=[], _safeIdx=-1;
+function safeAyahCache(r){try{return localStorage.getItem('safe:ayah:'+r)||null;}catch(e){return null;}}
+function pickSafeAyah(){return SAFE_AYAT[Math.floor(Math.random()*SAFE_AYAT.length)];}
+async function fetchSafeAyah(a){
+  const c=safeAyahCache(a.r); if(c)return {t:c,s:a.s,k:'آية'};
+  try{
+    const j=await fetch('https://api.alquran.cloud/v1/ayah/'+a.r+'/quran-uthmani').then(r=>r.json());
+    if(j&&j.status==='OK'&&j.data&&j.data.text){ try{localStorage.setItem('safe:ayah:'+a.r,j.data.text);}catch(e){} return {t:j.data.text,s:a.s,k:'آية'}; }
+  }catch(e){}
+  return null;
+}
+function buildSafePool(){
+  const pool=[];
+  // الآيات المتوفرة في الكاش
+  SAFE_AYAT.forEach(a=>{const c=safeAyahCache(a.r); if(c)pool.push({t:c,s:a.s,k:'آية'});});
+  if(!pool.length) SAFE_FALLBACK.forEach(f=>pool.push({t:f.t,s:f.s,k:'آية'}));
+  SAFE_HADITH.forEach(h=>pool.push({t:h.t,s:h.s,k:'حديث'}));
+  SAFE_LINES.forEach(l=>pool.push({t:l,s:'',k:'تذكير'}));
+  return pool;
+}
+function showSafeItem(){
+  if(!_safePool.length)return;
+  let i=Math.floor(Math.random()*_safePool.length);
+  if(_safePool.length>1){ let g=0; while(i===_safeIdx && g<5){i=Math.floor(Math.random()*_safePool.length);g++;} }
+  _safeIdx=i; const it=_safePool[i];
+  const v=$('safeVerse'), s=$('safeVerseSrc'); if(!v||!s)return;
+  v.style.fontFamily=(it.k==='تذكير')?"'Reem Kufi',sans-serif":"'Amiri Quran',serif";
+  v.style.fontSize=(it.k==='تذكير')?'17px':'21px';
+  v.textContent=it.t;
+  s.textContent=it.k+(it.s?' — '+it.s:'');
+}
+function openSafety(){
+  const ov=$('safeOv'); if(!ov)return;
+  $('safePower').textContent=powerMsg();
+  _safePool=buildSafePool(); _safeIdx=-1;
+  ov.classList.add('show');
+  showSafeItem();
+  clearInterval(_safeRot);
+  _safeRot=setInterval(showSafeItem,SAFE_ROTATE);
+  // كمّل تحميل باقي الآيات من المصدر وضيفها للمجموعة
+  SAFE_AYAT.forEach(a=>{ if(!safeAyahCache(a.r)) fetchSafeAyah(a).then(o=>{ if(o&&$('safeOv').classList.contains('show')) _safePool.push(o); }); });
+  // العدّاد الإجباري
+  let left=SAFE_SECS;
+  const btn=$('safeDoneBtn'); btn.disabled=true; btn.textContent='… استنى الوقت يخلص';
+  const tEl=$('safeTimer'); const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  tEl.textContent=fmt(left);
+  clearInterval(_safeQT);
+  _safeQT=setInterval(()=>{ left--; tEl.textContent=fmt(left<0?0:left);
+    if(left<=0){ clearInterval(_safeQT); btn.disabled=false; btn.textContent='عدّت اللحظة بفضل الله 🤍'; } },1000);
+}
+function powerMsg(){ return load('life:powerMsg', 'بطّل علشان نفسك، دي شهوة وهتروح، ووالله لو خلّصتها هتحسّ بضيق جدًا. اعتبرني جايلك من المستقبل، صدّقني هتتضايق. مش عايز أفضل في الدايرة المغلقة دي. تخيّل لو بطّلتها هتكون حاسس بإيه، تخيّل حياتك. مش إنت اللي قلت: لو بطّلت العادة دي هكون إنسان تاني؟ استهدي بالله، وقوم، وما تضيّعش نفسك ووقتك وطاقتك. خليك أقوى منها وأقوى من الشيطان. استعيذ بالله من الشيطان الرجيم وقوم 🌱'); }
+function closeSafety(){ clearInterval(_safeQT); clearInterval(_safeRot); const ov=$('safeOv'); if(ov)ov.classList.remove('show'); }
+function safePassed(){ clearInterval(_safeQT); clearInterval(_safeRot); closeSafety(); toast('الله يثبّتك 🤍 كسبت اللحظة دي'); if(typeof maybeCelebrate==='function')maybeCelebrate('safe'); }
+
 async function boot(){
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
   $('bootLoad').style.display='flex';
@@ -1411,6 +1661,7 @@ async function boot(){
   initNotifications();
   initPrayer();
   loadQuranAdhkar();
+  fetchSafeAyah(pickSafeAyah());
   setInterval(()=>{ if(isToday()){ renderNow(); renderPrayTimes(); renderReminder(); } },60000);
 }
 
