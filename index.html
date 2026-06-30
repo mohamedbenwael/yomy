@@ -521,6 +521,7 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <div class="budget-card" id="budgetCard"></div>
     <div class="accounts" id="accounts"></div>
     <div class="money-actions"><button class="btn-out" onclick="openTx('out')">− مصروف</button><button class="btn-in" onclick="openTx('in')">+ دخل</button><button class="btn-charity" onclick="openCharity()">🤲 صدقة</button></div>
+    <button onclick="openTransfer()" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:15px">🔄 تحويل بين الحسابات</button>
     <div class="spend-bar" id="spendBar"></div>
     <div class="card"><div id="txList"></div></div>
   </div>
@@ -638,22 +639,36 @@ const MOTIV=[
 const SB_URL='https://dbhfdtzvcvhpgtpyjxsw.supabase.co';
 const SB_KEY='sb_publishable_eGCW1yPtO5hM-yAgTlcs1A_dqXrNhgR';
 const ICON_URI=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'';
-let sb=null; const CACHE={};
+let sb=null; const CACHE={}; const TS={};
 function load(k,def){return (k in CACHE)?CACHE[k]:def;}
 function save(k,v){
-  CACHE[k]=v;
+  const now=new Date().toISOString();
+  CACHE[k]=v; TS[k]=now;
   try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
-  if(sb){ sb.from('store').upsert({k,v,updated_at:new Date().toISOString()}).then(r=>{ if(r.error)console.warn('cloud save',r.error.message); }); }
+  try{localStorage.setItem('ts:'+k,now);}catch(e){}
+  if(sb){ sb.from('store').upsert({k,v,updated_at:now}).then(r=>{ if(r.error)console.warn('cloud save',r.error.message); }); }
 }
 async function cloudLoadAll(){
   // املأ الكاش من المحلي الأول (يشتغل أوفلاين)
-  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(/^(life:|auth:)/.test(key)){try{CACHE[key]=JSON.parse(localStorage.getItem(key));}catch(e){}}}}catch(e){}
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(/^(life:|auth:)/.test(key)){try{CACHE[key]=JSON.parse(localStorage.getItem(key));TS[key]=localStorage.getItem('ts:'+key)||'';}catch(e){}}}}catch(e){}
   if(!sb)return;
   try{
-    const {data,error}=await sb.from('store').select('k,v');
+    const {data,error}=await sb.from('store').select('k,v,updated_at');
     if(error){console.warn('cloud load',error.message);return;}
-    (data||[]).forEach(r=>{CACHE[r.k]=r.v; try{localStorage.setItem(r.k,JSON.stringify(r.v));}catch(e){}});
+    (data||[]).forEach(r=>{
+      const localT=TS[r.k]||''; const cloudT=r.updated_at||'';
+      // الأحدث يكسب: لو السحابة أحدث (أو مفيش محلي) خُد السحابة
+      if(!localT || cloudT>localT){ CACHE[r.k]=r.v; TS[r.k]=cloudT; try{localStorage.setItem(r.k,JSON.stringify(r.v));localStorage.setItem('ts:'+r.k,cloudT);}catch(e){} }
+      // لو المحلي أحدث، ارفعه للسحابة عشان يتساوى الجهازين
+      else if(localT>cloudT){ sb.from('store').upsert({k:r.k,v:CACHE[r.k],updated_at:localT}).then(()=>{}); }
+    });
   }catch(e){console.warn('cloud load fail',e);}
+}
+// إعادة مزامنة وتحديث الشاشة أول ما نرجع للتطبيق
+let _lastSync=Date.now();
+async function resync(){
+  if(!sb)return; if(Date.now()-_lastSync<3000)return; _lastSync=Date.now();
+  await cloudLoadAll(); if(typeof render==='function')render();
 }
 let TIMES=null; // {Fajr,Sunrise,Dhuhr,Asr,Maghrib,Isha} بصيغة HH:MM — متعرّفة بدري علشان منطق "بداية اليوم"
 function ymd(d){const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10);}
@@ -1468,6 +1483,28 @@ function openCharity(){
     const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(cursor),type:'charity',amount:amt,cat:'charity',account,note});setTx(tx);
     closeSheet();renderMoney();renderTop();renderReminder();toast('تقبّل الله 🤍');};
 }
+function openTransfer(){
+  let from='vodafone', to='instapay';
+  const acc=getAccounts();
+  const chips=(grpId,sel0)=>ACCOUNTS.map(a=>`<button class="chip-opt ${a[0]===sel0?'on':''}" data-a="${a[0]}">${a[2]} ${a[1]} <span style="opacity:.6;font-size:11px">(${fmt(acc[a[0]]||0)})</span></button>`).join('');
+  sheet(`<h3>🔄 تحويل بين الحسابات</h3>
+    <div class="field"><label>من حساب</label><div class="chips" id="trFrom">${chips('trFrom',from)}</div></div>
+    <div class="field"><label>لحساب</label><div class="chips" id="trTo">${chips('trTo',to)}</div></div>
+    <div class="field"><label>المبلغ (${CUR})</label><input class="big" id="trAmt" type="number" inputmode="decimal" placeholder="0" autofocus></div>
+    <div class="bsub" style="margin-bottom:12px;color:var(--muted)">التحويل بيتنقل بين جيوبك، مبيتحسبش مصروف ولا دخل 🔄</div>
+    <button class="save" id="trSave">حوّل</button>`);
+  document.querySelectorAll('#trFrom .chip-opt').forEach(b=>b.onclick=()=>{from=b.dataset.a;sel('#trFrom',b);});
+  document.querySelectorAll('#trTo .chip-opt').forEach(b=>b.onclick=()=>{to=b.dataset.a;sel('#trTo',b);});
+  $('trSave').onclick=()=>{
+    const amt=parseFloat($('trAmt').value); if(!amt||amt<=0)return toast('اكتب مبلغ صح');
+    if(from===to)return toast('اختار حسابين مختلفين');
+    const a=getAccounts(); const bal=a[from]||0;
+    if(amt>bal)return toast('الرصيد مش كفاية في '+(ACCOUNTS.find(x=>x[0]===from)[1]));
+    a[from]=bal-amt; a[to]=(a[to]||0)+amt; setAccounts(a);
+    const tx=getTx(); tx.push({id:rid(),ts:Date.now(),date:ymd(cursor),type:'transfer',amount:amt,from,to,account:from}); setTx(tx);
+    closeSheet(); renderMoney(); renderTop(); toast('تم التحويل 🔄');
+  };
+}
 function openEditAccount(k){const acc=getAccounts();const a=ACCOUNTS.find(x=>x[0]===k);
   sheet(`<h3>${a[2]} ${a[1]}</h3><div class="field"><label>الرصيد الحالي (${CUR})</label><input class="big" id="accVal" type="number" inputmode="decimal" value="${acc[k]||0}" autofocus></div><button class="save" id="accSave">حفظ الرصيد</button>`);
   $('accSave').onclick=()=>{const v=parseFloat($('accVal').value);if(isNaN(v))return toast('اكتب رقم صح');const a2=getAccounts();a2[k]=v;setAccounts(a2);closeSheet();renderMoney();renderTop();toast('اتحفظ ✓');};}
@@ -1745,6 +1782,8 @@ async function boot(){
   loadQuranAdhkar();
   fetchSafeAyah(pickSafeAyah());
   maybeAutoReport();
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden)resync(); });
+  window.addEventListener('focus',resync);
   setInterval(()=>{ if(isToday()){ renderNow(); renderPrayTimes(); renderReminder(); } },60000);
 }
 
