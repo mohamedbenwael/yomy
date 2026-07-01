@@ -1095,13 +1095,26 @@ function renderWard(){
   const done=!!getDay().habits.quran;
   box.style.display='block';
   box.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="font-size:20px">📖</span><b style="font-size:15px">وردك القرآني النهاردة</b></div>
+      <span style="font-size:20px">📖</span><b style="font-size:15px">وردك القرآني النهاردة</b>
+      <button onclick="setWardPage()" style="margin-right:auto;background:#eef4fb;border:none;color:#2E6FD6;font-family:inherit;font-size:12px;font-weight:700;padding:6px 10px;border-radius:10px;cursor:pointer">✎ اضبط الصفحة</button></div>
     <div style="font-size:15px;color:#33415C;margin-bottom:12px">اقرأ من صفحة <b style="color:#2E6FD6">${start}</b> لـ <b style="color:#2E6FD6">${end}</b> <span style="color:#8b97a8">(${QURAN_PER_DAY} صفحات)</span></div>
     <div style="display:flex;gap:8px">
       <button onclick="toggleHabit('quran')" style="flex:1;padding:11px;border:none;border-radius:13px;background:${done?'#2E6FD6':'#dfe8f5'};color:${done?'#fff':'#2E6FD6'};font-weight:700;font-family:inherit;font-size:14px;cursor:pointer">${done?'✓ خلّصت وردك':'تمّ القراءة'}</button>
     </div>
     <div id="wardContent" style="margin-top:14px"></div>`;
   loadWardContent(start);
+}
+function setWardPage(){
+  const cur=wardStartPage();
+  const v=prompt('اكتب رقم الصفحة اللي عايز تبدأ منها وردك (١ - ٦٠٤):', cur);
+  if(v===null)return;
+  const n=parseInt(String(v).replace(/[^0-9]/g,''),10);
+  if(isNaN(n)||n<1||n>QURAN_PAGES)return toast('رقم صفحة غير صحيح');
+  save('life:quranPage',n);
+  const d=getDay(); delete d.wardStart; if(d.habits)delete d.habits.quran; setDay(d);
+  _wardKey=null; _wardData=null; // إعادة تحميل آيات الصفحة الجديدة
+  renderWard(); renderHabits(); renderTop(); renderProgress(); renderHero();
+  toast('اتظبطت — وردك من صفحة '+n);
 }
 function loadWardContent(start){
   const cont=$('wardContent'); if(!cont)return;
