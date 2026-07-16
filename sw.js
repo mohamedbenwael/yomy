@@ -1,5 +1,5 @@
 /* sw.js — Service Worker لتطبيق «يومي»
-   مسؤول عن إظهار الإشعارات وفتح التطبيق عند الضغط عليها.
+   مسؤول عن إظهار الإشعارات (المحلية والـ Push الحقيقي) وفتح التطبيق عند الضغط عليها.
    مقصود إنه بسيط: مفيش تخزين/كاش علشان مايحصلش إن النسخة القديمة تفضل ظاهرة. */
 
 self.addEventListener('install', event => {
@@ -16,7 +16,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(fetch(event.request));
 });
 
-// لو وصلت رسالة من الصفحة (احتياطي)
+// لو وصلت رسالة من الصفحة (احتياطي - إشعار محلي وقت ما التطبيق مفتوح)
 self.addEventListener('message', event => {
   const data = event.data || {};
   if (data.type === 'notify') {
@@ -30,6 +30,25 @@ self.addEventListener('message', event => {
       lang: 'ar'
     });
   }
+});
+
+// ===== Push حقيقي من السيرفر (بيوصل حتى لو التطبيق مقفول تمامًا) =====
+self.addEventListener('push', event => {
+  let data = { title: 'يومي 🌿', body: '' };
+  try { data = event.data.json(); } catch (e) {
+    try { data.body = event.data.text(); } catch (e2) {}
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'يومي 🌿', {
+      body: data.body || '',
+      icon: data.icon || '',
+      badge: data.icon || '',
+      tag: data.tag || 'yomy',
+      renotify: true,
+      dir: 'rtl',
+      lang: 'ar'
+    })
+  );
 });
 
 // عند الضغط على الإشعار: افتح التطبيق أو رجّعه للواجهة

@@ -663,6 +663,29 @@ const MOTIV=[
 const SB_URL='https://dbhfdtzvcvhpgtpyjxsw.supabase.co';
 const SB_KEY='sb_publishable_eGCW1yPtO5hM-yAgTlcs1A_dqXrNhgR';
 const ICON_URI=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'';
+
+// ===== Push حقيقي =====
+const VAPID_PUBLIC_KEY='BGSy3ZgNNdQQWf3AXhxxb-GhAnZAdY3K6mxtGUebxJwPr4NGAsVLhl1VehySeMeM04NeWTARYl8QNl9hETpUXXw';
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const rawData=atob(base64);
+  const outputArray=new Uint8Array(rawData.length);
+  for(let i=0;i<rawData.length;i++) outputArray[i]=rawData.charCodeAt(i);
+  return outputArray;
+}
+async function subscribeForPush(){
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+    }
+    const subJson=sub.toJSON();
+    const list=load('push:subs',[]);
+    if(!list.some(s=>s.endpoint===subJson.endpoint)){ list.push(subJson); save('push:subs',list); }
+  }catch(e){ console.warn('push subscribe failed',e); }
+}
 let sb=null; const CACHE={}; const TS={};
 function load(k,def){return (k in CACHE)?CACHE[k]:def;}
 function save(k,v){
@@ -2081,8 +2104,8 @@ const NOTIF_TIMES=[
 ];
 function notifOn(){return load('notif:on',false) && ('Notification' in window) && Notification.permission==='granted';}
 function initNotifications(){
-  // لو مفعّلة قبل كده، شغّل الفحص الدوري
-  if(notifOn()) startNotifLoop();
+  // لو مفعّلة قبل كده، شغّل الفحص الدوري وسجّل اشتراك الـ Push
+  if(notifOn()){ startNotifLoop(); subscribeForPush(); }
   renderTop(); updateBell();
 }
 async function toggleNotif(){
@@ -2091,6 +2114,7 @@ async function toggleNotif(){
   let perm=Notification.permission;
   if(perm!=='granted') perm=await Notification.requestPermission();
   if(perm==='granted'){ save('notif:on',true); startNotifLoop();
+    await subscribeForPush();
     fireNotif('الإشعارات اشتغلت! هفكّرك بصلواتك وعاداتك.','test');
     toast('الإشعارات اشتغلت ✓'); renderTop();
   } else { toast('لازم تسمح بالإشعارات من المتصفّح'); }
