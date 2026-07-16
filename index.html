@@ -892,6 +892,19 @@ function renderHabits(){
   $('habits').innerHTML=html;$('habitMeta').textContent=done+'/'+total;
 }
 function setWater(n){const d=getDay();const inc=(d.water||0)<n;d.water=(d.water===n)?n-1:n;setDay(d);if(inc)feedback();renderHabits();renderTop();renderProgress();renderHero();renderWeekly();renderReminder();renderNow();}
+function handleQuickActions(){
+  const params=new URLSearchParams(location.search);
+  const q=params.get('quick');
+  if(!q) return;
+  // نضّف الرابط عشان لو المستخدم رجّع فتح التطبيق تاني ما يتكررش التسجيل
+  history.replaceState(null,'',location.pathname);
+  if(q==='water'){
+    const d=getDay();
+    const cur=d.water||0;
+    if(cur<WATER_GOAL){ setWater(cur+1); toast('اتسجلت كوباية مية 💧'); }
+    else{ toast('خلاص كملت الـ 8 كوبايات 👏'); }
+  }
+}
 function toggleHabit(k){const d=getDay();d.habits[k]=!d.habits[k];if(!d.habits[k])delete d.habits[k];else feedback();
   if(k==='quran'){ const cur=quranPage();
     if(d.habits.quran){ if(d.wardStart==null){ d.wardStart=cur; let nx=cur+QURAN_PER_DAY; if(nx>QURAN_PAGES)nx=1; save('life:quranPage',nx); } }
@@ -2079,6 +2092,7 @@ async function boot(){
   $('bootLoad').style.display='none';
   await gate();
   render();
+  handleQuickActions();
   showFirstInspoAyah();
   initNotifications();
   initPrayer();
