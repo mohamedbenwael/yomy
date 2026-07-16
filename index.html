@@ -1199,7 +1199,7 @@ async function fetchTafsirRange(surahNum,from,to){
 async function fetchQPage(p){
   const c=qcacheGet(p); if(c)return c;
   const base='https://api.alquran.cloud/v1/page/'+p+'/';
-  const qr=await fetch(base+QED_TEXT).then(r=>r.json());
+  const qr=await fetchWithTimeout(base+QED_TEXT,10000).then(r=>r.json());
   if(!qr||qr.status!=='OK'||!qr.data||!qr.data.ayahs) throw new Error('quran');
   const raw=qr.data.ayahs.map(a=>({n:a.numberInSurah,surahNum:a.surah.number,surah:a.surah.name,text:a.text}));
   // نجمّع الآيات المتتالية من نفس السورة سوا عشان نجيب تفسيرها بطلب واحد بدل طلب لكل آية
@@ -1497,18 +1497,19 @@ async function fetchMemzText(item){
       // آيات مفردة من سورة طويلة — نجيبها واحدة واحدة (نص + صوت مع بعض)
       const nums=[]; for(let n=item.from;n<=(item.to||item.from);n++) nums.push(n);
       const results=await Promise.all(nums.map(n=>
-        fetch(`https://api.alquran.cloud/v1/ayah/${item.s}:${n}/editions/quran-uthmani,ar.alafasy`).then(r=>r.json())
+        fetchWithTimeout(`https://api.alquran.cloud/v1/ayah/${item.s}:${n}/editions/quran-uthmani,ar.alafasy`,10000).then(r=>r.json())
       ));
       const t=results.map(r=>r.data[0].text).join(' ');
       const auds=results.map(r=>r.data[1].audio);
       if(t){ memzCacheSet(key,t); memzAudioCacheSet(key,auds); return t; }
     } else {
-      const j=await fetch('https://api.alquran.cloud/v1/surah/'+item.s+'/quran-uthmani').then(r=>r.json());
+      const j=await fetchWithTimeout('https://api.alquran.cloud/v1/surah/'+item.s+'/quran-uthmani',10000).then(r=>r.json());
       const t=joinAyahs(j); if(t){memzCacheSet(key,t); return t;}
     }
   }catch(e){}
   return null;
 }
+function memzRetryText(){ const m=getMemz(); const item=MEMZ_LIST[m.idx]; delete _memzTextFailed[memzKey(item)]; renderMemz(); }
 function memzPrev(){ const m=getMemz(); if(m.idx>0){ memzStopListening(); _memzRecitation=null; m.idx--; setMemz(m); _memzQuizOpen=false; _memzTafsirOpen=false; renderMemz(); renderPrayers(); } }
 function memzJump(i){ memzStopListening(); _memzRecitation=null; const m=getMemz(); m.idx=i; setMemz(m); renderMemz(); renderPrayers(); }
 // تفسير أعمق (تفسير السعدي) لسور الحفظ اليومي — بيتحمّل لما تفتح "التفسير" وبيتخزّن محليًا
@@ -1525,6 +1526,7 @@ async function fetchMemzTafsir(item){
   return null;
 }
 let _memzDeepTafsir={};
+let _memzTextFailed={};
 
 // ===== التسميع الصوتي: بيسمعك وبيكشف الآيات كلمة كلمة لما تقولها صح، ولو غلطت بيقولك =====
 let _memzRecitation=null, _memzRecognition=null;
@@ -1541,36 +1543,47 @@ function memzNormalizeArabic(s){
     .trim();
 }
 function memzTokenize(text){ const n=memzNormalizeArabic(text); return n?n.split(' ').filter(Boolean):[]; }
-function memzGetSpeechRecognition(){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; return SR?new SR():null; }
+function memzGetSpeechRecognitionCtor(){ return window.SpeechRecognition||window.webkitSpeechRecognition||null; }
 function memzStartRecitation(){
   const m=getMemz(); const item=MEMZ_LIST[m.idx]; const key=memzKey(item);
   const cached=memzCacheGet(key);
-  if(!cached){ toast('استنى النص يتحمّل الأول وبعدين جرّب'); return; }
+  if(!cached){ toast(_memzTextFailed[key]?'تعذّر تحميل النص — دوس "جرّب تاني" فوق':'استنى النص يتحمّل الأول وبعدين جرّب'); return; }
+  const SRCtor=memzGetSpeechRecognitionCtor();
+  if(!SRCtor){
+    _memzTafsirOpen=false; _memzQuizOpen=false;
+    _memzRecitation={displayWords:[],targetWords:[],revealed:new Set(),pointer:0,mismatch:false,wrongIdx:-1,finished:false,listening:false,unsupported:true,micDenied:false};
+    renderMemz(); return;
+  }
   const displayWords=cached.split(/\s+/).filter(Boolean); // للعرض بنفس التشكيل الأصلي
   const targetWords=memzTokenize(cached); // للمطابقة الصوتية من غير تشكيل
-  _memzTafsirOpen=false; _memzQuizOpen=false;
-  _memzRecitation={displayWords,targetWords,revealed:new Set(),pointer:0,mismatch:false,wrongIdx:-1,finished:false,listening:false,unsupported:false,micDenied:false};
-  const SR=memzGetSpeechRecognition();
-  if(!SR){ _memzRecitation.unsupported=true; renderMemz(); return; }
-  const rec=new SR(); _memzRecognition=rec;
-  rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=false; rec.maxAlternatives=1;
-  rec.onresult=function(e){
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) memzFeedTranscript(e.results[i][0].transcript);
-    }
-  };
-  rec.onerror=function(e){
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
-      if(_memzRecitation){ _memzRecitation.micDenied=true; _memzRecitation.listening=false; renderMemz(); }
-    }
-  };
-  rec.onend=function(){
-    if(_memzRecitation&&_memzRecitation.listening&&!_memzRecitation.finished&&!_memzRecitation.mismatch){
-      try{ rec.start(); }catch(e){} // كروم بيوقف التسجيل من وقت للتاني، فبنشغّله تاني تلقائيًا
-    }
-  };
-  try{ rec.start(); _memzRecitation.listening=true; }catch(e){}
-  renderMemz();
+  try{
+    const rec=new SRCtor(); _memzRecognition=rec;
+    rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=false; rec.maxAlternatives=1;
+    rec.onresult=function(e){
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) memzFeedTranscript(e.results[i][0].transcript);
+      }
+    };
+    rec.onerror=function(e){
+      if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+        if(_memzRecitation){ _memzRecitation.micDenied=true; _memzRecitation.listening=false; renderMemz(); }
+      }
+    };
+    rec.onend=function(){
+      if(_memzRecitation&&_memzRecitation.listening&&!_memzRecitation.finished&&!_memzRecitation.mismatch){
+        try{ rec.start(); }catch(e){} // كروم بيوقف التسجيل من وقت للتاني، فبنشغّله تاني تلقائيًا
+      }
+    };
+    _memzTafsirOpen=false; _memzQuizOpen=false;
+    _memzRecitation={displayWords,targetWords,revealed:new Set(),pointer:0,mismatch:false,wrongIdx:-1,finished:false,listening:false,unsupported:false,micDenied:false};
+    rec.start();
+    _memzRecitation.listening=true;
+    renderMemz();
+  }catch(e){
+    console.warn('recitation start failed',e);
+    _memzRecognition=null; _memzRecitation=null;
+    toast('تعذّر تشغيل الميكروفون — تأكد إنك فاتح الموقع من Chrome ومديله إذن الميكروفون، وجرّب تاني');
+  }
 }
 function memzFeedTranscript(transcript){
   const st=_memzRecitation; if(!st||st.finished||st.mismatch) return;
@@ -1708,7 +1721,7 @@ function renderMemz(){
       🧠 قفل عينيك وحاول تقولها من دماغك الأول، وبعدين دوس "اظهرها" وقارن.
       <button onclick="memzToggleQuiz()" style="display:block;margin-top:10px;padding:9px 14px;border:none;background:var(--green-d);color:#fff;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer">👁️ اظهر النص وقارن</button>
     </div>`:`
-    <div style="font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;background:#FBF7EC;border:1px solid #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px" id="memzTxt">${cached||'… بيتحمّل النص'}</div>`}
+    <div style="font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;background:#FBF7EC;border:1px solid #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px" id="memzTxt">${cached?cached:(_memzTextFailed[key]?`<span style="font-family:'Tajawal';font-size:13px;color:var(--muted)">تعذّر تحميل النص (محتاج نت). <button onclick="memzRetryText()" style="background:none;border:none;color:#2E6FD6;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer;padding:0">جرّب تاني</button></span>`:'… بيتحمّل النص')}</div>`}
     ${memzAudioHtml(item)}
     <div style="font-size:11.5px;color:var(--faint);margin-bottom:10px">🎙️ بصوت الشيخ مشاري العفاسي</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${item.note}</div>
@@ -1728,7 +1741,7 @@ function renderMemz(){
       <button onclick="memzToggleQuiz()" ${_memzRecitation?'disabled':''} style="flex:1;padding:11px;border:1px dashed var(--sage);background:transparent;color:var(--green-d);border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${_memzRecitation?'.5':'1'}">${_memzQuizOpen?'📄 رجّع النص العادي':'🧠 اختبر نفسك'}</button>
       <button onclick="memzStartRecitation()" ${_memzRecitation?'disabled':''} style="flex:1;padding:11px;border:1px dashed #2E6FD6;background:transparent;color:#2E6FD6;border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${_memzRecitation?'.5':'1'}">🎙️ تسميع</button>
     </div>`;
-  if(!cached){ fetchMemzText(item).then(t=>{ if(t){ const el=$('memzTxt'); if(el)el.textContent=t; if(item.from) renderMemz(); } }); }
+  if(!cached && !_memzTextFailed[key]){ fetchMemzText(item).then(t=>{ if(t){ const el=$('memzTxt'); if(el)el.textContent=t; if(item.from) renderMemz(); } else { _memzTextFailed[key]=true; renderMemz(); } }); }
   renderMemzPlan();
   list.innerHTML=`<button onclick="memzToggleList()" style="width:100%;text-align:right;padding:10px 12px;border:1px solid var(--line);background:var(--surface2);border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted)">📋 خطتي الكاملة ${_memzListOpen?'▲':'▼'}</button>`+
     (_memzListOpen?`<div style="margin-top:8px">`+MEMZ_LIST.map((it,i)=>{
@@ -2386,6 +2399,16 @@ async function boot(){
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden)resync(); });
   window.addEventListener('focus',resync);
   setInterval(()=>{ if(isToday()){ renderNow(); renderPrayTimes(); renderReminder(); } },60000);
+  backgroundPrefetch();
+}
+// بنحمّل ورد النهاردة ونص سورة الحفظ في الخلفية بهدوء بعد فتح الموقع مباشرة،
+// عشان لو المستخدم فتح صفحة الورد أو الحفظ يلاقيهم جاهزين من غير أي شاشة تحميل
+function backgroundPrefetch(){
+  try{ fetchWard(wardStartPage()).then(d=>{ _wardData=d; _wardKey='w'+wardStartPage(); }).catch(()=>{}); }catch(e){}
+  try{
+    const m=getMemz(); const item=MEMZ_LIST[m.idx];
+    if(item && !memzCacheGet(memzKey(item))) fetchMemzText(item).catch(()=>{});
+  }catch(e){}
 }
 
 // ===== الإشعارات =====
