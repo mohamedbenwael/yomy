@@ -82,6 +82,9 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 .inspo .txt{position:relative;font-family:'Reem Kufi';font-size:20px;line-height:1.9;font-weight:500}
 .inspo .src{position:relative;font-size:12px;opacity:.82;margin-top:11px}
 .inspo .deco{position:absolute;bottom:-26px;left:-4px;font-size:100px;opacity:.1;font-family:'Reem Kufi';line-height:1}
+.inspo-audio-btn{position:relative;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:30px;padding:7px 14px;font-family:'Reem Kufi',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:12px}
+.inspo-audio-btn:active{background:rgba(255,255,255,.32)}
+.inspo-audio-btn.playing{background:rgba(255,255,255,.36)}
 
 /* ===== Sections ===== */
 .section{margin-bottom:24px}
@@ -353,7 +356,10 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 @keyframes breathe{0%,100%{transform:scale(.7);opacity:.6}45%,55%{transform:scale(1.1);opacity:1}}
 .safe-power{font-family:'Reem Kufi';font-size:17px;line-height:1.95;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:18px;margin:6px 0 14px;text-align:right}
 .safe-verse{font-family:'Amiri Quran',serif;font-size:21px;line-height:2.4;margin:4px 0 6px}
-.safe-verse-src{font-size:12px;color:#9fc1ec;margin-bottom:16px}
+.safe-verse-src{font-size:12px;color:#9fc1ec;margin-bottom:6px}
+.safe-audio-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(95,151,230,.18);border:1px solid rgba(95,151,230,.4);color:#dbe9ff;border-radius:30px;padding:8px 16px;font-family:'Reem Kufi',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px}
+.safe-audio-btn:active{background:rgba(95,151,230,.32)}
+.safe-audio-btn.playing{background:rgba(95,151,230,.4)}
 .safe-timer{font-size:40px;font-weight:800;font-family:'Reem Kufi';letter-spacing:2px;margin:6px 0}
 .safe-hint{font-size:13px;color:#bcd2ee;margin-bottom:14px;line-height:1.7}
 .safe-steps{text-align:right;background:rgba(255,255,255,.06);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-size:14px;line-height:2}
@@ -424,6 +430,8 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <span class="kind" id="inspoKind">إلهام اليوم</span>
     <div class="txt" id="inspoTxt">—</div>
     <div class="src" id="inspoSrc"></div>
+    <button class="inspo-audio-btn" id="inspoAudioBtn" onclick="toggleInspoAudio()" style="display:none">🔊 استمع للشيخ</button>
+    <audio id="inspoAudioEl" preload="none"></audio>
     <div class="deco">۞</div>
   </div>
 
@@ -467,6 +475,7 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <div class="ws-nav">
       <button class="ws-navbtn" onclick="showWorship('adhkar')"><span class="ic">📿</span><span class="tt">الأذكار</span><span class="ss">أذكار الصباح والمساء</span><span class="ar">‹</span></button>
       <button class="ws-navbtn" onclick="showWorship('ward')"><span class="ic">📖</span><span class="tt">الورد القرآني</span><span class="ss">وردك وتفسيره</span><span class="ar">‹</span></button>
+      <button class="ws-navbtn" onclick="showWorship('memorize')"><span class="ic">🌟</span><span class="tt">الحفظ اليومي</span><span class="ss">سورة قصيرة تحفظها للصلاة</span><span class="ar">‹</span></button>
     </div>
   </div>
 
@@ -475,9 +484,10 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <button class="ws-back" onclick="showWorship('home')">‹ رجوع للعبادة</button>
     <div class="section">
       <div class="section-head"><h2><span class="ico">📿</span> الأذكار</h2><span class="meta" id="adhkarMeta"></span></div>
-      <div id="adhkarTabs" style="display:flex;gap:8px;margin-bottom:12px">
-        <button id="tabAM" onclick="setAdhkarTab('m')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌅 الصباح</button>
-        <button id="tabPM" onclick="setAdhkarTab('e')" style="flex:1;padding:10px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer">🌙 المساء</button>
+      <div id="adhkarTabs" style="display:flex;gap:6px;margin-bottom:12px">
+        <button id="tabAM" onclick="setAdhkarTab('m')" style="flex:1;padding:10px 4px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer">🌅 الصباح</button>
+        <button id="tabPM" onclick="setAdhkarTab('e')" style="flex:1;padding:10px 4px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer">🌙 المساء</button>
+        <button id="tabPR" onclick="setAdhkarTab('p')" style="flex:1;padding:10px 4px;border:none;border-radius:12px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer">🕌 بعد الصلاة</button>
       </div>
       <div id="adhkarList"></div>
     </div>
@@ -489,6 +499,17 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <div class="section">
       <div class="section-head"><h2><span class="ico">📖</span> الورد القرآني</h2><span class="meta"></span></div>
       <div class="mini-card" id="wardCard" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- الحفظ اليومي -->
+  <div class="wsec" id="ws-memorize" style="display:none">
+    <button class="ws-back" onclick="showWorship('home')">‹ رجوع للعبادة</button>
+    <div class="section">
+      <div class="section-head"><h2><span class="ico">🌟</span> الحفظ اليومي</h2><span class="meta" id="memzMeta"></span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8">مش لازم تحفظ كتير — سورة قصيرة واحدة، كررها كل يوم لحد ما تثبت معاك، واستخدمها في صلاتك. لما تحسّ إنها ثبتت، دوس «حفظتها» وننتقل للي بعدها.</div>
+      <div class="mini-card" id="memzCard" style="text-align:center"></div>
+      <div id="memzList" style="margin-top:14px"></div>
     </div>
   </div>
   </div><!-- /pane-worship -->
@@ -544,6 +565,8 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <div class="safe-breath" id="safeBreath">اشهق… ازفر…</div>
     <div class="safe-verse" id="safeVerse"></div>
     <div class="safe-verse-src" id="safeVerseSrc"></div>
+    <button class="safe-audio-btn" id="safeAudioBtn" onclick="toggleSafeAudio()" style="display:none">🔊 استمع للشيخ</button>
+    <audio id="safeAudioEl" preload="none"></audio>
     <div class="safe-power" id="safePower"></div>
     <div class="safe-steps">
       الخطوات دلوقتي:<br>
@@ -571,7 +594,8 @@ function showTab(name){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function showWorship(name){
-  ['home','adhkar','ward'].forEach(s=>{ const el=$(s==='home'?'ws-home':'ws-'+s); if(el)el.style.display=(s===name)?'block':'none'; });
+  ['home','adhkar','ward','memorize'].forEach(s=>{ const el=$(s==='home'?'ws-home':'ws-'+s); if(el)el.style.display=(s===name)?'block':'none'; });
+  if(name==='memorize' && typeof renderMemz==='function')renderMemz();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 const CUR='ج';
@@ -593,18 +617,18 @@ function getBudget(){return load('life:budget',{monthly:3000,daily:100});}
 function setBudget(b){save('life:budget',b);}
 const INSPO=[
   // آيات
-  {kind:'آية',txt:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا · وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ',src:'الطلاق'},
-  {kind:'آية',txt:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا · إِنَّ مَعَ الْعُسْرِ يُسْرًا',src:'الشرح'},
-  {kind:'آية',txt:'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',src:'الطلاق'},
-  {kind:'آية',txt:'إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ',src:'النحل'},
-  {kind:'آية',txt:'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',src:'الرعد'},
-  {kind:'آية',txt:'وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ',src:'النجم'},
-  {kind:'آية',txt:'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',src:'البقرة'},
-  {kind:'آية',txt:'وَقُل رَّبِّ زِدْنِي عِلْمًا',src:'طه'},
-  {kind:'آية',txt:'إِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ',src:'التوبة'},
-  {kind:'آية',txt:'وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ',src:'البقرة'},
-  {kind:'آية',txt:'لَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ',src:'يوسف'},
-  {kind:'آية',txt:'وَبَشِّرِ الصَّابِرِينَ',src:'البقرة'},
+  {kind:'آية',txt:'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا · وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ',src:'الطلاق',r:'65:2'},
+  {kind:'آية',txt:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا · إِنَّ مَعَ الْعُسْرِ يُسْرًا',src:'الشرح',r:'94:5'},
+  {kind:'آية',txt:'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',src:'الطلاق',r:'65:3'},
+  {kind:'آية',txt:'إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ',src:'النحل',r:'16:128'},
+  {kind:'آية',txt:'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',src:'الرعد',r:'13:28'},
+  {kind:'آية',txt:'وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ',src:'النجم',r:'53:39'},
+  {kind:'آية',txt:'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',src:'البقرة',r:'2:152'},
+  {kind:'آية',txt:'وَقُل رَّبِّ زِدْنِي عِلْمًا',src:'طه',r:'20:114'},
+  {kind:'آية',txt:'إِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ',src:'التوبة',r:'9:120'},
+  {kind:'آية',txt:'وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ',src:'البقرة',r:'2:216'},
+  {kind:'آية',txt:'لَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ',src:'يوسف',r:'12:87'},
+  {kind:'آية',txt:'وَبَشِّرِ الصَّابِرِينَ',src:'البقرة',r:'2:155'},
   // أحاديث
   {kind:'حديث',txt:'إنما الأعمال بالنيات، وإنما لكل امرئ ما نوى',src:'متفق عليه'},
   {kind:'حديث',txt:'أحبُّ الأعمال إلى الله أدومها وإن قلّ',src:'متفق عليه'},
@@ -758,6 +782,31 @@ function renderHero(){
   else m='يومك كامل! بطل 🏆';
   $('heroMotiv').textContent=m;
 }
+function stopInspoAudio(){
+  const el=$('inspoAudioEl'); if(el){el.pause(); el.currentTime=0;}
+  const btn=$('inspoAudioBtn'); if(btn){btn.classList.remove('playing'); btn.textContent='🔊 استمع للشيخ';}
+}
+function toggleInspoAudio(){
+  const el=$('inspoAudioEl'), btn=$('inspoAudioBtn'); if(!el||!btn||!el.src)return;
+  if(el.paused){ el.play().then(()=>{btn.classList.add('playing'); btn.textContent='⏸ إيقاف الصوت';}).catch(()=>{}); }
+  else{ stopInspoAudio(); }
+}
+function renderInspoItem(it){
+  $('inspoKind').textContent=it.kind;$('inspoTxt').textContent=it.txt;
+  $('inspoSrc').textContent=it.src?('﴿ '+it.src+' ﴾'):'';$('inspoSrc').style.display=it.src?'block':'none';
+  const ab=$('inspoAudioBtn'), el=$('inspoAudioEl'); if(!ab||!el)return;
+  if(it.kind==='آية'&&it.r){
+    const cached=safeAudioCache(it.r);
+    if(cached){ el.src=cached; ab.style.display='inline-flex'; }
+    else{
+      ab.style.display='none'; el.removeAttribute('src');
+      // نجيب صوت الآية في الخلفية، ولو المستخدم لسه واقف على نفس الآية لما يوصل نوريله الزرار
+      fetchSafeAyah({r:it.r,s:it.src}).then(o=>{
+        if(o&&o.audio && $('inspoTxt').textContent===it.txt){ el.src=o.audio; ab.style.display='inline-flex'; }
+      });
+    }
+  }else{ ab.style.display='none'; el.removeAttribute('src'); }
+}
 function renderInspo(){
   // يتغيّر كل ما تدخل (عشوائي)، ولليوم القديم ثابت حسب اليوم
   let it;
@@ -769,8 +818,31 @@ function renderInspo(){
     const seed=Math.floor(cursor.getTime()/864e5)%INSPO.length;
     it=INSPO[((seed%INSPO.length)+INSPO.length)%INSPO.length];
   }
-  $('inspoKind').textContent=it.kind;$('inspoTxt').textContent=it.txt;
-  $('inspoSrc').textContent=it.src?('﴿ '+it.src+' ﴾'):'';$('inspoSrc').style.display=it.src?'block':'none';
+  stopInspoAudio();
+  renderInspoItem(it);
+}
+async function showFirstInspoAyah(){
+  // أول ما تدخل الموقع النهاردة: آية بصوت الشيخ بدل أي حاجة تانية عشوائية — مرة واحدة باليوم بس عشان ميبقاش مزعج
+  const today=ymd(todayD());
+  if(load('life:inspoAudioDate',null)===today) return;
+  const ayahItems=INSPO.filter(x=>x.kind==='آية'&&x.r);
+  if(!ayahItems.length)return;
+  let ready=ayahItems.filter(x=>safeAudioCache(x.r));
+  let it;
+  if(ready.length){ it=ready[Math.floor(Math.random()*ready.length)]; }
+  else{
+    const pick=ayahItems[Math.floor(Math.random()*ayahItems.length)];
+    await fetchSafeAyah({r:pick.r,s:pick.src});
+    it=pick;
+  }
+  const idx=INSPO.indexOf(it); if(idx>=0)_lastInspo=idx;
+  stopInspoAudio(); renderInspoItem(it);
+  const el=$('inspoAudioEl'), btn=$('inspoAudioBtn');
+  if(el&&el.src){
+    el.play().then(()=>{ btn.classList.add('playing'); btn.textContent='⏸ إيقاف الصوت'; }).catch(()=>{});
+    // لو المتصفح منع التشغيل التلقائي (بيحصل غالبًا لو مفيش ضغطة إيد قبلها)، الزرار بيفضل ظاهر تدوس عليه بإيدك
+  }
+  save('life:inspoAudioDate',today);
 }
 let _lastInspo=-1;
 function renderPrayers(){
@@ -1225,6 +1297,17 @@ const ADHKAR={
     {id:'e_lailaha',t:'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير.',c:10,m:'«لا إله إلا الله» = لا معبود بحقٍّ إلا الله. «وحده لا شريك له» = منفردٌ بالألوهية. «له الملك» = المُلك كله له. «قدير» = قادر على كل شيء.'},
     {id:'e_istighfar',t:'أستغفر الله وأتوب إليه.',c:100,m:'«أستغفر الله» = أطلب من الله المغفرة وستر الذنب. «أتوب إليه» = أرجع إليه نادمًا تاركًا للذنب.'},
     {id:'e_salah',t:'اللهم صلِّ وسلِّم على نبينا محمد.',c:10,m:'«الصلاة على النبي ﷺ» = ثناء الله عليه عند ملائكته، ونحن ندعو له بالرحمة والتعظيم. «وسلِّم» = أي اللهم احفظه وأكرمه.'},
+  ],
+  p:[
+    {id:'p_istighfar',t:'أستغفر الله.',c:3,m:'يُستحبّ الاستغفار ٣ مرات فور السلام من الصلاة.'},
+    {id:'p_salam',t:'اللهم أنت السلام، ومنك السلام، تباركت يا ذا الجلال والإكرام.',c:1,m:'«السلام» = من أسماء الله، أي السالم من كل نقص والمُسلِّم عباده من الآفات. «تباركت» = تعاظمت وكثر خيرك.'},
+    {id:'p_hasbi',t:'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير. اللهم لا مانع لما أعطيت، ولا معطي لما منعت، ولا ينفع ذا الجدّ منك الجدّ.',c:1,m:'«لا مانع لما أعطيت» = لا أحد يقدر يمنع اللي الله قرّر يديهولك. «ذا الجدّ» = صاحب الحظ والغنى؛ يعني غناه ما ينفعوش قدّام الله، إنما الطاعة هي اللي تنفع.'},
+    {id:'p_kursi',q:'kursi',c:1,m:'قال النبي ﷺ: «من قرأ آية الكرسي دُبُر كل صلاة مكتوبة لم يمنعه من دخول الجنة إلا أن يموت» — رواه النسائي. مناسب إنك تحفظها وتقولها بعد كل صلاة.'},
+    {id:'p_muaw',q:'muaw',c:1,m:'يُستحبّ قراءة المعوذتين (الفلق والناس) وسورة الإخلاص دُبُر كل صلاة، خصوصًا الفجر والمغرب (٣ مرات).'},
+    {id:'p_sub33',t:'سبحان الله.',c:33,m:'«سبحان الله» = تنزيه لله عن كل نقص. تُقال ٣٣ مرة بعد كل صلاة.'},
+    {id:'p_hamd33',t:'الحمد لله.',c:33,m:'حمدٌ وشكرٌ لله على نعمه. تُقال ٣٣ مرة بعد كل صلاة.'},
+    {id:'p_takbir33',t:'الله أكبر.',c:33,m:'تكبير لله وتعظيم له. تُقال ٣٣ مرة، وبعدها تمام المائة بالتهليلة اللي جاية.'},
+    {id:'p_tamam',t:'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير.',c:1,m:'قال ﷺ: «من سبّح دبر كل صلاة ثلاثًا وثلاثين، وحمد ثلاثًا وثلاثين، وكبّر ثلاثًا وثلاثين، فتلك تسعة وتسعون، وقال تمام المائة: لا إله إلا الله وحده لا شريك له... غُفرت خطاياه ولو كانت مثل زبد البحر» — رواه مسلم.'},
   ]
 };
 function dhikrText(it){
@@ -1264,6 +1347,7 @@ function renderAdhkar(){
   const onC='#2E6FD6',offC='#EEF4FB';
   if($('tabAM')){ $('tabAM').style.background=tab==='m'?onC:offC; $('tabAM').style.color=tab==='m'?'#fff':'#2E6FD6'; }
   if($('tabPM')){ $('tabPM').style.background=tab==='e'?onC:offC; $('tabPM').style.color=tab==='e'?'#fff':'#2E6FD6'; }
+  if($('tabPR')){ $('tabPR').style.background=tab==='p'?onC:offC; $('tabPR').style.color=tab==='p'?'#fff':'#2E6FD6'; }
   const items=ADHKAR[tab];
   const total=items.length, done=items.filter(it=>adhRem(d,it)<=0).length;
   if($('adhkarMeta'))$('adhkarMeta').textContent=done+'/'+total;
@@ -1286,6 +1370,56 @@ function renderAdhkar(){
   }).join('');
 }
 
+// ===== الحفظ اليومي (سور قصيرة مناسبة لمن لا يحفظ كثيرًا) =====
+const MEMZ_LIST=[
+  {s:108,name:'الكوثر',note:'أقصر سورة في القرآن (٣ آيات فقط) — ابدأ بيها.'},
+  {s:112,name:'الإخلاص',note:'تعدل ثلث القرآن في أجرها، وقصيرة وسهلة.'},
+  {s:103,name:'العصر',note:'قصيرة وفيها معنى عظيم عن الوقت والعمل الصالح.'},
+  {s:110,name:'النصر',note:'سورة قصيرة كثيرة الورود في الصلاة.'},
+  {s:106,name:'قريش',note:'قصيرة وسهلة الحفظ.'},
+  {s:113,name:'الفلق',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.'},
+  {s:114,name:'الناس',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.'},
+  {s:105,name:'الفيل',note:'قصة قصيرة سهلة الحفظ.'},
+  {s:109,name:'الكافرون',note:'من السور اللي كان النبي ﷺ يقرأها كتير في الصلاة.'},
+  {s:107,name:'الماعون',note:'فيها معاني عملية عن الرحمة بالضعفاء.'},
+  {s:102,name:'التكاثر',note:'سورة قصيرة وتذكير جميل بالآخرة.'},
+];
+function memzCacheGet(s){try{return localStorage.getItem('memz:txt:'+s)||null;}catch(e){return null;}}
+function memzCacheSet(s,v){try{localStorage.setItem('memz:txt:'+s,v);}catch(e){}}
+function getMemz(){ let m=load('life:memorize',null); if(!m){ m={idx:0}; save('life:memorize',m); } return m; }
+function setMemz(m){ save('life:memorize',m); }
+async function fetchMemzText(item){
+  const c=memzCacheGet(item.s); if(c)return c;
+  try{
+    const j=await fetch('https://api.alquran.cloud/v1/surah/'+item.s+'/quran-uthmani').then(r=>r.json());
+    const t=joinAyahs(j); if(t){memzCacheSet(item.s,t); return t;}
+  }catch(e){}
+  return null;
+}
+function memzNext(){ const m=getMemz(); if(m.idx<MEMZ_LIST.length-1){ m.idx++; setMemz(m); renderMemz(); toast('حفظتها؟ الله يثبّتك 🌟 يلا للتانية'); } }
+function memzPrev(){ const m=getMemz(); if(m.idx>0){ m.idx--; setMemz(m); renderMemz(); } }
+function memzJump(i){ const m=getMemz(); m.idx=i; setMemz(m); renderMemz(); }
+function renderMemz(){
+  const card=$('memzCard'), list=$('memzList'); if(!card||!list)return;
+  const m=getMemz(); const item=MEMZ_LIST[m.idx];
+  $('memzMeta').textContent=(m.idx+1)+'/'+MEMZ_LIST.length;
+  const cached=memzCacheGet(item.s);
+  card.innerHTML=`<div style="font-family:'Reem Kufi';font-size:18px;color:#1E54B0;margin-bottom:8px">سورة ${item.name}</div>
+    <div style="font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;background:#FBF7EC;border:1px solid #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px" id="memzTxt">${cached||'… بيتحمّل النص'}</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">${item.note}</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="memzPrev()" ${m.idx===0?'disabled':''} style="flex:1;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${m.idx===0?'.4':'1'}">◀ اللي فاتت</button>
+      <button onclick="memzNext()" ${m.idx>=MEMZ_LIST.length-1?'disabled':''} style="flex:2;padding:12px;border:none;background:linear-gradient(135deg,var(--green-d),var(--sage));color:#fff;border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${m.idx>=MEMZ_LIST.length-1?'.6':'1'}">✅ حفظتها — التالية</button>
+    </div>`;
+  if(!cached){ fetchMemzText(item).then(t=>{ if(t){ const el=$('memzTxt'); if(el)el.textContent=t; } }); }
+  list.innerHTML=`<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">خطتك بالترتيب:</div>`+MEMZ_LIST.map((it,i)=>{
+    const done=i<m.idx, cur=i===m.idx;
+    return `<div onclick="memzJump(${i})" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:6px;cursor:pointer;background:${cur?'#DCE8FA':(done?'#eef7f0':'var(--surface2)')};border:1px solid ${cur?'#bcd3f2':(done?'#bfe3c9':'var(--line)')}">
+      <span style="font-size:15px">${done?'✅':(cur?'👉':'○')}</span>
+      <span style="font-weight:${cur?'800':'600'};font-size:14px;color:var(--ink)">سورة ${it.name}</span>
+    </div>`;
+  }).join('');
+}
 // ===== مواعيد الصلاة + دليل «دلوقتي» =====
 // TIMES متعرّفة فوق في قسم "بداية اليوم عند الفجر"
 const PT_SEQ=[['Fajr','الفجر','🌅'],['Sunrise','الشروق','☀️'],['Dhuhr','الظهر','🕌'],['Asr','العصر','🕌'],['Maghrib','المغرب','🌇'],['Isha','العشاء','🌙']];
@@ -1589,7 +1723,11 @@ function gate(){
   });
 }
 // ===== أيام الصفا (شجرة بتكبر) =====
-function getClean(){return load('life:clean',{start:ymd(todayD()),best:0});}
+function getClean(){
+  let c=load('life:clean',null);
+  if(!c){ c={start:ymd(todayD()),best:0}; setClean(c); } // أول مرة: احفظ فورًا عشان العدّاد ما يتصفرش تاني كل يوم
+  return c;
+}
 function setClean(c){save('life:clean',c);}
 function cleanDays(){
   const c=getClean(); const s=new Date(c.start+'T00:00:00'); const t=todayD();
@@ -1604,23 +1742,75 @@ function safaStage(d){
   if(d>=1) return {t:'🌱',n:'شتلة',next:3};
   return {t:'🌱',n:'بذرة',next:1};
 }
+// ===== سجل المحفزات (نفهم نمط اللحظة) =====
+const URGE_TAGS=[
+  {k:'night',l:'بالليل'},
+  {k:'alone',l:'لوحدي في الأوضة'},
+  {k:'bored',l:'زهقان/فاضي'},
+  {k:'phone',l:'بعد موبايل/سوشيال'},
+  {k:'stressed',l:'قلقان/متضايق'},
+  {k:'other',l:'حاجة تانية'}
+];
+function getUrgeLog(){return load('life:urgeLog',[]);}
+function setUrgeLog(l){save('life:urgeLog',l);}
+function addUrgeLog(tags){
+  const l=getUrgeLog();
+  l.push({ts:Date.now(),tags:tags||[]});
+  if(l.length>200)l.shift(); // مايكبرش أوي
+  setUrgeLog(l);
+}
+function urgeLogPatterns(){
+  const l=getUrgeLog();
+  if(l.length<3)return null;
+  const tagCount={}; let nightCount=0;
+  l.forEach(e=>{
+    (e.tags||[]).forEach(t=>{tagCount[t]=(tagCount[t]||0)+1;});
+    const h=new Date(e.ts).getHours();
+    if(h>=22||h<5)nightCount++;
+  });
+  let topTag=null,topN=0;
+  Object.keys(tagCount).forEach(k=>{ if(k!=='other'&&tagCount[k]>topN){topN=tagCount[k];topTag=k;} });
+  const label=URGE_TAGS.find(t=>t.k===topTag);
+  const out=[];
+  if(label&&topN>=2)out.push(`🔍 أكتر سبب متكرر: <b>${label.l}</b> (${topN} من ${l.length} مرة).`);
+  if(l.length>=3&&nightCount/l.length>=0.6)out.push(`🌙 أغلب المرات بالليل — جرّب تنام بدري أو تسيب الموبايل بره الأوضة وقتها.`);
+  return out.length?out:null;
+}
+function openUrgeLog(after){
+  sheet(`<h3>📊 امتى كان الموقف؟</h3>
+    <div class="bsub" style="margin-bottom:10px;color:var(--muted)">اختار اللي ينطبق (تقدر تختار أكتر من واحد) — ده بينك وبين نفسك بس، هيساعدك تعرف نمطك بعد كام مرة.</div>
+    <div class="chips" id="urgeChips">${URGE_TAGS.map(t=>`<button class="chip-opt" data-k="${t.k}">${t.l}</button>`).join('')}</div>
+    <button class="save" id="urgeSave" style="margin-top:16px">حفظ ومتابعة</button>
+    <button id="urgeSkip" style="width:100%;border:none;border-radius:15px;padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;background:var(--surface2);color:var(--muted)">تخطّي</button>`);
+  document.querySelectorAll('#urgeChips .chip-opt').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  $('urgeSave').onclick=()=>{
+    const picked=[...document.querySelectorAll('#urgeChips .chip-opt.on')].map(b=>b.dataset.k);
+    addUrgeLog(picked); closeSheet(); if(after)after();
+  };
+  $('urgeSkip').onclick=()=>{ closeSheet(); if(after)after(); };
+}
 function renderSafa(){
   const box=$('safaCard'); if(!box)return;
   const c=getClean(); const d=cleanDays(); const best=Math.max(c.best||0,d);
   if(best!==c.best){c.best=best;setClean(c);}
   const st=safaStage(d);
   const nextTxt=st.next?`فاضل ${st.next-d} يوم للمرحلة الجاية`:'وصلت لأعلى مرحلة 🌟';
+  const patterns=urgeLogPatterns();
+  const patternsHTML=patterns?`<div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:12px;font-size:12.5px;color:var(--ink);text-align:right;line-height:1.9">${patterns.join('<br>')}</div>`:'';
   box.innerHTML=`<div class="safa-stage">${st.n}</div>
     <div class="safa-tree">${st.t}</div>
     <div class="safa-days">${d}</div>
     <div class="safa-lbl">يوم صفا متّصل · ${nextTxt}</div>
     <div style="font-size:12px;color:#5a8a6e">🏆 أطول فترة: ${best} يوم</div>
+    ${patternsHTML}
     <button class="safa-reset" onclick="resetClean()">حصلت انتكاسة — أبدأ من جديد</button>`;
 }
 function resetClean(){
-  if(!confirm('نبدأ العدّ من جديد من النهاردة؟ كل بداية فيها أمل 🌱'))return;
-  const c=getClean(); c.best=Math.max(c.best||0,cleanDays()); c.start=ymd(todayD()); setClean(c);
-  renderSafa(); toast('بداية جديدة 🌱 ربنا معاك');
+  openUrgeLog(()=>{
+    if(!confirm('نبدأ العدّ من جديد من النهاردة؟ كل بداية فيها أمل 🌱'))return;
+    const c=getClean(); c.best=Math.max(c.best||0,cleanDays()); c.start=ymd(todayD()); setClean(c);
+    renderSafa(); toast('بداية جديدة 🌱 ربنا معاك');
+  });
 }
 
 // ===== أداة الأمان 🛡️ =====
@@ -1648,47 +1838,123 @@ const SAFE_FALLBACK=[
   {t:'وَأَن لَّيْسَ لِلْإِنسَٰنِ إِلَّا مَا سَعَىٰ',s:'النجم ٣٩'},
   {t:'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًا',s:'الطلاق ٢'}
 ];
-let _safeRot=null, _safeQT=null, _safePool=[], _safeIdx=-1;
+let _safeRotTimer=null, _safeQT=null, _safePool=[], _safeIdx=-1, _safeAudioEndedHandler=null;
 function safeAyahCache(r){try{return localStorage.getItem('safe:ayah:'+r)||null;}catch(e){return null;}}
+function safeAudioCache(r){try{return localStorage.getItem('safe:audio:'+r)||null;}catch(e){return null;}}
 function pickSafeAyah(){return SAFE_AYAT[Math.floor(Math.random()*SAFE_AYAT.length)];}
 async function fetchSafeAyah(a){
-  const c=safeAyahCache(a.r); if(c)return {t:c,s:a.s,k:'آية'};
+  const ct=safeAyahCache(a.r), ca=safeAudioCache(a.r);
+  if(ct&&ca) return {t:ct,s:a.s,k:'آية',audio:ca,r:a.r};
   try{
-    const j=await fetch('https://api.alquran.cloud/v1/ayah/'+a.r+'/quran-uthmani').then(r=>r.json());
-    if(j&&j.status==='OK'&&j.data&&j.data.text){ try{localStorage.setItem('safe:ayah:'+a.r,j.data.text);}catch(e){} return {t:j.data.text,s:a.s,k:'آية'}; }
+    // نص الآية + صوت الشيخ مشاري العفاسي في نفس الطلب
+    const j=await fetch('https://api.alquran.cloud/v1/ayah/'+a.r+'/editions/quran-uthmani,ar.alafasy').then(r=>r.json());
+    if(j&&j.status==='OK'&&j.data&&j.data.length){
+      const txt=j.data[0]&&j.data[0].text; const aud=j.data[1]&&j.data[1].audio;
+      if(txt) try{localStorage.setItem('safe:ayah:'+a.r,txt);}catch(e){}
+      if(aud) try{localStorage.setItem('safe:audio:'+a.r,aud);}catch(e){}
+      if(txt) return {t:txt,s:a.s,k:'آية',audio:aud||null,r:a.r};
+    }
   }catch(e){}
   return null;
 }
 function buildSafePool(){
   const pool=[];
   // الآيات المتوفرة في الكاش
-  SAFE_AYAT.forEach(a=>{const c=safeAyahCache(a.r); if(c)pool.push({t:c,s:a.s,k:'آية'});});
+  SAFE_AYAT.forEach(a=>{const c=safeAyahCache(a.r); if(c)pool.push({t:c,s:a.s,k:'آية',audio:safeAudioCache(a.r),r:a.r});});
   if(!pool.length) SAFE_FALLBACK.forEach(f=>pool.push({t:f.t,s:f.s,k:'آية'}));
   SAFE_HADITH.forEach(h=>pool.push({t:h.t,s:h.s,k:'حديث'}));
   SAFE_LINES.forEach(l=>pool.push({t:l,s:'',k:'تذكير'}));
   return pool;
+}
+function clearSafeRotation(){
+  clearTimeout(_safeRotTimer); _safeRotTimer=null;
+  const el=$('safeAudioEl');
+  if(el&&_safeAudioEndedHandler) el.removeEventListener('ended',_safeAudioEndedHandler);
+  _safeAudioEndedHandler=null;
+}
+function scheduleTimedRotation(){
+  clearSafeRotation();
+  _safeRotTimer=setTimeout(showSafeItem,SAFE_ROTATE);
+}
+function armAudioRotation(){
+  clearSafeRotation();
+  const el=$('safeAudioEl');
+  _safeAudioEndedHandler=()=>{ clearTimeout(_safeRotTimer); _safeRotTimer=setTimeout(showSafeItem,1800); };
+  el.addEventListener('ended',_safeAudioEndedHandler,{once:true});
+  // احتياط بس: لو الصوت اتعلّق أو الاتصال بطّأ، منفضلش واقفين لحد ما الوقت يخلص
+  _safeRotTimer=setTimeout(showSafeItem,60000);
+}
+function stopSafeAudio(){
+  const el=$('safeAudioEl'); if(el){el.pause(); el.currentTime=0;}
+  const btn=$('safeAudioBtn'); if(btn){btn.classList.remove('playing'); btn.textContent='🔊 استمع للشيخ';}
+}
+function toggleSafeAudio(){
+  const el=$('safeAudioEl'), btn=$('safeAudioBtn'); if(!el||!btn||!el.src)return;
+  if(el.paused){
+    el.play().then(()=>{ btn.classList.add('playing'); btn.textContent='⏸ إيقاف الصوت'; armAudioRotation(); }).catch(()=>{});
+  }else{
+    stopSafeAudio(); scheduleTimedRotation(); // وقّفها يدوي: منستناش عليها، نكمل بالتوقيت العادي
+  }
+}
+function renderSafeItem(it){
+  const v=$('safeVerse'), s=$('safeVerseSrc'), ab=$('safeAudioBtn'); if(!v||!s)return;
+  v.style.fontFamily=(it.k==='تذكير')?"'Reem Kufi',sans-serif":"'Amiri Quran',serif";
+  v.style.fontSize=(it.k==='تذكير')?'17px':'21px';
+  v.textContent=it.t;
+  s.textContent=it.k+(it.s?' — '+it.s:'');
+  stopSafeAudio();
+  if(ab&&it.k==='آية'&&it.audio){
+    const el=$('safeAudioEl'); el.src=it.audio; ab.style.display='inline-flex';
+    el.play().then(()=>{
+      ab.classList.add('playing'); ab.textContent='⏸ إيقاف الصوت';
+      armAudioRotation(); // منتقلش للآية التانية غير لما الشيخ يخلّص القراية
+    }).catch(()=>{
+      ab.classList.remove('playing'); ab.textContent='🔊 استمع للشيخ';
+      scheduleTimedRotation(); // التشغيل التلقائي اتمنع؛ منستناش على صوت مش هيشتغل
+    });
+  }else{
+    if(ab){ $('safeAudioEl').removeAttribute('src'); ab.style.display='none'; }
+    scheduleTimedRotation();
+  }
 }
 function showSafeItem(){
   if(!_safePool.length)return;
   let i=Math.floor(Math.random()*_safePool.length);
   if(_safePool.length>1){ let g=0; while(i===_safeIdx && g<5){i=Math.floor(Math.random()*_safePool.length);g++;} }
   _safeIdx=i; const it=_safePool[i];
-  const v=$('safeVerse'), s=$('safeVerseSrc'); if(!v||!s)return;
-  v.style.fontFamily=(it.k==='تذكير')?"'Reem Kufi',sans-serif":"'Amiri Quran',serif";
-  v.style.fontSize=(it.k==='تذكير')?'17px':'21px';
-  v.textContent=it.t;
-  s.textContent=it.k+(it.s?' — '+it.s:'');
+  renderSafeItem(it);
 }
+async function showFirstSafeAyah(){
+  // أول حاجة تتعرض لازم تكون آية بصوت الشيخ، مش حديث ولا تذكير
+  const v=$('safeVerse'); if(v)v.textContent='…';
+  const s=$('safeVerseSrc'); if(s)s.textContent='';
+  let candidates=_safePool.map((it,idx)=>({it,idx})).filter(x=>x.it.k==='آية'&&x.it.audio);
+  let picked;
+  if(candidates.length){
+    picked=candidates[Math.floor(Math.random()*candidates.length)];
+  }else{
+    // مفيش ولا آية بصوتها جاهزة في الكاش لسه؛ نجيب واحدة فورًا قبل ما نعرض أي حاجة
+    const a=pickSafeAyah();
+    const fetched=await fetchSafeAyah(a);
+    if(fetched&&fetched.audio){ _safePool.push(fetched); picked={it:fetched,idx:_safePool.length-1}; }
+    else{
+      // تعذّر جلب صوت أي آية (مثلاً مفيش نت)؛ نعرض أقرب آية نص متاحة كحل أخير
+      const idx=_safePool.findIndex(x=>x.k==='آية');
+      picked={it:_safePool[idx>=0?idx:0], idx:idx>=0?idx:0};
+    }
+  }
+  _safeIdx=picked.idx;
+  renderSafeItem(picked.it);
+}
+
 function openSafety(){
   const ov=$('safeOv'); if(!ov)return;
   $('safePower').textContent=powerMsg();
   _safePool=buildSafePool(); _safeIdx=-1;
   ov.classList.add('show');
-  showSafeItem();
-  clearInterval(_safeRot);
-  _safeRot=setInterval(showSafeItem,SAFE_ROTATE);
-  // كمّل تحميل باقي الآيات من المصدر وضيفها للمجموعة
-  SAFE_AYAT.forEach(a=>{ if(!safeAyahCache(a.r)) fetchSafeAyah(a).then(o=>{ if(o&&$('safeOv').classList.contains('show')) _safePool.push(o); }); });
+  showFirstSafeAyah();
+  // كمّل تحميل باقي الآيات (نص + صوت الشيخ) من المصدر وضيفها للمجموعة
+  SAFE_AYAT.forEach(a=>{ if(!safeAyahCache(a.r)||!safeAudioCache(a.r)) fetchSafeAyah(a).then(o=>{ if(o&&$('safeOv').classList.contains('show')) _safePool.push(o); }); });
   // العدّاد الإجباري
   let left=SAFE_SECS;
   const btn=$('safeDoneBtn'); btn.disabled=true; btn.textContent='… استنى الوقت يخلص';
@@ -1699,8 +1965,8 @@ function openSafety(){
     if(left<=0){ clearInterval(_safeQT); btn.disabled=false; btn.textContent='عدّت اللحظة بفضل الله 🤍'; } },1000);
 }
 function powerMsg(){ return load('life:powerMsg', 'بطّل علشان نفسك، دي شهوة وهتروح، ووالله لو خلّصتها هتحسّ بضيق جدًا. اعتبرني جايلك من المستقبل، صدّقني هتتضايق. مش عايز أفضل في الدايرة المغلقة دي. تخيّل لو بطّلتها هتكون حاسس بإيه، تخيّل حياتك. مش إنت اللي قلت: لو بطّلت العادة دي هكون إنسان تاني؟ استهدي بالله، وقوم، وما تضيّعش نفسك ووقتك وطاقتك. خليك أقوى منها وأقوى من الشيطان. استعيذ بالله من الشيطان الرجيم وقوم 🌱'); }
-function closeSafety(){ clearInterval(_safeQT); clearInterval(_safeRot); const ov=$('safeOv'); if(ov)ov.classList.remove('show'); }
-function safePassed(){ clearInterval(_safeQT); clearInterval(_safeRot); closeSafety(); toast('الله يثبّتك 🤍 كسبت اللحظة دي'); if(typeof maybeCelebrate==='function')maybeCelebrate('safe'); }
+function closeSafety(){ clearInterval(_safeQT); clearSafeRotation(); stopSafeAudio(); const ov=$('safeOv'); if(ov)ov.classList.remove('show'); }
+function safePassed(){ clearInterval(_safeQT); clearSafeRotation(); closeSafety(); toast('الله يثبّتك 🤍 كسبت اللحظة دي'); if(typeof maybeCelebrate==='function')maybeCelebrate('safe'); }
 
 // ===== التقرير اليومي والمتابعة =====
 function dayIsActive(rec){
@@ -1790,6 +2056,7 @@ async function boot(){
   $('bootLoad').style.display='none';
   await gate();
   render();
+  showFirstInspoAyah();
   initNotifications();
   initPrayer();
   loadQuranAdhkar();
