@@ -1558,10 +1558,13 @@ function memzStartRecitation(){
   const targetWords=memzTokenize(cached); // للمطابقة الصوتية من غير تشكيل
   try{
     const rec=new SRCtor(); _memzRecognition=rec;
-    rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=false; rec.maxAlternatives=1;
+    rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=true; rec.maxAlternatives=1;
+    let resultSeen={}; // بنفتكر كام كلمة اتفرجنا عليها من كل جملة مؤقتة، عشان منكررش نفس الكلمات
     rec.onresult=function(e){
       for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal) memzFeedTranscript(e.results[i][0].transcript);
+        const words=memzTokenize(e.results[i][0].transcript);
+        const seen=resultSeen[i]||0;
+        if(words.length>seen){ memzFeedWords(words.slice(seen)); resultSeen[i]=words.length; }
       }
     };
     rec.onerror=function(e){
@@ -1575,7 +1578,7 @@ function memzStartRecitation(){
       }
     };
     _memzTafsirOpen=false; _memzQuizOpen=false;
-    _memzRecitation={displayWords,targetWords,revealed:new Set(),pointer:0,mismatch:false,wrongIdx:-1,finished:false,listening:false,unsupported:false,micDenied:false};
+    _memzRecitation={displayWords,targetWords,revealed:new Set(),pointer:0,mismatch:false,wrongIdx:-1,finished:false,listening:false,unsupported:false,micDenied:false,missCount:0};
     rec.start();
     _memzRecitation.listening=true;
     renderMemz();
@@ -1585,21 +1588,52 @@ function memzStartRecitation(){
     toast('تعذّر تشغيل الميكروفون — تأكد إنك فاتح الموقع من Chrome ومديله إذن الميكروفون، وجرّب تاني');
   }
 }
-function memzFeedTranscript(transcript){
+// مسافة التحرير (Levenshtein) بسيطة — بنستخدمها عشان نسامح فروق حرف واحد
+// ناتجة عن دقة التعرف على الصوت، مش غلط فعلي في القراءة
+function memzEditDistance(a,b){
+  if(a===b)return 0;
+  const la=a.length, lb=b.length;
+  if(!la)return lb; if(!lb)return la;
+  let prev=Array.from({length:lb+1},(_,i)=>i);
+  for(let i=1;i<=la;i++){
+    const cur=[i];
+    for(let j=1;j<=lb;j++){
+      cur[j]=a[i-1]===b[j-1]?prev[j-1]:1+Math.min(prev[j-1],prev[j],cur[j-1]);
+    }
+    prev=cur;
+  }
+  return prev[lb];
+}
+// مقارنة متسامحة: بتقبل تطابق تام، أو فرق حرف/حرفين بسيط (هفوة تعرّف صوتي)،
+// أو اختلاف بسبب حرف عطف/جر ملتصق ("و"/"ف"/"ب"/"ل") زي "والعصر" مقابل "العصر"
+function memzWordsMatch(said,target){
+  if(said===target)return true;
+  if(target.length>=3 && /^[وفبل]/.test(target) && target.slice(1)===said)return true;
+  if(said.length>=3 && /^[وفبل]/.test(said) && said.slice(1)===target)return true;
+  const maxLen=Math.max(said.length,target.length);
+  const tolerance=maxLen>=6?2:(maxLen>=3?1:0);
+  return memzEditDistance(said,target)<=tolerance;
+}
+function memzFeedWords(words){
   const st=_memzRecitation; if(!st||st.finished||st.mismatch) return;
-  const words=memzTokenize(transcript);
   words.forEach(w=>{
     if(st.finished||st.mismatch) return;
     if(st.pointer>=st.targetWords.length){ st.finished=true; return; }
-    if(w===st.targetWords[st.pointer]){
-      st.revealed.add(st.pointer); st.pointer++;
+    // كلمات وصل قصيرة جدًا زي "و" لوحدها غالبًا بواقي كلمة اتقطّعت في التعرف الصوتي — نتجاهلها بدل ما نعتبرها غلط
+    if(w.length<=1) return;
+    if(memzWordsMatch(w,st.targetWords[st.pointer])){
+      st.revealed.add(st.pointer); st.pointer++; st.missCount=0;
     } else {
       let found=-1;
-      for(let k=st.pointer+1;k<Math.min(st.pointer+4,st.targetWords.length);k++){
-        if(w===st.targetWords[k]){found=k;break;}
+      for(let k=st.pointer+1;k<Math.min(st.pointer+7,st.targetWords.length);k++){
+        if(memzWordsMatch(w,st.targetWords[k])){found=k;break;}
       }
-      if(found>=0){ for(let j=st.pointer;j<=found;j++) st.revealed.add(j); st.pointer=found+1; }
-      else { st.mismatch=true; st.wrongIdx=st.pointer; }
+      if(found>=0){ for(let j=st.pointer;j<=found;j++) st.revealed.add(j); st.pointer=found+1; st.missCount=0; }
+      else {
+        // نسمح بهفوة واحدة في التعرّف الصوتي قبل ما نعتبرها غلط فعلي في الحفظ
+        st.missCount=(st.missCount||0)+1;
+        if(st.missCount>=2){ st.mismatch=true; st.wrongIdx=st.pointer; }
+      }
     }
     if(st.pointer>=st.targetWords.length) st.finished=true;
   });
