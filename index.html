@@ -508,6 +508,7 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
     <div class="section">
       <div class="section-head"><h2><span class="ico">🌟</span> الحفظ اليومي</h2><span class="meta" id="memzMeta"></span></div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8">مش لازم تحفظ كتير — سورة قصيرة واحدة، كررها كل يوم لحد ما تثبت معاك، واستخدمها في صلاتك. لما تحسّ إنها ثبتت، دوس «حفظتها» وننتقل للي بعدها.</div>
+      <div id="memzPlan" style="margin-bottom:14px"></div>
       <div class="mini-card" id="memzCard" style="text-align:center"></div>
       <div id="memzList" style="margin-top:14px"></div>
     </div>
@@ -870,8 +871,10 @@ async function showFirstInspoAyah(){
 let _lastInspo=-1;
 function renderPrayers(){
   const d=getDay();let done=0,mosque=0;
-  $('prayers').innerHTML=PRAYERS.map(([k,name])=>{const p=d.prayers[k];if(p)done++;if(p==='mosque')mosque++;
-    return `<div class="pray ${p?'done':''}"><div class="nm"><span class="dot"></span>${name}</div>
+  const plan=(typeof buildTodayPlan==='function')?buildTodayPlan():null;
+  $('prayers').innerHTML=PRAYERS.map(([k,name],i)=>{const p=d.prayers[k];if(p)done++;if(p==='mosque')mosque++;
+    const hint=plan?`<div style="font-size:11px;color:var(--muted);margin-top:2px">🌟 ${plan[i].name}</div>`:'';
+    return `<div class="pray ${p?'done':''}"><div class="nm"><span class="dot"></span><div>${name}${hint}</div></div>
       <div class="opts"><button class="popt ${p==='mosque'?'on':''}" onclick="setPrayer('${k}','mosque')">🕌 جامع</button>
       <button class="popt home ${p==='home'?'on':''}" onclick="setPrayer('${k}','home')">🏠 بيت</button></div></div>`;}).join('');
   $('prayMeta').innerHTML=done+'/5'+(mosque?` · 🕌 ${mosque}`:'');
@@ -1134,25 +1137,61 @@ function shuffleBreakfast(){
   d.bfIdx=n; setDay(d); renderBreakfast();
 }
 
-// ===== الورد القرآني (تتبّع الصفحات + آيات + تفسير ميسّر موثوق) =====
+// ===== الورد القرآني (تتبّع الصفحات + آيات + تفسير شارح موثوق) =====
 const QURAN_PER_DAY=4, QURAN_START=80, QURAN_PAGES=604;
-const QED_TEXT='quran-uthmani', QED_TAFSIR='ar.muyassar';
+const QED_TEXT='quran-uthmani';
+// تفسير السعدي: شرح واضح يربط المعنى بسياق الآيات ومقصدها (مش مجرد شرح كلمة) — بيفيد في فهم "السورة بتتكلم عن ايه"
+// المصدر: CDN عام (jsDelivr) بيشتغل بـ HTTPS وبيقبل الطلبات من المتصفح مباشرة (مفيش مشكلة حجب)
+const TAFSEER_EDITION='ar-tafsir-as-saadi', TAFSEER_NAME='تفسير السعدي';
 function quranPage(){return load('life:quranPage',QURAN_START);}
 function wardStartPage(){const d=getDay();return (d.wardStart!=null)?d.wardStart:quranPage();}
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
 // كاش محلي للصفحات (القرآن ثابت → يتخزّن دايمًا ويشتغل أوفلاين بعد أول تحميل) — بعيد عن مزامنة السحابة
-function qcacheGet(p){try{const s=localStorage.getItem('quran:pg:'+p);return s?JSON.parse(s):null;}catch(e){return null;}}
-function qcacheSet(p,v){try{localStorage.setItem('quran:pg:'+p,JSON.stringify(v));}catch(e){}}
+function qcacheGet(p){try{const s=localStorage.getItem('quran:pg:'+p+':v3');return s?JSON.parse(s):null;}catch(e){return null;}}
+function qcacheSet(p,v){try{localStorage.setItem('quran:pg:'+p+':v3',JSON.stringify(v));}catch(e){}}
+// تفسير سورة كاملة مرة واحدة (بيتخزّن محليًا) بدل طلب لكل آية
+function tafsirSurahCacheGet(s){try{const t=localStorage.getItem('tafsir:'+TAFSEER_EDITION+':'+s);return t?JSON.parse(t):null;}catch(e){return null;}}
+function tafsirSurahCacheSet(s,v){try{localStorage.setItem('tafsir:'+TAFSEER_EDITION+':'+s,JSON.stringify(v));}catch(e){}}
+async function fetchSurahTafsir(surahNum){
+  const c=tafsirSurahCacheGet(surahNum); if(c)return c;
+  const urls=[
+    'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json',
+    'https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json',
+    'https://cdn.statically.io/gh/spa5k/tafsir_api/main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json'
+  ];
+  for(const url of urls){
+    try{
+      const j=await fetch(url).then(r=>{ if(!r.ok) throw new Error('http'); return r.json(); });
+      const map={};
+      (j&&j.ayahs||[]).forEach(a=>{ map[a.ayah]=a.text; });
+      if(Object.keys(map).length){ tafsirSurahCacheSet(surahNum,map); return map; }
+    }catch(e){ /* نجرّب المصدر اللي بعده */ }
+  }
+  return {};
+}
+async function fetchTafsirRange(surahNum,from,to){
+  const map=await fetchSurahTafsir(surahNum);
+  const out={};
+  for(let n=from;n<=to;n++){ if(map[n]) out[n]=map[n]; }
+  return out;
+}
 async function fetchQPage(p){
   const c=qcacheGet(p); if(c)return c;
   const base='https://api.alquran.cloud/v1/page/'+p+'/';
-  const [qr,tr]=await Promise.all([
-    fetch(base+QED_TEXT).then(r=>r.json()),
-    fetch(base+QED_TAFSIR).then(r=>r.json()).catch(()=>({}))
-  ]);
+  const qr=await fetch(base+QED_TEXT).then(r=>r.json());
   if(!qr||qr.status!=='OK'||!qr.data||!qr.data.ayahs) throw new Error('quran');
-  const tafs=(tr&&tr.status==='OK'&&tr.data&&tr.data.ayahs)?tr.data.ayahs:[];
-  const ayahs=qr.data.ayahs.map((a,i)=>({n:a.numberInSurah,surah:a.surah.name,text:a.text,tafsir:(tafs[i]&&tafs[i].text)||''}));
+  const raw=qr.data.ayahs.map(a=>({n:a.numberInSurah,surahNum:a.surah.number,surah:a.surah.name,text:a.text}));
+  // نجمّع الآيات المتتالية من نفس السورة سوا عشان نجيب تفسيرها بطلب واحد بدل طلب لكل آية
+  const groups=[];
+  raw.forEach(a=>{
+    const last=groups[groups.length-1];
+    if(last&&last.surahNum===a.surahNum&&a.n===last.to+1) last.to=a.n;
+    else groups.push({surahNum:a.surahNum,from:a.n,to:a.n});
+  });
+  const maps=await Promise.all(groups.map(g=>fetchTafsirRange(g.surahNum,g.from,g.to)));
+  const bySurah={};
+  groups.forEach((g,i)=>{ bySurah[g.surahNum]=Object.assign(bySurah[g.surahNum]||{},maps[i]); });
+  const ayahs=raw.map(a=>({n:a.n,surah:a.surah,text:a.text,tafsir:(bySurah[a.surahNum]&&bySurah[a.surahNum][a.n])||''}));
   const v={page:p,ayahs}; qcacheSet(p,v); return v;
 }
 async function fetchWard(start){
@@ -1177,7 +1216,7 @@ function goToMark(){
 function fullTafsir(){
   const box=$('wardTaf'); if(!box||!_wardFlat||!_wardFlat.length)return;
   let h=`<div style="background:#fff;border:1px solid #e7dcc0;border-radius:14px;padding:4px 15px 15px">
-    <div style="font-family:'Reem Kufi';font-size:15px;color:#8a6d35;text-align:center;padding:13px 0 4px">📚 تفسير وردك — التفسير الميسّر</div>`;
+    <div style="font-family:'Reem Kufi';font-size:15px;color:#8a6d35;text-align:center;padding:13px 0 4px">📚 تفسير وردك — ${TAFSEER_NAME}</div>`;
   _wardFlat.forEach(a=>{
     h+=`<div style="border-top:1px solid #f0e6cf;padding:13px 0">
       <div style="font-family:'Amiri Quran',serif;font-size:18px;line-height:2.25;color:#2a2418;margin-bottom:9px">${a.text} <span style="color:#b8924a">﴿${a.n}﴾</span></div>
@@ -1408,53 +1447,155 @@ function renderAdhkar(){
 
 // ===== الحفظ اليومي (سور قصيرة مناسبة لمن لا يحفظ كثيرًا) =====
 const MEMZ_LIST=[
-  {s:108,name:'الكوثر',note:'أقصر سورة في القرآن (٣ آيات فقط) — ابدأ بيها.'},
-  {s:112,name:'الإخلاص',note:'تعدل ثلث القرآن في أجرها، وقصيرة وسهلة.'},
-  {s:103,name:'العصر',note:'قصيرة وفيها معنى عظيم عن الوقت والعمل الصالح.'},
-  {s:110,name:'النصر',note:'سورة قصيرة كثيرة الورود في الصلاة.'},
-  {s:106,name:'قريش',note:'قصيرة وسهلة الحفظ.'},
-  {s:113,name:'الفلق',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.'},
-  {s:114,name:'الناس',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.'},
-  {s:105,name:'الفيل',note:'قصة قصيرة سهلة الحفظ.'},
-  {s:109,name:'الكافرون',note:'من السور اللي كان النبي ﷺ يقرأها كتير في الصلاة.'},
-  {s:107,name:'الماعون',note:'فيها معاني عملية عن الرحمة بالضعفاء.'},
-  {s:102,name:'التكاثر',note:'سورة قصيرة وتذكير جميل بالآخرة.'},
+  {s:108,ayat:3,name:'الكوثر',note:'أقصر سورة في القرآن (٣ آيات فقط) — ابدأ بيها.',tafsir:'نعمة من الله على النبي ﷺ بالخير الكثير، وفيها أمر بالصلاة والذبح شكرًا لله، وتسلية له من أذى أعدائه.'},
+  {s:112,ayat:4,name:'الإخلاص',note:'تعدل ثلث القرآن في أجرها، وقصيرة وسهلة.',tafsir:'توحيد الله الخالص — تصفه سبحانه بالأحدية والصمدية، وتنفي عنه الولد والشبيه، ولذلك تعدل ثلث القرآن.'},
+  {s:103,ayat:3,name:'العصر',note:'قصيرة وفيها معنى عظيم عن الوقت والعمل الصالح.',tafsir:'قسم بالزمن على أن الإنسان في خسارة، إلا من جمع أربع صفات: الإيمان، والعمل الصالح، والتواصي بالحق، والتواصي بالصبر.'},
+  {s:110,ayat:3,name:'النصر',note:'سورة قصيرة كثيرة الورود في الصلاة.',tafsir:'بشارة بفتح مكة ودخول الناس في دين الله أفواجًا، وفيها أمر بالتسبيح والاستغفار عند تمام النعمة.'},
+  {s:106,ayat:4,name:'قريش',note:'قصيرة وسهلة الحفظ.',tafsir:'تذكير بنعمة الله على قريش برحلتي الشتاء والصيف وتأمين الطريق، ودعوة لعبادة رب هذا البيت شكرًا على النعمة.'},
+  {s:113,ayat:5,name:'الفلق',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.',tafsir:'استعاذة بالله من شر المخلوقات عمومًا، ومن شر الليل إذا أظلم، والسحر، والحسد.'},
+  {s:114,ayat:6,name:'الناس',note:'من المعوذتين، تُقرأ للحماية والاستعاذة.',tafsir:'استعاذة بالله من شر الوسواس الخنّاس الذي يوسوس في صدور الناس، سواء كان من الجن أو من الإنس.'},
+  {s:105,ayat:5,name:'الفيل',note:'قصة قصيرة سهلة الحفظ.',tafsir:'قصة إهلاك الله لجيش أبرهة الذي جاء لهدم الكعبة، برميهم بطير أبابيل يحملون حجارة من سجيل.'},
+  {s:109,ayat:6,name:'الكافرون',note:'من السور اللي كان النبي ﷺ يقرأها كتير في الصلاة.',tafsir:'إعلان البراءة من عبادة غير الله، وتقرير مبدأ "لكم دينكم ولي دين" في التعامل مع المخالفين في العقيدة.'},
+  {s:107,ayat:7,name:'الماعون',note:'فيها معاني عملية عن الرحمة بالضعفاء.',tafsir:'ذمّ لمن يكذّب بالدين فيقسو على اليتيم ولا يحض على إطعام المسكين، ووصف للمصلين الغافلين والمرائين.'},
+  {s:102,ayat:8,name:'التكاثر',note:'سورة قصيرة وتذكير جميل بالآخرة.',tafsir:'تحذير من الانشغال بجمع الدنيا والتفاخر بها حتى الموت، وتذكير بالسؤال يوم القيامة عن النعيم.'},
+  {s:2,from:255,to:255,name:'آية الكرسي',note:'أعظم آية في القرآن، ولها فضل عظيم في الحفظ من الله وبعد كل صلاة.',tafsir:'من أعظم آيات القرآن، تصف كمال حياة الله وقيوميته، وإحاطة علمه وكرسيه بكل شيء، وعظمته سبحانه فوق كل خلقه.'},
+  {s:2,from:285,to:286,name:'خواتيم البقرة',note:'آخر آيتين من سورة البقرة — من قرأهما في ليلة كفتاه.',tafsir:'إعلان إيمان المؤمنين بالله وكتبه ورسله، ودعاء بالمغفرة والرحمة والعون على أعباء الدنيا والدين.'},
 ];
 function memzCacheGet(s){try{return localStorage.getItem('memz:txt:'+s)||null;}catch(e){return null;}}
 function memzCacheSet(s,v){try{localStorage.setItem('memz:txt:'+s,v);}catch(e){}}
-function getMemz(){ let m=load('life:memorize',null); if(!m){ m={idx:0}; save('life:memorize',m); } return m; }
+function memzAudioCacheGet(k){try{return JSON.parse(localStorage.getItem('memz:aud:'+k)||'null');}catch(e){return null;}}
+function memzAudioCacheSet(k,v){try{localStorage.setItem('memz:aud:'+k,JSON.stringify(v));}catch(e){}}
+function memzKey(item){ return item.from ? (item.s+'_'+item.from+'-'+(item.to||item.from)) : String(item.s); }
+function getMemz(){ let m=load('life:memorize',null); if(!m){ m={idx:0,preKnown:[]}; save('life:memorize',m); } if(!m.preKnown) m.preKnown=[]; return m; }
 function setMemz(m){ save('life:memorize',m); }
 async function fetchMemzText(item){
-  const c=memzCacheGet(item.s); if(c)return c;
+  const key=memzKey(item);
+  const c=memzCacheGet(key); if(c)return c;
   try{
-    const j=await fetch('https://api.alquran.cloud/v1/surah/'+item.s+'/quran-uthmani').then(r=>r.json());
-    const t=joinAyahs(j); if(t){memzCacheSet(item.s,t); return t;}
+    if(item.from){
+      // آيات مفردة من سورة طويلة — نجيبها واحدة واحدة (نص + صوت مع بعض)
+      const nums=[]; for(let n=item.from;n<=(item.to||item.from);n++) nums.push(n);
+      const results=await Promise.all(nums.map(n=>
+        fetch(`https://api.alquran.cloud/v1/ayah/${item.s}:${n}/editions/quran-uthmani,ar.alafasy`).then(r=>r.json())
+      ));
+      const t=results.map(r=>r.data[0].text).join(' ');
+      const auds=results.map(r=>r.data[1].audio);
+      if(t){ memzCacheSet(key,t); memzAudioCacheSet(key,auds); return t; }
+    } else {
+      const j=await fetch('https://api.alquran.cloud/v1/surah/'+item.s+'/quran-uthmani').then(r=>r.json());
+      const t=joinAyahs(j); if(t){memzCacheSet(key,t); return t;}
+    }
   }catch(e){}
   return null;
 }
-function memzNext(){ const m=getMemz(); if(m.idx<MEMZ_LIST.length-1){ m.idx++; setMemz(m); renderMemz(); toast('حفظتها؟ الله يثبّتك 🌟 يلا للتانية'); } }
-function memzPrev(){ const m=getMemz(); if(m.idx>0){ m.idx--; setMemz(m); renderMemz(); } }
-function memzJump(i){ const m=getMemz(); m.idx=i; setMemz(m); renderMemz(); }
+function memzPrev(){ const m=getMemz(); if(m.idx>0){ m.idx--; setMemz(m); _memzQuizOpen=false; _memzTafsirOpen=false; renderMemz(); renderPrayers(); } }
+function memzJump(i){ const m=getMemz(); m.idx=i; setMemz(m); renderMemz(); renderPrayers(); }
+// تفسير أعمق (تفسير السعدي) لسور الحفظ اليومي — بيتحمّل لما تفتح "التفسير" وبيتخزّن محليًا
+function memzTafsirCacheGet(k){try{return localStorage.getItem('memz:taf:'+k+':v1')||null;}catch(e){return null;}}
+function memzTafsirCacheSet(k,v){try{localStorage.setItem('memz:taf:'+k+':v1',v);}catch(e){}}
+async function fetchMemzTafsir(item){
+  const key=memzKey(item);
+  const c=memzTafsirCacheGet(key); if(c)return c;
+  const from=item.from||1, to=item.to||item.ayat||from;
+  const map=await fetchTafsirRange(item.s,from,to);
+  const nums=[]; for(let n=from;n<=to;n++)nums.push(n);
+  const text=nums.map(n=>map[n]).filter(Boolean).join(' ');
+  if(text){ memzTafsirCacheSet(key,text); return text; }
+  return null;
+}
+let _memzDeepTafsir={};
+
+// ===== خطة "هتصلي بإيه النهاردة" — توزيع كل السور اللي اتحفظت + اللي بتحفظها دلوقتي على الصلوات الخمس =====
+function buildTodayPlan(){
+  const m=getMemz();
+  const learned=MEMZ_LIST.slice(0,m.idx);         // اللي اتحفظت خالص
+  const current=MEMZ_LIST[m.idx];                  // اللي بتحفظها دلوقتي
+  // اللي بتحفظها دلوقتي بتتكرر أكتر في الخطة عشان تثبت، والقديمة بتترجع للمراجعة
+  const pool = learned.length ? [...learned, current, current] : [current,current,current,current,current];
+  const dayNum = Math.floor(todayD().getTime()/86400000);
+  const off = dayNum % pool.length;
+  const rotated = pool.slice(off).concat(pool.slice(0,off));
+  const slots=[]; for(let i=0;i<5;i++) slots.push(rotated[i % rotated.length]);
+  return slots; // بترتيب PRAYERS: fajr, dhuhr, asr, maghrib, isha
+}
+function renderMemzPlan(){
+  const box=$('memzPlan'); if(!box)return;
+  const plan=buildTodayPlan();
+  box.innerHTML=`<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">📅 هتصلي بإيه النهاردة:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">${PRAYERS.map(([k,name],i)=>
+      `<div style="background:var(--green-soft);border:1px solid #cfe0d6;border-radius:12px;padding:6px 11px;font-size:12.5px;font-weight:700;color:var(--green-d)">${name}: ${plan[i].name}</div>`
+    ).join('')}</div>`;
+}
+
+// ===== اختبار سريع بطريقة الاسترجاع النشط (تخفي النص وتحاول تقوله من دماغك الأول) =====
+let _memzQuizOpen=false, _memzTafsirOpen=false, _memzListOpen=false;
+function memzToggleQuiz(){ _memzQuizOpen=!_memzQuizOpen; renderMemz(); }
+function memzToggleTafsir(){
+  _memzTafsirOpen=!_memzTafsirOpen; renderMemz();
+  if(_memzTafsirOpen){
+    const item=MEMZ_LIST[getMemz().idx]; const key=memzKey(item);
+    if(!_memzDeepTafsir[key]){
+      fetchMemzTafsir(item).then(t=>{ if(t){ _memzDeepTafsir[key]=t; if(_memzTafsirOpen) renderMemz(); } });
+    }
+  }
+}
+function memzToggleList(){ _memzListOpen=!_memzListOpen; renderMemz(); }
+function memzAudioUrl(s){ return `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${s}.mp3`; }
+function memzAudioHtml(item){
+  if(!item.from){
+    return `<audio controls preload="none" src="${memzAudioUrl(item.s)}" style="width:100%;margin-bottom:10px;height:38px"></audio>`;
+  }
+  const auds=memzAudioCacheGet(memzKey(item));
+  if(!auds) return `<div id="memzAud" style="font-size:12.5px;color:var(--muted);margin-bottom:10px">… بيتحمّل الصوت</div>`;
+  return `<div id="memzAud" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">${auds.map((a,i)=>
+    `<audio controls preload="none" src="${a}" style="width:100%;height:38px"></audio>`).join('')}</div>`;
+}
+function memzKnew(){
+  const m=getMemz();
+  if(!m.preKnown.includes(m.idx)) m.preKnown.push(m.idx);
+  if(m.idx<MEMZ_LIST.length-1) m.idx++;
+  setMemz(m); _memzQuizOpen=false; _memzTafsirOpen=false; renderMemz(); renderPrayers();
+  toast('تمام، البركة فيها من زمان 🌟 يلا للتالية');
+}
+function memzNext(){ const m=getMemz(); if(m.idx<MEMZ_LIST.length-1){ m.idx++; setMemz(m); _memzQuizOpen=false; _memzTafsirOpen=false; renderMemz(); renderPrayers(); toast('حفظتها؟ الله يثبّتك 🌟 يلا للتانية'); } }
 function renderMemz(){
   const card=$('memzCard'), list=$('memzList'); if(!card||!list)return;
-  const m=getMemz(); const item=MEMZ_LIST[m.idx];
-  $('memzMeta').textContent=(m.idx+1)+'/'+MEMZ_LIST.length;
-  const cached=memzCacheGet(item.s);
-  card.innerHTML=`<div style="font-family:'Reem Kufi';font-size:18px;color:#1E54B0;margin-bottom:8px">سورة ${item.name}</div>
-    <div style="font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;background:#FBF7EC;border:1px solid #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px" id="memzTxt">${cached||'… بيتحمّل النص'}</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">${item.note}</div>
-    <div style="display:flex;gap:8px">
+  const m=getMemz(); const item=MEMZ_LIST[m.idx]; const key=memzKey(item);
+  $('memzMeta').textContent='🌟 حفظت '+m.idx+' لحد دلوقتي';
+  const cached=memzCacheGet(key);
+  card.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">النهاردة هتحفظ</div>
+    <div style="font-family:'Reem Kufi';font-size:19px;color:#1E54B0;margin-bottom:10px">${item.from?'':'سورة '}${item.name}</div>
+    ${_memzQuizOpen?`
+    <div style="font-size:13px;color:var(--muted);background:#FBF7EC;border:1px dashed #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px">
+      🧠 قفل عينيك وحاول تقولها من دماغك الأول، وبعدين دوس "اظهرها" وقارن.
+      <button onclick="memzToggleQuiz()" style="display:block;margin-top:10px;padding:9px 14px;border:none;background:var(--green-d);color:#fff;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer">👁️ اظهر النص وقارن</button>
+    </div>`:`
+    <div style="font-family:'Amiri Quran',serif;font-size:22px;line-height:2.4;color:#2a2418;background:#FBF7EC;border:1px solid #e7dcc0;border-radius:14px;padding:16px;margin-bottom:10px" id="memzTxt">${cached||'… بيتحمّل النص'}</div>`}
+    ${memzAudioHtml(item)}
+    <div style="font-size:11.5px;color:var(--faint);margin-bottom:10px">🎙️ بصوت الشيخ مشاري العفاسي</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${item.note}</div>
+    <button onclick="memzToggleTafsir()" style="width:100%;text-align:right;padding:10px 12px;border:1px solid var(--line);background:var(--surface2);border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px">📖 التفسير ${_memzTafsirOpen?'▲':'▼'}</button>
+    ${_memzTafsirOpen?`<div style="font-size:13px;line-height:1.9;color:var(--ink);background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:14px">
+      <div>${item.tafsir||''}</div>
+      ${_memzDeepTafsir[key]?`<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);color:#6a5b3e"><b style="color:#b8924a">📚 ${TAFSEER_NAME}:</b> ${_memzDeepTafsir[key]}</div>`:`<div style="margin-top:8px;font-size:12px;color:var(--muted)">… بيتحمّل تفسير أوسع (${TAFSEER_NAME})</div>`}
+    </div>`:''}
+    <div style="display:flex;gap:8px;margin-bottom:8px">
       <button onclick="memzPrev()" ${m.idx===0?'disabled':''} style="flex:1;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${m.idx===0?'.4':'1'}">◀ اللي فاتت</button>
       <button onclick="memzNext()" ${m.idx>=MEMZ_LIST.length-1?'disabled':''} style="flex:2;padding:12px;border:none;background:linear-gradient(135deg,var(--green-d),var(--sage));color:#fff;border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;opacity:${m.idx>=MEMZ_LIST.length-1?'.6':'1'}">✅ حفظتها — التالية</button>
-    </div>`;
-  if(!cached){ fetchMemzText(item).then(t=>{ if(t){ const el=$('memzTxt'); if(el)el.textContent=t; } }); }
-  list.innerHTML=`<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">خطتك بالترتيب:</div>`+MEMZ_LIST.map((it,i)=>{
-    const done=i<m.idx, cur=i===m.idx;
+    </div>
+    <button onclick="memzKnew()" ${m.idx>=MEMZ_LIST.length-1?'disabled':''} style="width:100%;padding:11px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer;margin-bottom:8px;opacity:${m.idx>=MEMZ_LIST.length-1?'.6':'1'}">⭐ كنت حافظها قبل كده</button>
+    <button onclick="memzToggleQuiz()" style="width:100%;padding:11px;border:1px dashed var(--sage);background:transparent;color:var(--green-d);border-radius:12px;font-family:inherit;font-weight:700;cursor:pointer">${_memzQuizOpen?'📄 رجّع النص العادي':'🧠 اختبر نفسك'}</button>`;
+  if(!cached){ fetchMemzText(item).then(t=>{ if(t){ const el=$('memzTxt'); if(el)el.textContent=t; if(item.from) renderMemz(); } }); }
+  renderMemzPlan();
+  list.innerHTML=`<button onclick="memzToggleList()" style="width:100%;text-align:right;padding:10px 12px;border:1px solid var(--line);background:var(--surface2);border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted)">📋 خطتي الكاملة ${_memzListOpen?'▲':'▼'}</button>`+
+    (_memzListOpen?`<div style="margin-top:8px">`+MEMZ_LIST.map((it,i)=>{
+    const done=i<m.idx, cur=i===m.idx, pre=m.preKnown.includes(i);
+    const icon=pre?'⭐':(done?'✅':(cur?'👉':'○'));
     return `<div onclick="memzJump(${i})" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:6px;cursor:pointer;background:${cur?'#DCE8FA':(done?'#eef7f0':'var(--surface2)')};border:1px solid ${cur?'#bcd3f2':(done?'#bfe3c9':'var(--line)')}">
-      <span style="font-size:15px">${done?'✅':(cur?'👉':'○')}</span>
-      <span style="font-weight:${cur?'800':'600'};font-size:14px;color:var(--ink)">سورة ${it.name}</span>
+      <span style="font-size:15px">${icon}</span>
+      <span style="font-weight:${cur?'800':'600'};font-size:14px;color:var(--ink)">${it.from?'':'سورة '}${it.name}</span>
     </div>`;
-  }).join('');
+  }).join('')+`</div>`:'');
 }
 // ===== مواعيد الصلاة + دليل «دلوقتي» =====
 // TIMES متعرّفة فوق في قسم "بداية اليوم عند الفجر"
