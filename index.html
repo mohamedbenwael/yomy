@@ -669,7 +669,14 @@ const HABITS=[
 const WATER_GOAL=8;
 const ACCOUNTS=[['vodafone','فودافون كاش','📱'],['etisalat','اتصالات كاش','📲'],['instapay','انستا باي','🏦'],['wallet','المحفظة','👛']];
 const CATS=[['breakfast','فطار','🍳'],['outfood','أكل من برا','🍔'],['transport','مواصلات','🚗'],['fun','ترفيه','🎮'],['market','سوبر ماركت','🛒'],['subs','اشتراكات','📺'],['other','حاجة تانية','🧾']];
-function getBudget(){const b=load('life:budget',{monthly:3000,daily:100,expectedIncome:0});return Object.assign({monthly:3000,daily:100,expectedIncome:0},b||{});}
+const INCOME_CATS=[['salary','مرتب','💼'],['bonus','بونص','🎁'],['extra','دخل إضافي','💵']];
+function getBudget(){
+  const b=load('life:budget',{monthly:3000,daily:100,fixedSalary:0});
+  const merged=Object.assign({monthly:3000,daily:100,fixedSalary:0},b||{});
+  // ترحيل تلقائي من خانة «الدخل المتوقع» القديمة لو كانت مستخدمة
+  if(!merged.fixedSalary && merged.expectedIncome) merged.fixedSalary=merged.expectedIncome;
+  return merged;
+}
 function setBudget(b){save('life:budget',b);}
 const INSPO=[
   // آيات
@@ -995,13 +1002,27 @@ function moneyProjectionData(){
   const elapsed=sameMonth?Math.max(1,now.getDate()):daysInMonth;
   const avgDailyOut=elapsed?totalOut/elapsed:0;
   const projectedOut=sameMonth?totalOut+avgDailyOut*Math.max(0,daysInMonth-elapsed):totalOut;
-  const hist=[];
-  for(let back=1;back<=3;back++){
-    const d=new Date(cursor.getFullYear(),cursor.getMonth()-back,1), key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    const v=all.filter(t=>t.type==='in'&&t.date.slice(0,7)===key).reduce((s,t)=>s+t.amount,0); if(v>0)hist.push(v);
+  // الدخل المتوقع: المرتب الثابت أساس، والبونص/الدخل الإضافي لا يُفترض إلا لو اتسجل فعلًا.
+  // الحركات القديمة غير المصنفة تُعامل بحذر لتجنب احتساب المرتب مرتين.
+  const incomeTx=tx.filter(t=>t.type==='in');
+  const salaryReceived=incomeTx.filter(t=>t.incomeCat==='salary').reduce((s,t)=>s+t.amount,0);
+  const variableIncome=incomeTx.filter(t=>t.incomeCat==='bonus'||t.incomeCat==='extra').reduce((s,t)=>s+t.amount,0);
+  const legacyIncome=incomeTx.filter(t=>!t.incomeCat).reduce((s,t)=>s+t.amount,0);
+  const fixedSalary=Math.max(0,Number(bud.fixedSalary)||0);
+  let expectedIncome;
+  if(fixedSalary>0){
+    // أي دخل قديم غير مصنّف ممكن يكون هو المرتب نفسه؛ لذلك لا نضيفه فوق المرتب تلقائيًا.
+    const salaryLike=salaryReceived>0?salaryReceived:legacyIncome;
+    expectedIncome=Math.max(fixedSalary,salaryLike)+variableIncome;
+  }else{
+    const hist=[];
+    for(let back=1;back<=3;back++){
+      const d=new Date(cursor.getFullYear(),cursor.getMonth()-back,1), key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      const v=all.filter(t=>t.type==='in'&&t.date.slice(0,7)===key).reduce((s,t)=>s+t.amount,0); if(v>0)hist.push(v);
+    }
+    const histIncome=hist.length?hist.reduce((s,v)=>s+v,0)/hist.length:0;
+    expectedIncome=Math.max(totalIn,histIncome);
   }
-  const histIncome=hist.length?hist.reduce((s,v)=>s+v,0)/hist.length:0;
-  const expectedIncome=bud.expectedIncome>0?Math.max(totalIn,bud.expectedIncome):Math.max(totalIn,histIncome);
   const futureIncome=sameMonth?Math.max(0,expectedIncome-totalIn):0;
   const futureOut=sameMonth?Math.max(0,projectedOut-totalOut):0;
   const acc=getAccounts(), cash=ACCOUNTS.reduce((s,[k])=>s+(acc[k]||0),0);
@@ -1024,7 +1045,7 @@ function renderMoney(){
   $('budgetCard').innerHTML=`
     <div class="bsplit">
       <div class="bbox save"><div class="bl">💰 الفرق بين الدخل والمصروف</div><div class="bv">${fmt(savings)} ${CUR}</div></div>
-      <div class="bbox" onclick="openBudget()"><div class="bl">🎯 حدودي ودخلي المتوقع</div><div class="bv">${fmt(bud.daily)}/${fmt(bud.monthly)}</div></div>
+      <div class="bbox" onclick="openBudget()"><div class="bl">💼 مرتبي الثابت وحدودي</div><div class="bv">${bud.fixedSalary?fmt(bud.fixedSalary)+' ج':'حدده'}</div><div class="bsub">حد: ${fmt(bud.daily)}/${fmt(bud.monthly)}</div></div>
     </div>
     <div class="bbar-wrap" style="margin-bottom:12px">
       <div class="bbar-lbl"><span>📅 مصروف النهاردة</span><span class="r">${fmt(todayOut)} / ${fmt(bud.daily)}</span></div>
@@ -1044,20 +1065,27 @@ function renderMoney(){
   const recent=getTx().slice().sort((a,b)=>b.ts-a.ts).slice(0,12);
   $('txList').innerHTML=recent.length?recent.map(t=>{
     if(t.type==='transfer'){const f=ACCOUNTS.find(x=>x[0]===t.from),to=ACCOUNTS.find(x=>x[0]===t.to);return `<div class="tx transfer"><div class="txico">🔄</div><div class="txmain"><div class="txcat">تحويل${t.note?' · '+esc(t.note):''}</div><div class="txsub">${f?f[1]:''} ← ${to?to[1]:''} · ${t.date}</div></div><div class="txamt">${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;}
-    const cat=CATS.find(x=>x[0]===t.cat), ac=ACCOUNTS.find(x=>x[0]===t.account), isCh=t.type==='charity';
-    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?'⬆️':(cat?cat[2]:'🧾')}</div><div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?'دخل':(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div><div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;
+    const cat=CATS.find(x=>x[0]===t.cat), ac=ACCOUNTS.find(x=>x[0]===t.account), isCh=t.type==='charity', incCat=INCOME_CATS.find(x=>x[0]===t.incomeCat);
+    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?(incCat?incCat[2]:'⬆️'):(cat?cat[2]:'🧾')}</div><div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?(incCat?incCat[1]:'دخل'):(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div><div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;
   }).join(''):`<div class="empty">سجّل أول حركة فلوس 💸</div>`;
 }
 function renderForecast(){
-  const p=moneyProjectionData(), expectedSrc=p.bud.expectedIncome>0?'الرقم اللي انت محدده':'دخلك المسجل/متوسط آخر الشهور';
-  $('forecastCard').innerHTML=`<div class="finance-title"><span>🔮 توقع آخر الشهر</span><span class="hint">حسب نمط صرفك لحد دلوقتي</span></div>
+  const p=moneyProjectionData();
+  const fixed=p.bud.fixedSalary||0;
+  const incomeTx=getTx().filter(t=>t.type==='in'&&t.date.slice(0,7)===p.ym);
+  const bonus=incomeTx.filter(t=>t.incomeCat==='bonus').reduce((s,t)=>s+t.amount,0);
+  const extra=incomeTx.filter(t=>t.incomeCat==='extra').reduce((s,t)=>s+t.amount,0);
+  const expectedSrc=fixed>0?'مرتب ثابت'+((bonus+extra)>0?' + دخل متغير مسجل':''):'الدخل المسجل/متوسط آخر الشهور';
+  $('forecastCard').innerHTML=`<div class="finance-title"><span>🔮 توقع آخر الشهر</span><span class="hint">حسب مرتبك ونمط صرفك</span></div>
     <div class="forecast-grid">
       <div class="forecast-item"><div class="fl">متوقع تصرف الشهر</div><div class="fv">${fmt(p.projectedOut)} ${CUR}</div></div>
       <div class="forecast-item"><div class="fl">الدخل المتوقع</div><div class="fv">${fmt(p.expectedIncome)} ${CUR}</div></div>
+      <div class="forecast-item"><div class="fl">مرتبك الثابت</div><div class="fv">${fmt(fixed)} ${CUR}</div></div>
+      <div class="forecast-item"><div class="fl">بونص/دخل إضافي مسجل</div><div class="fv">${fmt(bonus+extra)} ${CUR}</div></div>
       <div class="forecast-item"><div class="fl">متوقع رصيد الكاش آخر الشهر</div><div class="fv" style="color:${p.endCash<0?'var(--rose)':'var(--green-d)'}">${fmt(p.endCash)} ${CUR}</div></div>
       <div class="forecast-item"><div class="fl">صافي فلوسك مع السلف</div><div class="fv">${fmt(p.netWorth)} ${CUR}</div></div>
     </div>
-    <div class="forecast-note">متوسط صرفك اليومي ${fmt(p.avgDailyOut)} ج · مصدر تقدير الدخل: ${expectedSrc}. دوس على «حدودي ودخلي المتوقع» لو عايز تثبّت رقم دخلك الشهري.</div>`;
+    <div class="forecast-note">متوسط صرفك اليومي ${fmt(p.avgDailyOut)} ج · التقدير مبني على: ${expectedSrc}. البونص مش بيتفترض تلقائيًا؛ بيتحسب فقط لما تسجله كدخل «بونص».</div>`;
 }
 function renderLoans(){
   const loans=getLoans().filter(l=>!l.settled).sort((a,b)=>b.ts-a.ts);
@@ -2155,19 +2183,21 @@ function addGoalSaving(id){
 function deleteGoal(id){if(!confirm('تحذف الهدف ده؟'))return;setMoneyGoals(getMoneyGoals().filter(g=>g.id!==id));renderMoney();toast('الهدف اتحذف');}
 
 function openTx(type){
-  let cat='breakfast',account='vodafone';
-  const catRow=type==='out'?`<div class="field"><label>الفئة</label><div class="chips" id="catChips">${CATS.map(c=>`<button class="chip-opt ${c[0]==='breakfast'?'on':''}" data-c="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div></div>`:'';
+  let cat='breakfast',incomeCat='salary',account='vodafone';
+  const catRow=type==='out'?`<div class="field"><label>الفئة</label><div class="chips" id="catChips">${CATS.map(c=>`<button class="chip-opt ${c[0]==='breakfast'?'on':''}" data-c="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div></div>`
+    :`<div class="field"><label>نوع الدخل</label><div class="chips" id="incomeChips">${INCOME_CATS.map(c=>`<button class="chip-opt ${c[0]==='salary'?'on':''}" data-i="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div><div class="bsub">المرتب الثابت بيتحدد مرة من الإعدادات. هنا اختار «مرتب» لما ينزل فعلًا، أو «بونص» لو نزل بونص الشهر.</div></div>`;
   sheet(`<h3>${type==='out'?'➖ مصروف جديد':'➕ دخل جديد'}</h3>
     <div class="field"><label>المبلغ (${CUR})</label><input class="big" id="txAmount" type="number" inputmode="decimal" placeholder="0" autofocus></div>${catRow}
     <div class="field"><label>${type==='out'?'اتدفع من':'اتضاف لـ'}</label><div class="chips" id="accChips">${ACCOUNTS.map(a=>`<button class="chip-opt ${a[0]==='vodafone'?'on':''}" data-a="${a[0]}">${a[2]} ${a[1]}</button>`).join('')}</div></div>
-    <div class="field"><label>ملاحظة (اختياري)</label><input id="txNote" placeholder="مثلاً: قهوة"></div>
+    <div class="field"><label>ملاحظة (اختياري)</label><input id="txNote" placeholder="${type==='out'?'مثلاً: قهوة':'مثلاً: بونص الشهر'}"></div>
     <button class="save ${type==='out'?'out':''}" id="txSave">${type==='out'?'سجّل المصروف':'سجّل الدخل'}</button>`);
   if(type==='out')document.querySelectorAll('#catChips .chip-opt').forEach(b=>b.onclick=()=>{cat=b.dataset.c;sel('#catChips',b);});
+  else document.querySelectorAll('#incomeChips .chip-opt').forEach(b=>b.onclick=()=>{incomeCat=b.dataset.i;sel('#incomeChips',b);});
   document.querySelectorAll('#accChips .chip-opt').forEach(b=>b.onclick=()=>{account=b.dataset.a;sel('#accChips',b);});
   $('txSave').onclick=()=>{const amt=parseFloat($('txAmount').value);if(!amt||amt<=0)return toast('اكتب مبلغ صح');
     const note=$('txNote').value.trim();const acc=getAccounts();
     if(type==='out')acc[account]=(acc[account]||0)-amt;else acc[account]=(acc[account]||0)+amt;setAccounts(acc);
-    const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(cursor),type,amount:amt,cat:type==='out'?cat:null,account,note});setTx(tx);
+    const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(cursor),type,amount:amt,cat:type==='out'?cat:null,incomeCat:type==='in'?incomeCat:null,account,note});setTx(tx);
     closeSheet();renderMoney();renderTop();toast(type==='out'?'اتسجّل المصروف ✓':'اتسجّل الدخل ✓');};
 }
 function openCharity(){
@@ -2210,15 +2240,16 @@ function openEditAccount(k){const acc=getAccounts();const a=ACCOUNTS.find(x=>x[0
   sheet(`<h3>${a[2]} ${a[1]}</h3><div class="field"><label>الرصيد الحالي (${CUR})</label><input class="big" id="accVal" type="number" inputmode="decimal" value="${acc[k]||0}" autofocus></div><button class="save" id="accSave">حفظ الرصيد</button>`);
   $('accSave').onclick=()=>{const v=parseFloat($('accVal').value);if(isNaN(v))return toast('اكتب رقم صح');const a2=getAccounts();a2[k]=v;setAccounts(a2);closeSheet();renderMoney();renderTop();toast('اتحفظ ✓');};}
 function openBudget(){const b=getBudget();
-  sheet(`<h3>🎯 حدود المصروف والتوقعات</h3>
+  sheet(`<h3>💼 المرتب وحدود المصروف</h3>
+    <div class="field"><label>مرتبك الثابت الشهري (${CUR})</label><input class="big" id="budSalary" type="number" inputmode="decimal" value="${b.fixedSalary||0}" placeholder="مثلاً 12000"></div>
+    <div class="bsub" style="margin:-4px 0 14px">ده الرقم اللي الموقع يعتمد عليه كل شهر في التوقعات. البونص مش ثابت، فمش هنضيفه تلقائيًا.</div>
     <div class="field"><label>الحد اليومي (${CUR})</label><input class="big" id="budD" type="number" inputmode="decimal" value="${b.daily}"></div>
     <div class="field"><label>الحد الشهري (${CUR})</label><input class="big" id="budM" type="number" inputmode="decimal" value="${b.monthly}"></div>
-    <div class="field"><label>دخلك المتوقع في الشهر (${CUR}) — اختياري</label><input class="big" id="budI" type="number" inputmode="decimal" value="${b.expectedIncome||0}"></div>
-    <div class="bsub" style="margin-bottom:12px">لو سيبت الدخل المتوقع 0، الموقع هيقدّره من الدخل المسجل ومتوسط الشهور السابقة.</div>
+    <div class="bsub" style="margin-bottom:12px">لما البونص ينزل، سجّله من «+ دخل» واختار نوع الدخل «🎁 بونص». لو الشهر مفيهوش بونص، مش محتاج تعمل أي حاجة.</div>
     <button class="save" id="budSave">حفظ</button>`);
-  $('budSave').onclick=()=>{const d=parseFloat($('budD').value),m=parseFloat($('budM').value),inc=parseFloat($('budI').value)||0;
-    if(isNaN(d)||isNaN(m)||d<0||m<0||inc<0)return toast('اكتب أرقام صح');
-    setBudget({daily:d,monthly:m,expectedIncome:inc});closeSheet();renderMoney();toast('اتحفظت ✓');};
+  $('budSave').onclick=()=>{const d=parseFloat($('budD').value),m=parseFloat($('budM').value),salary=parseFloat($('budSalary').value)||0;
+    if(isNaN(d)||isNaN(m)||d<0||m<0||salary<0)return toast('اكتب أرقام صح');
+    setBudget({daily:d,monthly:m,fixedSalary:salary});closeSheet();renderMoney();toast('المرتب والحدود اتحفظوا ✓');};
 }
 function openAccounts(){const acc=getAccounts();
   sheet(`<h3>🪙 حساباتي</h3>${ACCOUNTS.map(([k,name,ico])=>`<div class="field"><label>${ico} ${name}</label><input type="number" inputmode="decimal" data-acc="${k}" value="${acc[k]||0}"></div>`).join('')}<button class="save" id="accsSave">حفظ الكل</button>`);
