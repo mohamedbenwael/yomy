@@ -227,6 +227,52 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 .bbar .fill{height:100%;border-radius:6px;transition:width .5s}
 .bsub{font-size:11.5px;color:var(--muted);margin-top:7px;text-align:center}
 
+/* finance forecast + loans + goals */
+.finance-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.finance-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:'Reem Kufi';font-size:15px;margin-bottom:12px}
+.finance-title .hint{font-family:'Tajawal';font-size:10.5px;color:var(--muted);font-weight:700}
+.forecast-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.forecast-item{background:var(--surface2);border:1px solid var(--line);border-radius:13px;padding:11px}
+.forecast-item .fl{font-size:10.5px;color:var(--muted);font-weight:700}
+.forecast-item .fv{font-family:'Reem Kufi';font-size:18px;margin-top:4px}
+.forecast-note{font-size:11.5px;line-height:1.7;color:var(--muted);margin-top:10px;text-align:center}
+.loan-actions{margin-bottom:10px}
+.loan-actions .btn-lent{background:#4F7FC7;box-shadow:0 6px 16px rgba(79,127,199,.25)}
+.loan-actions .btn-borrowed{background:#8B6FB0;box-shadow:0 6px 16px rgba(139,111,176,.25)}
+.loan-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.loan-box{background:var(--surface2);border:1px solid var(--line);border-radius:13px;padding:11px;text-align:center}
+.loan-box .ll{font-size:10.5px;color:var(--muted);font-weight:700}
+.loan-box .lv{font-family:'Reem Kufi';font-size:18px;margin-top:3px}
+.loan-row{display:flex;align-items:center;gap:9px;padding:10px 0;border-top:1px solid var(--line)}
+.loan-row:first-child{border-top:none}
+.loan-row .li{width:34px;height:34px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.loan-row .lm{flex:1;min-width:0}
+.loan-row .ln{font-size:13px;font-weight:800}
+.loan-row .ls{font-size:10.5px;color:var(--muted);margin-top:2px}
+.loan-row .la{font-family:'Reem Kufi';font-size:14px;font-weight:800}
+.loan-row .loan-done{border:none;background:var(--green-soft);color:var(--green-d);font-family:inherit;font-size:11px;font-weight:800;border-radius:9px;padding:7px 9px;cursor:pointer}
+.loan-row .loan-del{border:none;background:none;color:var(--faint);font-size:14px;cursor:pointer;padding:4px}
+.goal-row{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.goal-top{display:flex;align-items:flex-start;gap:8px}
+.goal-main{flex:1;min-width:0}
+.goal-name{font-size:13.5px;font-weight:800}
+.goal-meta{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.6}
+.goal-pct{font-family:'Reem Kufi';font-size:16px;color:var(--green-d)}
+.goal-bar{height:9px;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:9px 0 8px}
+.goal-bar span{display:block;height:100%;background:var(--green);border-radius:8px}
+.goal-actions{display:flex;gap:7px}
+.goal-actions button{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.goal-add{width:100%;border:1px dashed var(--green);background:var(--green-soft);color:var(--green-d);border-radius:12px;padding:11px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
+/* daily useful watch */
+.media-card .mc-body{font-size:15px;font-weight:800;line-height:1.7;padding-left:30px}
+.media-card .mc-sub{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.7}
+.media-watch{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;background:#E54B4B;color:#fff;text-decoration:none;border-radius:12px;padding:10px 14px;font-size:12.5px;font-weight:800}
+/* every ayah + tafsir */
+.ward-pair{position:relative}
+.ward-pair.marked{outline:2px solid #d5aa49;background:linear-gradient(180deg,#fffaf0,#f7efd9)}
+.ward-pair .pair-taf-label{font-size:11px;font-weight:800;color:#b8924a;margin-bottom:4px}
+.ward-mark-mini{border:none;background:#f3ead5;color:#8a6d35;border-radius:9px;padding:6px 9px;font-family:inherit;font-size:10.5px;font-weight:800;cursor:pointer;margin-top:8px}
+
 .foot{text-align:center;color:var(--faint);font-size:11.5px;margin-top:30px}
 
 /* reminder banner */
@@ -437,6 +483,7 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
 
   <div class="mini-card challenge-card" id="challengeCard"></div>
   <div class="mini-card breakfast-card" id="breakfastCard"></div>
+  <div class="mini-card media-card" id="dailyMediaCard"></div>
 
   <!-- Progress -->
   <div class="prog-card">
@@ -541,6 +588,14 @@ h1,h2,h3{font-family:'Reem Kufi',serif;font-weight:600;margin:0}
   <div class="section">
     <div class="section-head"><h2><span class="ico">🪙</span> فلوسي</h2><span class="meta" id="moneyMeta"></span></div>
     <div class="budget-card" id="budgetCard"></div>
+    <div class="finance-card" id="forecastCard"></div>
+    <div class="finance-card" id="goalsCard"></div>
+    <div class="finance-card">
+      <div class="finance-title"><span>🤝 السلف</span><span class="hint">لوحدها بعيد عن المصروف والدخل</span></div>
+      <div id="loansSummary"></div>
+      <div class="money-actions loan-actions"><button class="btn-lent" onclick="openLoan('lent')">↗ أنا مسلّف</button><button class="btn-borrowed" onclick="openLoan('borrowed')">↙ أنا واخد سلفة</button></div>
+      <div id="loansList"></div>
+    </div>
     <div class="accounts" id="accounts"></div>
     <div class="money-actions"><button class="btn-out" onclick="openTx('out')">− مصروف</button><button class="btn-in" onclick="openTx('in')">+ دخل</button><button class="btn-charity" onclick="openCharity()">🤲 صدقة</button></div>
     <button onclick="openTransfer()" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:15px">🔄 تحويل بين الحسابات</button>
@@ -614,7 +669,7 @@ const HABITS=[
 const WATER_GOAL=8;
 const ACCOUNTS=[['vodafone','فودافون كاش','📱'],['etisalat','اتصالات كاش','📲'],['instapay','انستا باي','🏦'],['wallet','المحفظة','👛']];
 const CATS=[['breakfast','فطار','🍳'],['outfood','أكل من برا','🍔'],['transport','مواصلات','🚗'],['fun','ترفيه','🎮'],['market','سوبر ماركت','🛒'],['subs','اشتراكات','📺'],['other','حاجة تانية','🧾']];
-function getBudget(){return load('life:budget',{monthly:3000,daily:100});}
+function getBudget(){const b=load('life:budget',{monthly:3000,daily:100,expectedIncome:0});return Object.assign({monthly:3000,daily:100,expectedIncome:0},b||{});}
 function setBudget(b){save('life:budget',b);}
 const INSPO=[
   // آيات
@@ -750,6 +805,10 @@ function getAccounts(){return load('life:accounts',{vodafone:0,etisalat:0,instap
 function setAccounts(a){save('life:accounts',a);}
 function getTx(){return load('life:tx',[]);}
 function setTx(t){save('life:tx',t);}
+function getLoans(){return load('life:loans',[]);}
+function setLoans(v){save('life:loans',v);}
+function getMoneyGoals(){return load('life:moneyGoals',[]);}
+function setMoneyGoals(v){save('life:moneyGoals',v);}
 
 // قيمة الصلاة: مسجد=1 كاملة، بيت=0.6
 const PRAY_MOSQUE=1, PRAY_HOME=0.6;
@@ -784,7 +843,7 @@ function monthAvg(){
   return cnt?Math.round(sum/cnt):0;
 }
 
-function render(){renderDate();renderInspo();renderHero();renderNow();renderPrayTimes();renderReminder();renderChallenge();renderBreakfast();renderWard();renderPrayers();renderAdhkar();renderHabits();renderSafa();renderTasks();renderMoney();renderTop();renderProgress();renderWeekly();}
+function render(){renderDate();renderInspo();renderHero();renderNow();renderPrayTimes();renderReminder();renderChallenge();renderBreakfast();renderDailyMedia();renderWard();renderPrayers();renderAdhkar();renderHabits();renderSafa();renderTasks();renderMoney();renderTop();renderProgress();renderWeekly();}
 function renderDate(){
   const days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
   const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -926,6 +985,29 @@ function addTask(){const inp=$('taskInput');const v=inp.value.trim();if(!v)retur
 function toggleTask(id){const d=getDay();const t=(d.tasks||[]).find(x=>x.id===id);if(t){t.done=!t.done;if(t.done)feedback();}setDay(d);renderTasks();renderTop();renderProgress();renderHero();if(isToday()&&dayPct(todayD())===100)maybeCelebrate('all');}
 function delTask(id){const d=getDay();d.tasks=(d.tasks||[]).filter(x=>x.id!==id);setDay(d);renderTasks();renderTop();renderProgress();}
 
+function moneyProjectionData(){
+  const ym=ymd(cursor).slice(0,7), all=getTx(), tx=all.filter(t=>t.date.slice(0,7)===ym);
+  const totalOut=tx.filter(t=>t.type==='out').reduce((s,t)=>s+t.amount,0);
+  const totalIn=tx.filter(t=>t.type==='in').reduce((s,t)=>s+t.amount,0);
+  const bud=getBudget(); const now=new Date();
+  const sameMonth=cursor.getFullYear()===now.getFullYear()&&cursor.getMonth()===now.getMonth();
+  const daysInMonth=new Date(cursor.getFullYear(),cursor.getMonth()+1,0).getDate();
+  const elapsed=sameMonth?Math.max(1,now.getDate()):daysInMonth;
+  const avgDailyOut=elapsed?totalOut/elapsed:0;
+  const projectedOut=sameMonth?totalOut+avgDailyOut*Math.max(0,daysInMonth-elapsed):totalOut;
+  const hist=[];
+  for(let back=1;back<=3;back++){
+    const d=new Date(cursor.getFullYear(),cursor.getMonth()-back,1), key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const v=all.filter(t=>t.type==='in'&&t.date.slice(0,7)===key).reduce((s,t)=>s+t.amount,0); if(v>0)hist.push(v);
+  }
+  const histIncome=hist.length?hist.reduce((s,v)=>s+v,0)/hist.length:0;
+  const expectedIncome=bud.expectedIncome>0?Math.max(totalIn,bud.expectedIncome):Math.max(totalIn,histIncome);
+  const futureIncome=sameMonth?Math.max(0,expectedIncome-totalIn):0;
+  const futureOut=sameMonth?Math.max(0,projectedOut-totalOut):0;
+  const acc=getAccounts(), cash=ACCOUNTS.reduce((s,[k])=>s+(acc[k]||0),0);
+  const loans=getLoans().filter(l=>!l.settled), lent=loans.filter(l=>l.type==='lent').reduce((s,l)=>s+l.amount,0), borrowed=loans.filter(l=>l.type==='borrowed').reduce((s,l)=>s+l.amount,0);
+  return {ym,totalOut,totalIn,bud,daysInMonth,elapsed,avgDailyOut,projectedOut,expectedIncome,futureIncome,futureOut,cash,endCash:cash+futureIncome-futureOut,monthlySpare:expectedIncome-projectedOut,lent,borrowed,netWorth:cash+lent-borrowed};
+}
 function renderMoney(){
   const acc=getAccounts();
   $('accounts').innerHTML=ACCOUNTS.map(([k,name,ico])=>`<div class="acc" onclick="openEditAccount('${k}')"><div class="an">${ico} ${name}</div><div class="ab">${fmt(acc[k]||0)} <span class="cur">${CUR}</span></div></div>`).join('');
@@ -933,18 +1015,16 @@ function renderMoney(){
   const out=tx.filter(t=>t.type==='out');const byCat={};out.forEach(t=>{byCat[t.cat]=(byCat[t.cat]||0)+t.amount;});
   const totalOut=out.reduce((s,t)=>s+t.amount,0);const totalIn=tx.filter(t=>t.type==='in').reduce((s,t)=>s+t.amount,0);
   $('moneyMeta').textContent=`−${fmt(totalOut)} / +${fmt(totalIn)}`;
-  // ----- budget + savings -----
   const bud=getBudget();
   const todayOut=getTx().filter(t=>t.type==='out'&&t.date===ymd(cursor)).reduce((s,t)=>s+t.amount,0);
   const savings=totalIn-totalOut;
-  const dPct=Math.min(100,bud.daily?todayOut/bud.daily*100:0);
-  const mPct=Math.min(100,bud.monthly?totalOut/bud.monthly*100:0);
+  const dPct=Math.min(100,bud.daily?todayOut/bud.daily*100:0), mPct=Math.min(100,bud.monthly?totalOut/bud.monthly*100:0);
   const dCol=todayOut>bud.daily?'var(--rose)':todayOut>bud.daily*0.8?'var(--gold)':'var(--green)';
   const mCol=totalOut>bud.monthly?'var(--rose)':totalOut>bud.monthly*0.8?'var(--gold)':'var(--green)';
   $('budgetCard').innerHTML=`
     <div class="bsplit">
-      <div class="bbox save"><div class="bl">💰 تحويش الشهر</div><div class="bv">${fmt(savings)} ${CUR}</div></div>
-      <div class="bbox" onclick="openBudget()"><div class="bl">🎯 حدودي (دوس للتعديل)</div><div class="bv">${fmt(bud.daily)}/${fmt(bud.monthly)}</div></div>
+      <div class="bbox save"><div class="bl">💰 الفرق بين الدخل والمصروف</div><div class="bv">${fmt(savings)} ${CUR}</div></div>
+      <div class="bbox" onclick="openBudget()"><div class="bl">🎯 حدودي ودخلي المتوقع</div><div class="bv">${fmt(bud.daily)}/${fmt(bud.monthly)}</div></div>
     </div>
     <div class="bbar-wrap" style="margin-bottom:12px">
       <div class="bbar-lbl"><span>📅 مصروف النهاردة</span><span class="r">${fmt(todayOut)} / ${fmt(bud.daily)}</span></div>
@@ -956,20 +1036,53 @@ function renderMoney(){
       <div class="bbar"><div class="fill" style="width:${mPct}%;background:${mCol}"></div></div>
       ${totalOut>bud.monthly?`<div class="bsub" style="color:var(--rose)">عدّيت حدّك الشهري بـ ${fmt(totalOut-bud.monthly)} ج</div>`:`<div class="bsub">فاضلك ${fmt(Math.max(0,bud.monthly-totalOut))} ج للحد الشهري</div>`}
     </div>`;
+  renderForecast(); renderLoans(); renderGoals();
   const charityMonth=tx.filter(t=>t.type==='charity').reduce((s,t)=>s+t.amount,0);
   const chips=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>{const cat=CATS.find(x=>x[0]===c);return `<div class="spend-chip">${cat?cat[2]+' '+cat[1]:c} <b>${fmt(v)}</b></div>`;}).join('')
     + (charityMonth?`<div class="spend-chip" style="border-color:#EAD9AC;background:var(--gold-soft);color:#8A6D1E">🤲 صدقات <b style="color:#8A6D1E">${fmt(charityMonth)}</b></div>`:'');
   $('spendBar').innerHTML=chips||`<div class="spend-chip" style="color:var(--faint)">لسه مفيش مصاريف الشهر ده</div>`;
   const recent=getTx().slice().sort((a,b)=>b.ts-a.ts).slice(0,12);
-  $('txList').innerHTML=recent.length?recent.map(t=>{const cat=CATS.find(x=>x[0]===t.cat);const ac=ACCOUNTS.find(x=>x[0]===t.account);
-    const isCh=t.type==='charity';
-    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?'⬆️':(cat?cat[2]:'🧾')}</div>
-      <div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?'دخل':(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div>
-      <div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;}).join('')
-    :`<div class="empty">سجّل أول حركة فلوس 💸</div>`;
+  $('txList').innerHTML=recent.length?recent.map(t=>{
+    if(t.type==='transfer'){const f=ACCOUNTS.find(x=>x[0]===t.from),to=ACCOUNTS.find(x=>x[0]===t.to);return `<div class="tx transfer"><div class="txico">🔄</div><div class="txmain"><div class="txcat">تحويل${t.note?' · '+esc(t.note):''}</div><div class="txsub">${f?f[1]:''} ← ${to?to[1]:''} · ${t.date}</div></div><div class="txamt">${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;}
+    const cat=CATS.find(x=>x[0]===t.cat), ac=ACCOUNTS.find(x=>x[0]===t.account), isCh=t.type==='charity';
+    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?'⬆️':(cat?cat[2]:'🧾')}</div><div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?'دخل':(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div><div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;
+  }).join(''):`<div class="empty">سجّل أول حركة فلوس 💸</div>`;
 }
-function delTx(id){const tx=getTx();const t=tx.find(x=>x.id===id);if(!t)return;if(!confirm('تشيل الحركة دي؟ هترجّع الفلوس للحساب.'))return;
-  const acc=getAccounts();if(t.type==='in')acc[t.account]=(acc[t.account]||0)-t.amount;else acc[t.account]=(acc[t.account]||0)+t.amount;
+function renderForecast(){
+  const p=moneyProjectionData(), expectedSrc=p.bud.expectedIncome>0?'الرقم اللي انت محدده':'دخلك المسجل/متوسط آخر الشهور';
+  $('forecastCard').innerHTML=`<div class="finance-title"><span>🔮 توقع آخر الشهر</span><span class="hint">حسب نمط صرفك لحد دلوقتي</span></div>
+    <div class="forecast-grid">
+      <div class="forecast-item"><div class="fl">متوقع تصرف الشهر</div><div class="fv">${fmt(p.projectedOut)} ${CUR}</div></div>
+      <div class="forecast-item"><div class="fl">الدخل المتوقع</div><div class="fv">${fmt(p.expectedIncome)} ${CUR}</div></div>
+      <div class="forecast-item"><div class="fl">متوقع رصيد الكاش آخر الشهر</div><div class="fv" style="color:${p.endCash<0?'var(--rose)':'var(--green-d)'}">${fmt(p.endCash)} ${CUR}</div></div>
+      <div class="forecast-item"><div class="fl">صافي فلوسك مع السلف</div><div class="fv">${fmt(p.netWorth)} ${CUR}</div></div>
+    </div>
+    <div class="forecast-note">متوسط صرفك اليومي ${fmt(p.avgDailyOut)} ج · مصدر تقدير الدخل: ${expectedSrc}. دوس على «حدودي ودخلي المتوقع» لو عايز تثبّت رقم دخلك الشهري.</div>`;
+}
+function renderLoans(){
+  const loans=getLoans().filter(l=>!l.settled).sort((a,b)=>b.ts-a.ts);
+  const lent=loans.filter(l=>l.type==='lent').reduce((s,l)=>s+l.amount,0), borrowed=loans.filter(l=>l.type==='borrowed').reduce((s,l)=>s+l.amount,0);
+  $('loansSummary').innerHTML=`<div class="loan-summary"><div class="loan-box"><div class="ll">لي عند الناس</div><div class="lv" style="color:var(--green-d)">${fmt(lent)} ${CUR}</div></div><div class="loan-box"><div class="ll">عليا للناس</div><div class="lv" style="color:var(--rose)">${fmt(borrowed)} ${CUR}</div></div></div>`;
+  $('loansList').innerHTML=loans.length?loans.map(l=>`<div class="loan-row"><div class="li">${l.type==='lent'?'↗':'↙'}</div><div class="lm"><div class="ln">${esc(l.person||'بدون اسم')}</div><div class="ls">${l.type==='lent'?'أنا مسلّفه':'أنا واخد منه سلفة'} · ${l.date}${l.note?' · '+esc(l.note):''}</div></div><div class="la">${fmt(l.amount)} ج</div><button class="loan-done" onclick="settleLoan('${l.id}')">اتسدّت</button><button class="loan-del" onclick="deleteLoan('${l.id}')">✕</button></div>`).join(''):`<div class="empty" style="padding:12px">مفيش سلف مفتوحة دلوقتي 👌</div>`;
+}
+function goalEtaText(g,monthlySpare){
+  const remain=Math.max(0,g.target-g.saved); if(remain<=0)return 'الهدف اتحقق 🎉';
+  if(monthlySpare<=0)return 'بالمعدل الحالي مفيش فائض كفاية — قلّل مصاريف أو زوّد دخل';
+  const months=Math.max(1,Math.ceil(remain/monthlySpare)), d=new Date(); d.setMonth(d.getMonth()+months);
+  return `متوقع توصل تقريبًا خلال ${months} شهر · ${d.toLocaleDateString('ar-EG',{month:'long',year:'numeric'})}`;
+}
+function renderGoals(){
+  const box=$('goalsCard'), goals=getMoneyGoals(), p=moneyProjectionData();
+  let h=`<div class="finance-title"><span>🎯 أهدافي</span><span class="hint">سكوتر، سفر، جهاز…</span></div><button class="goal-add" onclick="openGoal()">＋ أضف هدف جديد</button>`;
+  goals.forEach(g=>{const pct=g.target?Math.min(100,Math.round(g.saved/g.target*100)):0, remain=Math.max(0,g.target-g.saved);h+=`<div class="goal-row"><div class="goal-top"><div class="goal-main"><div class="goal-name">${esc(g.name)}</div><div class="goal-meta">متحوش ${fmt(g.saved)} من ${fmt(g.target)} ج · باقي ${fmt(remain)} ج<br>${goalEtaText(g,p.monthlySpare)}</div></div><div class="goal-pct">${pct}%</div></div><div class="goal-bar"><span style="width:${pct}%"></span></div><div class="goal-actions"><button onclick="addGoalSaving('${g.id}')">＋ زوّد التحويش</button><button onclick="openGoal('${g.id}')">✎ تعديل</button><button onclick="deleteGoal('${g.id}')">حذف</button></div></div>`;});
+  box.innerHTML=h;
+}
+
+function delTx(id){const tx=getTx();const t=tx.find(x=>x.id===id);if(!t)return;if(!confirm('تشيل الحركة دي؟ هترجّع أثرها على الفلوس.'))return;
+  const acc=getAccounts();
+  if(t.type==='transfer'){acc[t.from]=(acc[t.from]||0)+t.amount;acc[t.to]=(acc[t.to]||0)-t.amount;}
+  else if(t.type==='in')acc[t.account]=(acc[t.account]||0)-t.amount;
+  else acc[t.account]=(acc[t.account]||0)+t.amount;
   setAccounts(acc);setTx(tx.filter(x=>x.id!==id));renderMoney();renderTop();renderReminder();toast('اتشالت');}
 
 function renderTop(){
@@ -1089,23 +1202,40 @@ const CHALLENGES=[
    why:'أكبر سرّ في إدارة الفلوس إنك تفرّق بين الحاجة والرغبة. الحاجة لازم (أكل، مواصلات، فاتورة)، الرغبة كماليات (نفسي فيها بس أقدر أعيش من غيرها). مش معنى ده إنك تحرم نفسك، لكن لما تعرف الفرق، بتصرف بوعي وبتقدّم الأهم. جرّب النهاردة تصنّف أي حاجة قبل ما تشتريها.',
    do:'النهاردة قبل أي مصروف، اسأل نفسك: ده محتاجه فعلًا ولا نفسي فيه بس؟'},
 ];
-// فطار صحّي عالي البروتين من اللي بتحبه
+// فطار مصري بسيط وصحّي من الحاجات اللي بتتجاب فعلًا
 const BREAKFASTS=[
-  {t:'٣ بيضات أومليت بالجبنة + توست أسمر',sub:'بروتين عالي ويشبّع'},
-  {t:'فول بزيت الزيتون + بيضة مسلوقة + خيار وطماطم',sub:'كلاسيك مصري متوازن'},
-  {t:'زبادي يوناني + شوفان + موز + عسل',sub:'بروتين وألياف وطاقة'},
-  {t:'بيضتين مسلوقين + جبنة قريش + زيتون',sub:'خفيف وبروتين عالي'},
-  {t:'ساندويتش تونة بالخس والطماطم على توست أسمر',sub:'أوميجا٣ وبروتين'},
-  {t:'فول بالطحينة + بيضة + رغيف أسمر',sub:'مشبّع لفترة طويلة'},
-  {t:'أومليت بالخضار (فلفل/طماطم/سبانخ) + جبنة',sub:'فيتامينات وبروتين'},
-  {t:'زبادي + جرانولا + توت/فراولة + ملعقة زبدة فول سوداني',sub:'فطار رياضي'},
-  {t:'بيض مقلي ببياض أكتر + جبنة قريش + توست',sub:'بروتين مع تقليل الدسم'},
-  {t:'فول مدمّس + سلطة بلدي + بيضة + شريحة جبنة',sub:'فطار يكفّيك لبعد الضهر'},
-  {t:'سندويتش جبنة قريش بالطماطم والنعناع + بيضة جنب',sub:'خفيف ومنعش'},
-  {t:'شوفان مطبوخ باللبن + موز + قرفة + مكسرات',sub:'دافي ومشبّع للصبح'},
-  {t:'٣ بيضات بالجبنة الموتزاريلا + زيتون + خيار',sub:'بروتين عالي ولذيذ'},
-  {t:'فول بالبيض والطحينة + رغيف أسمر + شاي',sub:'فطار الطاقة الكامل'},
+  {t:'فول من العربية + بيضة مسلوقة + خيار وطماطم',sub:'اختيار مصري بسيط ومشبّع — خفّ الزيت على قد ما تقدر'},
+  {t:'٢–٣ بيضات + رغيف بلدي صغير + طماطم وخيار',sub:'بروتين كويس ومكونات موجودة في أي بيت'},
+  {t:'علبة تونة مصفّاة + نص/رغيف بلدي + سلطة بلدي',sub:'سريع ومشبّع ومن غير توست ولا مكونات غريبة'},
+  {t:'فول بالليمون والكمون + رغيف بلدي صغير + خضار',sub:'فطار شعبي محترم؛ اطلب زيت قليل'},
+  {t:'بيض بالطماطم والبصل + رغيف بلدي صغير',sub:'سخن وسهل ويتعمل في ١٠ دقايق'},
+  {t:'فول + بيضة + شوية جبنة قريش + خيار',sub:'يشبّع ويديك بروتين أعلى'},
+  {t:'تونة + بيضة مسلوقة + طماطم وخيار',sub:'لو مش عايز عيش كتير النهاردة'},
+  {t:'٢ بيضة مسلوقة + جبنة قريش بالطماطم + رغيف بلدي صغير',sub:'فطار مصري خفيف ومش مكلف'},
+  {t:'طبق فول صغير + ٢ طعمية + سلطة كتير',sub:'لو هتفطر من العربية — خلي الطعمية قليلة ومش كل يوم'},
+  {t:'فول بالبيض + سلطة بلدي + نص رغيف',sub:'وجبة واحدة تشبعك بدل السناكس طول الصبح'},
+  {t:'أومليت ٣ بيضات بالطماطم والفلفل + خيار',sub:'مكونات عادية وبروتين عالي'},
+  {t:'تونة بالليمون والشطة + رغيف بلدي صغير + جرجير',sub:'سريع ومناسب لو خارج مستعجل'},
+  {t:'بيضتين + قطعة جبنة بيضا + طماطم وخيار + نص رغيف',sub:'فطار بيت مصري متوازن وبسيط'},
+  {t:'فول صغير من العربية + سلطة + بيضة، ومن غير بطاطس',sub:'حل عملي لو بتفطر برا البيت أغلب الوقت'}
 ];
+
+// اقتراح مشاهدة يومي — روابط YouTube ثابتة وبتتغير حسب اليوم
+const DAILY_MEDIA=[
+  {t:'كيف تصمم حياتك وتعيش راضيًا',src:'بودكاست فنجان · ثمانية',tag:'حياة',url:'https://www.youtube.com/watch?v=MT8mUsrShEk'},
+  {t:'كيف تستثمر راتبك لتعيش غنيًا مع صلاح خاشقجي',src:'بودكاست فنجان · ثمانية',tag:'فلوس',url:'https://www.youtube.com/watch?v=4kxqvBaNmMY'},
+  {t:'كيف تنجح العلاقات مع ياسر الحزيمي',src:'بودكاست فنجان · ثمانية',tag:'علاقات',url:'https://www.youtube.com/watch?v=pJ0auP7dbcY'},
+  {t:'كيف تتغلب على مشاكل النوم',src:'بودكاست فنجان · ثمانية',tag:'صحة',url:'https://www.youtube.com/watch?v=4OcuI3PHf1M'},
+  {t:'الإنسان إيه غير شوية عادات — العادات الذرية',src:'أخضر',tag:'عادات',url:'https://www.youtube.com/watch?v=GUURUdbVNHI'},
+  {t:'كيف تقوي ذاكرتك بنسبة 500%؟',src:'دروس أونلاين · أحمد أبو زيد',tag:'تعلم',url:'https://www.youtube.com/watch?v=NeLjzv2X4t0'},
+  {t:'كيف تصبح شخص مثقف وموسوعي',src:'دروس أونلاين',tag:'معرفة',url:'https://www.youtube.com/watch?v=HETbHdyRNlk'},
+  {t:'كيف تذاكر أقل وتذاكر بذكاء؟',src:'دروس أونلاين · أحمد أبو زيد',tag:'تركيز',url:'https://www.youtube.com/watch?v=PhmxIWB4quw'},
+  {t:'كيف تدير ذاتك: 7 طوابق لفهم نفسك أكثر',src:'بودكاست أروقة',tag:'وعي',url:'https://www.youtube.com/watch?v=cmyy22kJRYM'},
+  {t:'خدعة تطوير الذات: لماذا تقرأ ولا تتغير',src:'بودكاست بترولي',tag:'تطوير',url:'https://www.youtube.com/watch?v=KCZqt_w9bnk'},
+  {t:'كيف تتناول وجبات سريعة وتنحف',src:'بودكاست فنجان · ثمانية',tag:'صحة',url:'https://www.youtube.com/watch?v=AdKDNrXwW50'},
+  {t:'أين المعنى في هذه الحياة',src:'بودكاست فنجان · ثمانية',tag:'تفكير',url:'https://www.youtube.com/watch?v=UjXvq_YyeZ0'}
+];
+
 function dayIndex(){return Math.floor(cursor.getTime()/864e5);}
 function renderChallenge(){
   const idx=((dayIndex()%CHALLENGES.length)+CHALLENGES.length)%CHALLENGES.length;
@@ -1136,6 +1266,23 @@ function shuffleBreakfast(){
   if(n===(d.bfIdx||0)) n=(n+1)%BREAKFASTS.length;
   d.bfIdx=n; setDay(d); renderBreakfast();
 }
+function renderDailyMedia(){
+  const box=$('dailyMediaCard'); if(!box)return;
+  const d=getDay();
+  const idx=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):(d.mediaIdx%DAILY_MEDIA.length);
+  const m=DAILY_MEDIA[idx];
+  box.innerHTML=`
+    <button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button>
+    <div class="mc-head">🎧 حاجة مفيدة تتفرج عليها النهاردة <span class="tag">${m.tag}</span></div>
+    <div class="mc-body">${m.t}</div>
+    <div class="mc-sub">${m.src}</div>
+    <a class="media-watch" href="${m.url}" target="_blank" rel="noopener">▶ افتح على YouTube</a>`;
+}
+function shuffleDailyMedia(){
+  const d=getDay(); const cur=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):d.mediaIdx;
+  let n=Math.floor(Math.random()*DAILY_MEDIA.length); if(n===cur)n=(n+1)%DAILY_MEDIA.length;
+  d.mediaIdx=n; setDay(d); renderDailyMedia();
+}
 
 // ===== الورد القرآني (تتبّع الصفحات + آيات + تفسير شارح موثوق) =====
 const QURAN_PER_DAY=4, QURAN_START=80, QURAN_PAGES=604;
@@ -1147,8 +1294,8 @@ function quranPage(){return load('life:quranPage',QURAN_START);}
 function wardStartPage(){const d=getDay();return (d.wardStart!=null)?d.wardStart:quranPage();}
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
 // كاش محلي للصفحات (القرآن ثابت → يتخزّن دايمًا ويشتغل أوفلاين بعد أول تحميل) — بعيد عن مزامنة السحابة
-function qcacheGet(p){try{const s=localStorage.getItem('quran:pg:'+p+':v3');return s?JSON.parse(s):null;}catch(e){return null;}}
-function qcacheSet(p,v){try{localStorage.setItem('quran:pg:'+p+':v3',JSON.stringify(v));}catch(e){}}
+function qcacheGet(p){try{const s=localStorage.getItem('quran:pg:'+p+':v4');return s?JSON.parse(s):null;}catch(e){return null;}}
+function qcacheSet(p,v){try{localStorage.setItem('quran:pg:'+p+':v4',JSON.stringify(v));}catch(e){}}
 // تفسير سورة كاملة مرة واحدة (بيتخزّن محليًا) بدل طلب لكل آية
 function tafsirSurahCacheGet(s){try{const t=localStorage.getItem('tafsir:'+TAFSEER_EDITION+':'+s);return t?JSON.parse(t):null;}catch(e){return null;}}
 function tafsirSurahCacheSet(s,v){try{localStorage.setItem('tafsir:'+TAFSEER_EDITION+':'+s,JSON.stringify(v));}catch(e){}}
@@ -1159,40 +1306,40 @@ function fetchWithTimeout(url,ms){
     fetch(url).then(r=>{clearTimeout(t);resolve(r);},e=>{clearTimeout(t);reject(e);});
   });
 }
-async function fetchSurahTafsir(surahNum){
-  const c=tafsirSurahCacheGet(surahNum); if(c)return c;
-  const urls=[
-    'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json',
-    'https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json',
-    'https://cdn.statically.io/gh/spa5k/tafsir_api/main/tafsir/'+TAFSEER_EDITION+'/'+surahNum+'.json'
+async function fetchTafsirEdition(edition,surahNum){
+  const bases=[
+    'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/editions/',
+    'https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/editions/',
+    'https://cdn.statically.io/gh/spa5k/tafsir_api/main/tafsir/editions/'
   ];
-  // نبعت الطلبات الثلاثة سوا (مش واحد ورا التاني) ونمشي مع أول مصدر يرد بنجاح
-  const attempts=urls.map(url=>fetchWithTimeout(url,7000).then(r=>{
-    if(!r.ok) throw new Error('http');
-    return r.json();
+  const attempts=bases.map(base=>fetchWithTimeout(base+edition+'/'+surahNum+'.json',8000).then(r=>{
+    if(!r.ok) throw new Error('http'); return r.json();
   }).then(j=>{
-    const map={}; (j&&j.ayahs||[]).forEach(a=>{ map[a.ayah]=a.text; });
-    if(!Object.keys(map).length) throw new Error('empty');
-    return map;
+    const map={}; (j&&j.ayahs||[]).forEach(a=>{ if(a&&a.ayah&&a.text)map[a.ayah]=a.text; });
+    if(!Object.keys(map).length)throw new Error('empty'); return map;
   }));
-  try{
-    const map=await Promise.any(attempts);
-    tafsirSurahCacheSet(surahNum,map);
-    return map;
-  }catch(e){ return {}; /* كل المصادر فشلت — هنرجع لخطة احتياطية تانية */ }
+  try{return await Promise.any(attempts);}catch(e){return {};}
+}
+async function fetchSurahTafsir(surahNum){
+  const c=tafsirSurahCacheGet(surahNum); if(c&&Object.keys(c).length)return c;
+  // المصدر الأساسي: السعدي. لو بعض الآيات ناقصة بنجرّب نسخة السعدي الثانية في نفس المشروع.
+  const primary=await fetchTafsirEdition(TAFSEER_EDITION,surahNum);
+  const secondary=await fetchTafsirEdition('ar-tafseer-al-saddi',surahNum);
+  const map=Object.assign({},secondary,primary);
+  if(Object.keys(map).length)tafsirSurahCacheSet(surahNum,map);
+  return map;
 }
 async function fetchTafsirRange(surahNum,from,to){
   const map=await fetchSurahTafsir(surahNum);
   const out={}; const missing=[];
-  for(let n=from;n<=to;n++){ if(map[n]) out[n]=map[n]; else missing.push(n); }
+  for(let n=from;n<=to;n++){ if(map[n]&&String(map[n]).trim())out[n]=map[n]; else missing.push(n); }
   if(missing.length){
-    // خطة احتياطية مضمونة: التفسير الميسر من alquran.cloud (مصدر مختلف تمامًا، مجرّب وشغّال) لأي آية ما اتحمّلتش من المصدر الأساسي
-    try{
-      const results=await Promise.all(missing.map(n=>
-        fetchWithTimeout('https://api.alquran.cloud/v1/ayah/'+surahNum+':'+n+'/ar.muyassar',7000).then(r=>r.json()).catch(()=>null)
-      ));
-      results.forEach((r,i)=>{ if(r&&r.data&&r.data.text) out[missing[i]]=r.data.text; });
-    }catch(e){ /* لو الشبكة فصلت خالص، هنسيب الآيات دي من غير تفسير */ }
+    // fallback مستقل: التفسير الميسر لكل آية على حدة.
+    const results=await Promise.all(missing.map(n=>
+      fetchWithTimeout('https://api.alquran.cloud/v1/ayah/'+surahNum+':'+n+'/ar.muyassar',8000)
+        .then(r=>r.ok?r.json():null).catch(()=>null)
+    ));
+    results.forEach((r,i)=>{ if(r&&r.data&&r.data.text)out[missing[i]]=r.data.text; });
   }
   return out;
 }
@@ -1212,7 +1359,7 @@ async function fetchQPage(p){
   const maps=await Promise.all(groups.map(g=>fetchTafsirRange(g.surahNum,g.from,g.to)));
   const bySurah={};
   groups.forEach((g,i)=>{ bySurah[g.surahNum]=Object.assign(bySurah[g.surahNum]||{},maps[i]); });
-  const ayahs=raw.map(a=>({n:a.n,surah:a.surah,text:a.text,tafsir:(bySurah[a.surahNum]&&bySurah[a.surahNum][a.n])||''}));
+  const ayahs=raw.map(a=>({n:a.n,surahNum:a.surahNum,surah:a.surah,text:a.text,tafsir:(bySurah[a.surahNum]&&bySurah[a.surahNum][a.n])||''}));
   const v={page:p,ayahs}; qcacheSet(p,v); return v;
 }
 async function fetchWard(start){
@@ -1292,6 +1439,12 @@ function loadWardContent(start){
   fetchWard(start).then(data=>{ _wardData=data;_wardKey=key; if($('wardContent'))paintWard(data,start); })
     .catch(()=>{ const c=$('wardContent'); if(c)c.innerHTML=`<div style="color:#8b97a8;font-size:13px;text-align:center;padding:10px">تعذّر تحميل الآيات (محتاج نت). صفحاتك: ${start}–${Math.min(QURAN_PAGES,start+QURAN_PER_DAY-1)}.<br><button onclick="loadWardContent(${start})" style="margin-top:8px;background:#EEF4FB;border:none;color:#2E6FD6;font-weight:700;padding:8px 16px;border-radius:10px;font-family:inherit;cursor:pointer">جرّب تاني</button></div>`; });
 }
+function retryWardTafsir(){
+  const start=wardStartPage();
+  for(let p=start;p<=Math.min(QURAN_PAGES,start+QURAN_PER_DAY-1);p++){ try{localStorage.removeItem('quran:pg:'+p+':v4');}catch(e){} }
+  if(_wardFlat){ const ss=[...new Set(_wardFlat.map(a=>a.surahNum).filter(Boolean))]; ss.forEach(s=>{ try{localStorage.removeItem('tafsir:'+TAFSEER_EDITION+':'+s);}catch(e){} }); }
+  _wardKey=null; _wardData=null; loadWardContent(start); toast('بنعيد تحميل التفاسير 📚');
+}
 // اختيار عدد من الآيات عشوائيًا لكن ثابت طوال اليوم (بذرة = تاريخ اليوم)
 function pickDailyAyat(flat,n){
   const len=flat.length; n=Math.min(n,len); const idxs=[]; let x=hashStr(ymd(cursor))>>>0;
@@ -1306,24 +1459,19 @@ function paintWard(data,start){
   if(!flat.length){cont.innerHTML='';return;}
   const end=Math.min(QURAN_PAGES,start+QURAN_PER_DAY-1);
   const mark=getMark(); const markIdx=(mark&&mark.start===start)?mark.idx:-1;
-  const dayAyat=pickDailyAyat(flat,10); // ١٠ آيات عشوائية ثابتة لليوم (مش ترتيب أهمية)
-  let html=`<div class="aod-tag" style="text-align:center;margin-bottom:10px">🌟 آيات اليوم — جرعة مختارة بتتغيّر كل يوم</div>`;
-  dayAyat.forEach(aod=>{
-    html+=`<div class="aod-box">
-      <div class="aod-tag">${aod.surah} ﴿${aod.n}﴾</div>
-      <div class="aod-ayah">${aod.text}</div>
-      <div class="aod-tafsir">${aod.tafsir||'—'}</div>
+  let html=`<div class="aod-tag" style="text-align:center;margin-bottom:10px">📚 كل آية وتفسيرها — ${TAFSEER_NAME} مع تفسير ميسّر احتياطي</div>`;
+  if(markIdx>=0){ html+=`<button class="ward-mark-btn" onclick="goToMark()">📍 رجّعني لآخر وقفة (${flat[markIdx].surah} ﴿${flat[markIdx].n}﴾)</button>`; }
+  flat.forEach((a,i)=>{
+    html+=`<div class="aod-box ward-pair${i===markIdx?' marked':''}" id="wa_${i}">
+      <div class="aod-tag">${a.surah} ﴿${a.n}﴾</div>
+      <div class="aod-ayah">${a.text}</div>
+      <div class="pair-taf-label">📖 التفسير</div>
+      <div class="aod-tafsir">${a.tafsir&&String(a.tafsir).trim()?a.tafsir:'تعذّر تحميل التفسير الآن — جرّب إعادة تحميل الورد لما النت يرجع.'}</div>
+      <button class="ward-mark-mini" onclick="markHere(${i})">📍 علّم وقفتي هنا</button>
     </div>`;
   });
-  if(markIdx>=0){ html+=`<button class="ward-mark-btn" onclick="goToMark()">📍 رجّعني لآخر وقفة (${flat[markIdx].surah} ﴿${flat[markIdx].n}﴾)</button>`; }
-  html+=`<button class="ward-taf-btn" onclick="fullTafsir()">📚 اقرأ تفسير الورد كامل</button>`;
-  html+=`<div class="mushaf">
-      <div class="mushaf-head"><span>📖 صفحات ${start}–${end}</span><span>ضغطة = تفسير · مطوّلة = علّم وقفتك</span></div>
-      <div class="ayat">`;
-  flat.forEach((a,i)=>{ html+=`<span class="aclick${i===markIdx?' marked':''}" id="wa_${i}" data-i="${i}">${a.text} <span class="anum">﴿${a.n}﴾</span></span> `; });
-  html+=`</div></div><div id="wardTaf" style="margin-top:12px"></div>`;
+  html+=`<button class="ward-taf-btn" onclick="retryWardTafsir()">🔄 إعادة تحميل التفاسير</button><div id="wardTaf" style="margin-top:12px"></div>`;
   cont.innerHTML=html;
-  bindAyahEvents();
 }
 // ضغطة عادية = تفسير · ضغطة مطوّلة (نصف ثانية) = تعليم الوقفة
 function bindAyahEvents(){
@@ -1967,6 +2115,45 @@ function confetti(){
     setTimeout(()=>c.remove(),3400);}
 }
 
+function openLoan(type){
+  let account='vodafone';
+  sheet(`<h3>${type==='lent'?'↗ أنا مسلّف حد':'↙ أنا واخد سلفة'}</h3>
+    <div class="field"><label>اسم الشخص</label><input id="loanPerson" placeholder="مثلاً: محمد" autofocus></div>
+    <div class="field"><label>المبلغ (${CUR})</label><input class="big" id="loanAmount" type="number" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><label>${type==='lent'?'الفلوس خرجت من':'الفلوس دخلت على'} حساب</label><div class="chips" id="loanAccChips">${ACCOUNTS.map(a=>`<button class="chip-opt ${a[0]==='vodafone'?'on':''}" data-a="${a[0]}">${a[2]} ${a[1]}</button>`).join('')}</div></div>
+    <div class="field"><label>ملاحظة (اختياري)</label><input id="loanNote" placeholder="مثلاً: يرجعها آخر الشهر"></div>
+    <label style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);margin-bottom:12px"><input id="loanAffect" type="checkbox" checked style="width:18px;height:18px"> سجّل حركة المبلغ على رصيدي دلوقتي</label>
+    <button class="save" id="loanSave">حفظ السلفة</button>`);
+  document.querySelectorAll('#loanAccChips .chip-opt').forEach(b=>b.onclick=()=>{account=b.dataset.a;sel('#loanAccChips',b);});
+  $('loanSave').onclick=()=>{const person=$('loanPerson').value.trim(),amount=parseFloat($('loanAmount').value),note=$('loanNote').value.trim();if(!person)return toast('اكتب اسم الشخص');if(!amount||amount<=0)return toast('اكتب مبلغ صح');const affect=$('loanAffect').checked;
+    if(affect){const a=getAccounts();a[account]=(a[account]||0)+(type==='borrowed'?amount:-amount);setAccounts(a);}
+    const loans=getLoans();loans.push({id:rid(),ts:Date.now(),date:ymd(cursor),type,person,amount,account,note,cashPosted:affect,settled:false});setLoans(loans);closeSheet();renderMoney();renderTop();toast('اتسجلت السلفة ✓');};
+}
+function settleLoan(id){
+  const loans=getLoans(),l=loans.find(x=>x.id===id);if(!l)return;if(!confirm(l.type==='lent'?'استلمت الفلوس دي ورجعتلك؟':'إنت سددت السلفة دي؟'))return;
+  const a=getAccounts();a[l.account]=(a[l.account]||0)+(l.type==='lent'?l.amount:-l.amount);setAccounts(a);l.settled=true;l.settledTs=Date.now();setLoans(loans);renderMoney();renderTop();toast('تمام، اتقفلت السلفة ✓');
+}
+function deleteLoan(id){
+  const loans=getLoans(),l=loans.find(x=>x.id===id);if(!l)return;if(!confirm('تحذف السلفة دي؟'))return;
+  if(l.cashPosted&&!l.settled){const a=getAccounts();a[l.account]=(a[l.account]||0)+(l.type==='lent'?l.amount:-l.amount);setAccounts(a);}
+  setLoans(loans.filter(x=>x.id!==id));renderMoney();renderTop();toast('اتحذفت');
+}
+function openGoal(id){
+  const goals=getMoneyGoals(),g=id?goals.find(x=>x.id===id):null;
+  sheet(`<h3>🎯 ${g?'تعديل الهدف':'هدف جديد'}</h3>
+    <div class="field"><label>عايز الفلوس دي علشان إيه؟</label><input id="goalName" value="${g?esc(g.name):''}" placeholder="مثلاً: سكوتر" autofocus></div>
+    <div class="field"><label>المبلغ اللي عايز توصله (${CUR})</label><input class="big" id="goalTarget" type="number" inputmode="decimal" value="${g?g.target:''}" placeholder="0"></div>
+    <div class="field"><label>متحوش له كام دلوقتي؟ (${CUR})</label><input id="goalSaved" type="number" inputmode="decimal" value="${g?g.saved:0}"></div>
+    <div class="bsub" style="margin-bottom:12px">الموقع هيحسب لك موعد تقريبي للوصول للهدف من معدل دخلك ومصاريفك.</div>
+    <button class="save" id="goalSave">حفظ الهدف</button>`);
+  $('goalSave').onclick=()=>{const name=$('goalName').value.trim(),target=parseFloat($('goalTarget').value),saved=Math.max(0,parseFloat($('goalSaved').value)||0);if(!name)return toast('اكتب اسم الهدف');if(!target||target<=0)return toast('اكتب مبلغ الهدف');if(g){g.name=name;g.target=target;g.saved=saved;}else goals.push({id:rid(),ts:Date.now(),name,target,saved});setMoneyGoals(goals);closeSheet();renderMoney();toast('الهدف اتحفظ 🎯');};
+}
+function addGoalSaving(id){
+  const goals=getMoneyGoals(),g=goals.find(x=>x.id===id);if(!g)return;sheet(`<h3>💰 زوّد تحويش «${esc(g.name)}»</h3><div class="field"><label>هتزود كام؟ (${CUR})</label><input class="big" id="goalAdd" type="number" inputmode="decimal" placeholder="0" autofocus></div><button class="save" id="goalAddSave">إضافة</button>`);
+  $('goalAddSave').onclick=()=>{const v=parseFloat($('goalAdd').value);if(!v||v<=0)return toast('اكتب مبلغ صح');g.saved=Math.min(g.target,(g.saved||0)+v);setMoneyGoals(goals);closeSheet();renderMoney();toast('اتضاف للتحويش ✓');};
+}
+function deleteGoal(id){if(!confirm('تحذف الهدف ده؟'))return;setMoneyGoals(getMoneyGoals().filter(g=>g.id!==id));renderMoney();toast('الهدف اتحذف');}
+
 function openTx(type){
   let cat='breakfast',account='vodafone';
   const catRow=type==='out'?`<div class="field"><label>الفئة</label><div class="chips" id="catChips">${CATS.map(c=>`<button class="chip-opt ${c[0]==='breakfast'?'on':''}" data-c="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div></div>`:'';
@@ -2023,14 +2210,15 @@ function openEditAccount(k){const acc=getAccounts();const a=ACCOUNTS.find(x=>x[0
   sheet(`<h3>${a[2]} ${a[1]}</h3><div class="field"><label>الرصيد الحالي (${CUR})</label><input class="big" id="accVal" type="number" inputmode="decimal" value="${acc[k]||0}" autofocus></div><button class="save" id="accSave">حفظ الرصيد</button>`);
   $('accSave').onclick=()=>{const v=parseFloat($('accVal').value);if(isNaN(v))return toast('اكتب رقم صح');const a2=getAccounts();a2[k]=v;setAccounts(a2);closeSheet();renderMoney();renderTop();toast('اتحفظ ✓');};}
 function openBudget(){const b=getBudget();
-  sheet(`<h3>🎯 حدود المصروف</h3>
+  sheet(`<h3>🎯 حدود المصروف والتوقعات</h3>
     <div class="field"><label>الحد اليومي (${CUR})</label><input class="big" id="budD" type="number" inputmode="decimal" value="${b.daily}"></div>
     <div class="field"><label>الحد الشهري (${CUR})</label><input class="big" id="budM" type="number" inputmode="decimal" value="${b.monthly}"></div>
-    <div class="bsub" style="margin-bottom:12px">نصيحة: الحد اليومي عادةً = الشهري ÷ ٣٠</div>
-    <button class="save" id="budSave">حفظ الحدود</button>`);
-  $('budSave').onclick=()=>{const d=parseFloat($('budD').value),m=parseFloat($('budM').value);
-    if(isNaN(d)||isNaN(m))return toast('اكتب أرقام صح');
-    setBudget({daily:d,monthly:m});closeSheet();renderMoney();toast('اتحفظت الحدود ✓');};
+    <div class="field"><label>دخلك المتوقع في الشهر (${CUR}) — اختياري</label><input class="big" id="budI" type="number" inputmode="decimal" value="${b.expectedIncome||0}"></div>
+    <div class="bsub" style="margin-bottom:12px">لو سيبت الدخل المتوقع 0، الموقع هيقدّره من الدخل المسجل ومتوسط الشهور السابقة.</div>
+    <button class="save" id="budSave">حفظ</button>`);
+  $('budSave').onclick=()=>{const d=parseFloat($('budD').value),m=parseFloat($('budM').value),inc=parseFloat($('budI').value)||0;
+    if(isNaN(d)||isNaN(m)||d<0||m<0||inc<0)return toast('اكتب أرقام صح');
+    setBudget({daily:d,monthly:m,expectedIncome:inc});closeSheet();renderMoney();toast('اتحفظت ✓');};
 }
 function openAccounts(){const acc=getAccounts();
   sheet(`<h3>🪙 حساباتي</h3>${ACCOUNTS.map(([k,name,ico])=>`<div class="field"><label>${ico} ${name}</label><input type="number" inputmode="decimal" data-acc="${k}" value="${acc[k]||0}"></div>`).join('')}<button class="save" id="accsSave">حفظ الكل</button>`);
