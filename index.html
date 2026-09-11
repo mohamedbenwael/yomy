@@ -855,6 +855,19 @@ body.v3-dark .tabbtn.on{background:#202d58}body.v3-dark .v3-focus{background:lin
 @media(max-width:520px){.v3-fab{left:18px;bottom:82px}.v3-quickrow{grid-template-columns:repeat(4,1fr)}.v3-q{padding:10px 3px;font-size:9.5px}.v3-command input{font-size:12px}.v3-summary-grid{gap:8px}.v3-metric{padding:12px}.v3-streaks{gap:6px}.v3-streak{padding:9px 3px}.v3-bar-row{grid-template-columns:78px 1fr 40px}.v3-worship-grid{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:900px){.v3-fab{left:38px;bottom:32px}.v3-smart{grid-template-columns:1.1fr .9fr}.v3-command,.v3-quickrow{grid-column:1/-1}.v3-summary-grid{grid-template-columns:repeat(4,1fr)}#pane-progress{max-width:900px}.v3-worship-grid{grid-template-columns:repeat(4,1fr)}}
 
+.tx .txedit{border:none;background:none;color:var(--faint);font-size:14px;cursor:pointer;padding:2px 4px}
+.tx .txedit:active{color:var(--green)}
+.friday-card{background:linear-gradient(135deg,#F3EEFF,#FFFFFF);border:1px solid #E4D8F5;border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.friday-card .fri-head{font-family:'Reem Kufi';font-size:16px;color:#5b4a8a}
+.friday-card .fri-sub{font-size:12.5px;color:var(--muted);margin:5px 0 12px;line-height:1.7}
+.friday-card .fri-actions{display:flex;gap:8px;flex-wrap:wrap}
+.friday-card .fri-actions button{flex:1;min-width:90px;border:1px solid #E4D8F5;background:#fff;color:#5b4a8a;border-radius:13px;padding:11px 8px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.14s}
+.friday-card .fri-actions button.on{background:var(--green);border-color:var(--green);color:#fff}
+.friday-card .fri-actions button:active{transform:scale(.96)}
+.friday-card .fri-dua{font-size:12.5px;color:#5b4a8a;margin-top:12px;text-align:center;font-weight:700}
+body.v3-dark .friday-card{background:linear-gradient(135deg,#241a3a,#171a2e);border-color:#3a2d5a}
+body.v3-dark .friday-card .fri-head,body.v3-dark .friday-card .fri-dua{color:#c9b8f0}
+body.v3-dark .friday-card .fri-actions button{background:#1a2036;border-color:#3a2d5a;color:#c9b8f0}
 </style>
 </head>
 <body>
@@ -897,6 +910,7 @@ body.v3-dark .tabbtn.on{background:#202d58}body.v3-dark .v3-focus{background:lin
     <div class="motiv" id="heroMotiv"></div>
   </div>
   <div id="smartHomeV3" class="v3-smart"></div>
+  <div id="fridayCard" style="display:none"></div>
 
   <div class="now-card" id="nowCard" style="display:none"></div>
 
@@ -1024,7 +1038,12 @@ body.v3-dark .tabbtn.on{background:#202d58}body.v3-dark .v3-focus{background:lin
   <div class="tabpane" id="pane-money" style="display:none">
   <div class="section">
     <div class="section-head"><h2><span class="ico">🪙</span> فلوسي</h2><span class="meta" id="moneyMeta"></span></div>
+    <div class="accounts" id="accounts"></div>
+    <div class="money-actions"><button class="btn-out" onclick="openTx('out')">− مصروف</button><button class="btn-in" onclick="openTx('in')">+ دخل</button><button class="btn-charity" onclick="openCharity()">🤲 صدقة</button></div>
+    <button onclick="openTransfer()" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:15px">🔄 تحويل بين الحسابات</button>
     <div class="budget-card" id="budgetCard"></div>
+    <div class="spend-bar" id="spendBar"></div>
+    <div class="card" style="margin-bottom:14px"><div id="txList"></div></div>
     <div class="finance-card" id="forecastCard"></div>
     <div class="finance-card" id="goalsCard"></div>
     <div class="finance-card">
@@ -1034,11 +1053,6 @@ body.v3-dark .tabbtn.on{background:#202d58}body.v3-dark .v3-focus{background:lin
       <div id="loansList"></div>
     </div>
     <div class="finance-card" id="obligationsCardV3"></div>
-    <div class="accounts" id="accounts"></div>
-    <div class="money-actions"><button class="btn-out" onclick="openTx('out')">− مصروف</button><button class="btn-in" onclick="openTx('in')">+ دخل</button><button class="btn-charity" onclick="openCharity()">🤲 صدقة</button></div>
-    <button onclick="openTransfer()" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:15px">🔄 تحويل بين الحسابات</button>
-    <div class="spend-bar" id="spendBar"></div>
-    <div class="card"><div id="txList"></div></div>
   </div>
   </div><!-- /pane-money -->
 
@@ -1085,8 +1099,7 @@ body.v3-dark .tabbtn.on{background:#202d58}body.v3-dark .v3-focus{background:lin
       ٣) كمّل نَفَسك مع الدايرة 🫁<br>
       ٤) افتح وردك أو اتصل بحد 📖
     </div>
-    <div class="safe-timer" id="safeTimer">5:00</div>
-    <button class="safe-btn safe-done" id="safeDoneBtn" onclick="safePassed()" disabled>… استنى الوقت يخلص</button>
+    <button class="safe-btn safe-done" id="safeDoneBtn" onclick="safePassed()">عدّت اللحظة بفضل الله 🤍</button>
     <button class="safe-btn safe-exit" onclick="closeSafety()">إغلاق</button>
   </div>
 </div>
@@ -1278,9 +1291,9 @@ function prayValue(p){return p==='mosque'?PRAY_MOSQUE:p==='home'?PRAY_HOME:0;}
 function dayPct(d){
   const day=getDayD(d);
   const pray=PRAYERS.reduce((s,[k])=>s+prayValue(day.prayers[k]),0); // 0..5
-  const hab=HABITS.filter(h=>day.habits[h.k]).length+((day.water||0)>=WATER_GOAL?1:0);
+  const hab=HABITS.filter(h=>day.habits[h.k]).length;
   const tT=(day.tasks||[]).length,tD=(day.tasks||[]).filter(t=>t.done).length;
-  const total=5+HABITS.length+1+tT, done=pray+hab+tD;
+  const total=5+HABITS.length+tT, done=pray+hab+tD;
   return total?Math.round(done/total*100):0;
 }
 // يوم "ناجح" لو ≥60%
@@ -1404,11 +1417,8 @@ function setPrayer(k,place){const d=getDay();const was=d.prayers[k];d.prayers[k]
   renderPrayers();renderTop();renderProgress();renderHero();renderNow();renderReminder();
   if(isToday()&&PRAYERS.every(([kk])=>getDay().prayers[kk])&&!(was&&PRAYERS.filter(([kk])=>getDay().prayers[kk]).length===5)) maybeCelebrate('prayers');}
 function renderHabits(){
-  const d=getDay();let done=0;const total=HABITS.length+1;
-  let html=`<div class="water"><div class="wtop"><div class="wname">💧 ٨ كوبايات مية</div><div class="wcount"><span>${d.water||0}</span>/${WATER_GOAL}</div></div>
-    <div class="cups">${Array.from({length:WATER_GOAL}).map((_,i)=>`<div class="cup ${i<(d.water||0)?'full':''}" onclick="setWater(${i+1})">${i<(d.water||0)?'💧':''}</div>`).join('')}</div></div>`;
-  if((d.water||0)>=WATER_GOAL)done++;
-  html+=HABITS.map(h=>{const on=d.habits[h.k];if(on)done++;
+  const d=getDay();let done=0;const total=HABITS.length;
+  let html=HABITS.map(h=>{const on=d.habits[h.k];if(on)done++;
     if(h.k==='adhkarAM'||h.k==='adhkarPM')return ''; // بيتحطّوا تلقائيًا من قسم الأذكار
     return `<div class="habit ${on?'done':''}" onclick="toggleHabit('${h.k}')"><div class="check">✓</div>
       <div class="hico">${h.ico}</div><div><div class="hname">${h.name}</div>${h.sub?`<div class="hsub">${h.sub}</div>`:''}</div></div>`;}).join('');
@@ -1520,7 +1530,7 @@ function renderMoney(){
   $('txList').innerHTML=recent.length?recent.map(t=>{
     if(t.type==='transfer'){const f=ACCOUNTS.find(x=>x[0]===t.from),to=ACCOUNTS.find(x=>x[0]===t.to);return `<div class="tx transfer"><div class="txico">🔄</div><div class="txmain"><div class="txcat">تحويل${t.note?' · '+esc(t.note):''}</div><div class="txsub">${f?f[1]:''} ← ${to?to[1]:''} · ${t.date}</div></div><div class="txamt">${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;}
     const cat=CATS.find(x=>x[0]===t.cat), ac=ACCOUNTS.find(x=>x[0]===t.account), isCh=t.type==='charity', incCat=INCOME_CATS.find(x=>x[0]===t.incomeCat);
-    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?(incCat?incCat[2]:'⬆️'):(cat?cat[2]:'🧾')}</div><div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?(incCat?incCat[1]:'دخل'):(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div><div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;
+    return `<div class="tx ${t.type}"><div class="txico">${isCh?'🤲':t.type==='in'?(incCat?incCat[2]:'⬆️'):(cat?cat[2]:'🧾')}</div><div class="txmain"><div class="txcat">${isCh?'صدقة':t.type==='in'?(incCat?incCat[1]:'دخل'):(cat?cat[1]:'مصروف')}${t.note?' · '+esc(t.note):''}</div><div class="txsub">${ac?ac[1]:''} · ${t.date}</div></div><div class="txamt">${t.type==='in'?'+':'−'}${fmt(t.amount)}</div><button class="txedit" onclick="editTx('${t.id}')">✎</button><button class="txdel" onclick="delTx('${t.id}')">✕</button></div>`;
   }).join(''):`<div class="empty">سجّل أول حركة فلوس 💸</div>`;
 }
 function renderForecast(){
@@ -1553,13 +1563,42 @@ function goalEtaText(g,monthlySpare){
   const months=Math.max(1,Math.ceil(remain/monthlySpare)), d=new Date(); d.setMonth(d.getMonth()+months);
   return `متوقع توصل تقريبًا خلال ${months} شهر · ${d.toLocaleDateString('ar-EG',{month:'long',year:'numeric'})}`;
 }
+function totalCashAll(){const acc=getAccounts();return ACCOUNTS.reduce((s,[k])=>s+(Number(acc[k])||0),0);}
 function renderGoals(){
   const box=$('goalsCard'), goals=getMoneyGoals(), p=moneyProjectionData();
-  let h=`<div class="finance-title"><span>🎯 أهدافي</span><span class="hint">سكوتر، سفر، جهاز…</span></div><button class="goal-add" onclick="openGoal()">＋ أضف هدف جديد</button>`;
-  goals.forEach(g=>{const pct=g.target?Math.min(100,Math.round(g.saved/g.target*100)):0, remain=Math.max(0,g.target-g.saved);h+=`<div class="goal-row"><div class="goal-top"><div class="goal-main"><div class="goal-name">${esc(g.name)}</div><div class="goal-meta">متحوش ${fmt(g.saved)} من ${fmt(g.target)} ج · باقي ${fmt(remain)} ج<br>${goalEtaText(g,p.monthlySpare)}</div></div><div class="goal-pct">${pct}%</div></div><div class="goal-bar"><span style="width:${pct}%"></span></div><div class="goal-actions"><button onclick="addGoalSaving('${g.id}')">＋ زوّد التحويش</button><button onclick="openGoal('${g.id}')">✎ تعديل</button><button onclick="deleteGoal('${g.id}')">حذف</button></div></div>`;});
+  const totalCash=totalCashAll();
+  let h=`<div class="finance-title"><span>🎯 أهدافي</span><span class="hint">بتتحسب من فلوسك تلقائيًا</span></div><button class="goal-add" onclick="openGoal()">＋ أضف هدف جديد</button>`;
+  goals.forEach(g=>{const auto=g.auto!==false;const saved=auto?Math.max(0,Math.min(g.target,totalCash)):(g.saved||0);const pct=g.target?Math.min(100,Math.round(saved/g.target*100)):0, remain=Math.max(0,g.target-saved);h+=`<div class="goal-row"><div class="goal-top"><div class="goal-main"><div class="goal-name">${esc(g.name)}${auto?' <span style="font-size:9.5px;color:var(--green-d);background:var(--green-soft);padding:2px 7px;border-radius:20px;font-weight:800">تلقائي</span>':''}</div><div class="goal-meta">${auto?`رصيدك الحالي ${fmt(saved)} من ${fmt(g.target)} ج · باقي ${fmt(remain)} ج`:`متحوش ${fmt(saved)} من ${fmt(g.target)} ج · باقي ${fmt(remain)} ج`}<br>${goalEtaText({...g,saved},p.monthlySpare)}</div></div><div class="goal-pct">${pct}%</div></div><div class="goal-bar"><span style="width:${pct}%"></span></div><div class="goal-actions">${auto?'':`<button onclick="addGoalSaving('${g.id}')">＋ زوّد التحويش</button>`}<button onclick="openGoal('${g.id}')">✎ تعديل</button><button onclick="deleteGoal('${g.id}')">حذف</button></div></div>`;});
   box.innerHTML=h;
 }
 
+function editTx(id){
+  const tx=getTx(), t=tx.find(x=>x.id===id); if(!t)return;
+  if(t.type==='transfer'){toast('التحويل بيتعدّل بالحذف وإعادة الإضافة');return;}
+  const isCh=t.type==='charity', isOut=t.type==='out', isIn=t.type==='in';
+  let cat=t.cat||'other', incomeCat=t.incomeCat||'salary', account=t.account||'vodafone';
+  const catRow = isOut?`<div class="field"><label>الفئة</label><div class="chips" id="eCatChips">${CATS.map(c=>`<button class="chip-opt ${c[0]===cat?'on':''}" data-c="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div></div>`
+    : isIn?`<div class="field"><label>نوع الدخل</label><div class="chips" id="eIncChips">${INCOME_CATS.map(c=>`<button class="chip-opt ${c[0]===incomeCat?'on':''}" data-i="${c[0]}">${c[2]} ${c[1]}</button>`).join('')}</div></div>`:'';
+  sheet(`<h3>✎ تعديل ${isCh?'الصدقة':isIn?'الدخل':'المصروف'}</h3>
+    <div class="field"><label>المبلغ (${CUR})</label><input class="big" id="eAmount" type="number" inputmode="decimal" value="${t.amount}" autofocus></div>${catRow}
+    <div class="field"><label>الحساب</label><div class="chips" id="eAccChips">${ACCOUNTS.map(a=>`<button class="chip-opt ${a[0]===account?'on':''}" data-a="${a[0]}">${a[2]} ${a[1]}</button>`).join('')}</div></div>
+    <div class="field"><label>ملاحظة (اختياري)</label><input id="eNote" value="${esc(t.note||'')}"></div>
+    <button class="save ${isOut||isCh?'out':''}" id="eSave">احفظ التعديل</button>`);
+  if(isOut)document.querySelectorAll('#eCatChips .chip-opt').forEach(b=>b.onclick=()=>{cat=b.dataset.c;sel('#eCatChips',b);});
+  if(isIn)document.querySelectorAll('#eIncChips .chip-opt').forEach(b=>b.onclick=()=>{incomeCat=b.dataset.i;sel('#eIncChips',b);});
+  document.querySelectorAll('#eAccChips .chip-opt').forEach(b=>b.onclick=()=>{account=b.dataset.a;sel('#eAccChips',b);});
+  $('eSave').onclick=()=>{
+    const amt=parseFloat($('eAmount').value); if(!amt||amt<=0)return toast('اكتب مبلغ صح');
+    const note=$('eNote').value.trim(); const acc=getAccounts();
+    const sign=(t.type==='in')?1:-1;
+    acc[t.account]=(acc[t.account]||0)-sign*t.amount; // ألغِ الأثر القديم
+    acc[account]=(acc[account]||0)+sign*amt;          // طبّق الأثر الجديد
+    setAccounts(acc);
+    t.amount=amt; t.account=account; t.note=note;
+    if(isOut)t.cat=cat; if(isIn)t.incomeCat=incomeCat;
+    setTx(tx); closeSheet(); renderMoney(); renderTop(); toast('اتعدّلت الحركة ✓');
+  };
+}
 function delTx(id){const tx=getTx();const t=tx.find(x=>x.id===id);if(!t)return;if(!confirm('تشيل الحركة دي؟ هترجّع أثرها على الفلوس.'))return;
   const acc=getAccounts();
   if(t.type==='transfer'){acc[t.from]=(acc[t.from]||0)+t.amount;acc[t.to]=(acc[t.to]||0)-t.amount;}
@@ -1588,18 +1627,6 @@ function renderReminder(){
     return false; // من غير مواعيد حقيقية، ما نطالبش بصلاة (الكارت بيكفّي)
   }).map(x=>x[1]);
   if(duePray.length) msgs.push({ico:'🕌',cls:'',t:`لسه ما سجّلتش: ${duePray.join('، ')}`});
-  // المية: فكّر بس لو متأخّر عن المعدّل المتوقّع حسب الوقت (مش طول اليوم)
-  if((d.water||0)<WATER_GOAL){
-    const startH=8, endH=22; // يوم الشرب من 8ص لـ 10م
-    if(h>=startH){
-      const frac=Math.min(1,(h-startH)/(endH-startH));
-      const expected=Math.ceil(frac*WATER_GOAL); // المفروض شربت كام لحد دلوقتي
-      if((d.water||0) < expected){
-        const left=WATER_GOAL-(d.water||0);
-        msgs.push({ico:'💧',cls:'',t:`خد بريك واشرب كوباية مية 💧 (فاضلك ${left})`});
-      }
-    }
-  }
   if(!d.habits.adhkarAM && h<12) msgs.push({ico:'🌅',cls:'',t:'متنساش أذكار الصباح'});
   if(!d.habits.adhkarPM && h>=17) msgs.push({ico:'🌙',cls:'',t:'متنساش أذكار المساء'});
   if(!d.habits.pill && h>=12) msgs.push({ico:'💊',cls:'',t:'أخدت الكولشيسين؟'});
@@ -1683,6 +1710,34 @@ const CHALLENGES=[
   {tag:'وعي مالي',ico:'🧾',t:'افصل بين «محتاجه» و«نفسي فيه»',
    why:'أكبر سرّ في إدارة الفلوس إنك تفرّق بين الحاجة والرغبة. الحاجة لازم (أكل، مواصلات، فاتورة)، الرغبة كماليات (نفسي فيها بس أقدر أعيش من غيرها). مش معنى ده إنك تحرم نفسك، لكن لما تعرف الفرق، بتصرف بوعي وبتقدّم الأهم. جرّب النهاردة تصنّف أي حاجة قبل ما تشتريها.',
    do:'النهاردة قبل أي مصروف، اسأل نفسك: ده محتاجه فعلًا ولا نفسي فيه بس؟'},
+  // ===== امتنان =====
+  {tag:'امتنان',ico:'🙏',t:'اكتب ٣ حاجات إنت شاكر ربنا عليها',
+   why:'الامتنان بيغيّر مزاجك ونظرتك للحياة. الدماغ بيميل يركّز على النقص، لكن لما تكتب كل يوم ٣ نِعَم إنت فيها (صحتك، أكلك، ناس بتحبك)، بتدرّب عقلك يشوف الخير. ربنا قال: «لئن شكرتم لأزيدنكم». الشكر مش بس عبادة، ده كمان راحة نفسية حقيقية.',
+   do:'اكتب دلوقتي ٣ نِعَم إنت شاكر ربنا عليها النهاردة.'},
+  // ===== صحة =====
+  {tag:'صحة',ico:'🚶',t:'امشِ ٢٠ دقيقة النهاردة',
+   why:'المشي من أبسط وأقوى العادات الصحية. ٢٠ دقيقة مشي بتحسّن مزاجك، تصفّي دماغك، وتنشّط جسمك من غير مجهود عنيف. مش محتاج جيم ولا معدّات — بس اطلع اتمشى. المشي بعد الأكل بيساعد الهضم كمان.',
+   do:'اطلع اتمشى ٢٠ دقيقة النهاردة، ويفضّل بعد وجبة.'},
+  {tag:'صحة',ico:'😴',t:'نام بدري النهاردة',
+   why:'النوم الكويس أساس كل حاجة: تركيزك، مزاجك، صحتك، وحتى عبادتك. السهر بياكل من طاقة يومك اللي بعده. جرّب تنام بدري النهاردة وتصحى لصلاة الفجر بنشاط. جسمك أمانة، والراحة بتقوّيك على الطاعة.',
+   do:'اقفل الموبايل بدري ونام النهاردة عشان تصحى الفجر بنشاط.'},
+  // ===== علاقات =====
+  {tag:'علاقات',ico:'📞',t:'اطمن على حد بتحبّه من غير مناسبة',
+   why:'العلاقات بتتغذّى من اللمسات الصغيرة. اتصال أو رسالة «إنت في بالي، عامل إيه؟» من غير سبب بتفرق جدًا. صلة الرحم بتبارك في العمر والرزق، والنبي ﷺ حثّ عليها. متستناش مناسبة عشان توصل حد.',
+   do:'اتصل أو ابعت لحد من أهلك أو صحابك دلوقتي تطمن عليه.'},
+  // ===== إنتاجية =====
+  {tag:'إنتاجية',ico:'✅',t:'خلّص أصعب مهمة الأول',
+   why:'قاعدة «كُل الضفدع» بتقول: ابدأ يومك بأصعب وأهم مهمة. لما تخلّص أثقل حاجة بدري، باقي اليوم بيبقى أسهل وطاقتك بتزيد. التأجيل بياكل طاقتك أكتر من الشغل نفسه. أصعب مهمة دلوقتي = أخف يوم بعدين.',
+   do:'حدّد أصعب مهمة النهاردة وابدأ بيها قبل أي حاجة تانية.'},
+  {tag:'تعلّم',ico:'📚',t:'اتعلّم حاجة جديدة صغيرة النهاردة',
+   why:'العقل زي العضلة، بيقوى بالاستخدام. معلومة جديدة كل يوم (كلمة إنجليزي، معلومة، مهارة صغيرة) بتراكم مع الوقت وبتوسّع أفقك. ١٥ دقيقة تعلّم يوميًا بتعمل فرق كبير في سنة.',
+   do:'خصّص ١٥ دقيقة النهاردة تتعلّم حاجة جديدة تهمك.'},
+  {tag:'ضبط النفس',ico:'🤐',t:'يوم من غير شكوى',
+   why:'الشكوى المستمرة بتسمّم مزاجك ومزاج اللي حواليك، وبتخلّيك تركّز على السلبي. جرّب يوم كامل من غير ما تشتكي — بدّل الشكوى بحل أو بسكوت أو بحمد. هتلاحظ إن طاقتك بتتغير ونظرتك بتصفى.',
+   do:'النهاردة كل ما تحس إنك هتشتكي، اسكت أو حوّلها لحمد أو حل عملي.'},
+  {tag:'إيماني',ico:'📖',t:'اقرأ صفحة من القرآن بتدبّر',
+   why:'مش المهم الكم، المهم التدبّر. صفحة واحدة تقراها بتركيز وتفهم معناها أحسن من أجزاء بتمر عليك من غير وعي. القرآن هدى وشفاء وطمأنينة. خصّص وقت هادي، اقرأ صفحة، وقف عند آية لمست قلبك.',
+   do:'اقرأ صفحة من القرآن النهاردة بتركيز، وقف عند آية تتدبّرها.'},
 ];
 // فطار مصري بسيط وصحّي من الحاجات اللي بتتجاب فعلًا
 const BREAKFASTS=[
@@ -1699,7 +1754,17 @@ const BREAKFASTS=[
   {t:'أومليت ٣ بيضات بالطماطم والفلفل + خيار',sub:'مكونات عادية وبروتين عالي'},
   {t:'تونة بالليمون والشطة + رغيف بلدي صغير + جرجير',sub:'سريع ومناسب لو خارج مستعجل'},
   {t:'بيضتين + قطعة جبنة بيضا + طماطم وخيار + نص رغيف',sub:'فطار بيت مصري متوازن وبسيط'},
-  {t:'فول صغير من العربية + سلطة + بيضة، ومن غير بطاطس',sub:'حل عملي لو بتفطر برا البيت أغلب الوقت'}
+  {t:'فول صغير من العربية + سلطة + بيضة، ومن غير بطاطس',sub:'حل عملي لو بتفطر برا البيت أغلب الوقت'},
+  {t:'شوفان (أوتس) باللبن + موزة + ملعقة عسل',sub:'فطار خفيف وسريع وبيشبّع لفترة طويلة'},
+  {t:'زبادي + شوفان أو جرانولا + فواكه مقطّعة',sub:'خفيف على المعدة ومنعش الصبح'},
+  {t:'ساندويتش جبنة قريش بالطماطم والزعتر + شاي',sub:'كلاسيك مصري خفيف ومش مكلف'},
+  {t:'شوفان بالحليب والقرفة + مكسرات',sub:'دافي ومشبّع في أيام البرد'},
+  {t:'أومليت بالسبانخ أو الفلفل + توست أسمر',sub:'بروتين وخُضار في وجبة واحدة'},
+  {t:'فول بالطحينة + رغيف بلدي صغير + مخلل خفيف',sub:'نكهة مختلفة عن الفول العادي'},
+  {t:'سلطة تونة بالذرة والخيار + كراكرز',sub:'لو عايز حاجة باردة وخفيفة'},
+  {t:'جبنة فيتا/بيضا + زيتون + طماطم + رغيف',sub:'فطار متوسطي بسيط ولذيذ'},
+  {t:'زبادي + موز + ملعقة زبدة فول سوداني',sub:'لو مستعجل وطالع بسرعة'},
+  {t:'عدس أو كشري صغير (لو فطارك متأخر)',sub:'وجبة مشبعة لو فطارك قريب من الغدا'}
 ];
 
 // اقتراح مشاهدة يومي — روابط YouTube ثابتة وبتتغير حسب اليوم
@@ -2522,8 +2587,6 @@ function renderNow(){
       if(!d.habits.adhkarAM) step={label:'دلوقتي',main:'🌅 أذكار الصباح',sub:'ابدأ يومك بذكر الله',btn:'تمّ',act:`quickHabit('adhkarAM')`};
       else if(!d.habits.quran) step={label:'دلوقتي',main:'📖 وردك القرآني',sub:'ولو صفحة، المهم تداوم',btn:'تمّ',act:`quickHabit('quran')`};
       else step={label:'دلوقتي',main:'🍳 فطارك',sub:'شوف اقتراح النهاردة تحت',btn:'شوف الفطار',act:`document.getElementById('breakfastCard').scrollIntoView({behavior:'smooth'})`};
-    } else if((d.water||0)<WATER_GOAL && h>=11 && h<18){
-      step={label:'دلوقتي',main:'💧 اشرب مية',sub:`شربت ${d.water||0} من ٨ — كمّل`,btn:'كوباية +',act:`setWater((getDay().water||0)+1)`};
     } else if(TIMES && now>=toMin(TIMES.Maghrib)){
       if(!d.habits.adhkarPM) step={label:'دلوقتي',main:'🌙 أذكار المساء',sub:'اختم يومك بذكر الله',btn:'تمّ',act:`quickHabit('adhkarPM')`};
       else if(!d.habits.sleep && new Date().getHours()>=22) step={label:'قبل ما تنام',main:'😴 نوم بدري',sub:'جسمك يستاهل راحة',btn:'تمّ',act:`quickHabit('sleep')`};
@@ -2543,7 +2606,6 @@ function renderWeekly(){
   let prayTotal=0,mosqueTotal=0,water=0,quran=0,adhkar=0,sleep=0,healthy=0,outSum=0,inSum=0;
   for(let i=0;i<7;i++){const dd=todayD();dd.setDate(dd.getDate()-i);const day=getDayD(dd);
     PRAYERS.forEach(([k])=>{if(day.prayers[k])prayTotal++;if(day.prayers[k]==='mosque')mosqueTotal++;});
-    water+=(day.water||0);
     if(day.habits.quran)quran++; if(day.habits.adhkarAM&&day.habits.adhkarPM)adhkar++;
     if(day.habits.sleep)sleep++; if(day.habits.healthy)healthy++;
   }
@@ -2551,7 +2613,6 @@ function renderWeekly(){
   tx.forEach(t=>{const td=new Date(t.date+'T00:00:00');if(td>=wk){if(t.type==='out')outSum+=t.amount;else inSum+=t.amount;}});
   const rows=[
     {ico:'🕌',name:'الصلاة',val:prayTotal+'/35',pct:prayTotal/35*100,extra:mosqueTotal?` (${mosqueTotal} مسجد)`:''},
-    {ico:'💧',name:'كوبايات المية',val:water+'',pct:Math.min(100,water/56*100)},
     {ico:'📖',name:'الورد القرآني',val:quran+'/7',pct:quran/7*100},
     {ico:'🌅',name:'الأذكار (صباح+مساء)',val:adhkar+'/7',pct:adhkar/7*100},
     {ico:'😴',name:'نوم ٨ ساعات',val:sleep+'/7',pct:sleep/7*100},
@@ -2613,8 +2674,23 @@ function openLoan(type){
     const loans=getLoans();loans.push({id:rid(),ts:Date.now(),date:ymd(cursor),type,person,amount,account,note,cashPosted:affect,settled:false});setLoans(loans);closeSheet();renderMoney();renderTop();toast('اتسجلت السلفة ✓');};
 }
 function settleLoan(id){
-  const loans=getLoans(),l=loans.find(x=>x.id===id);if(!l)return;if(!confirm(l.type==='lent'?'استلمت الفلوس دي ورجعتلك؟':'إنت سددت السلفة دي؟'))return;
-  const a=getAccounts();a[l.account]=(a[l.account]||0)+(l.type==='lent'?l.amount:-l.amount);setAccounts(a);l.settled=true;l.settledTs=Date.now();setLoans(loans);renderMoney();renderTop();toast('تمام، اتقفلت السلفة ✓');
+  const loans=getLoans(),l=loans.find(x=>x.id===id);if(!l)return;
+  const remaining=l.amount; const isLent=l.type==='lent'; let account=l.account||'vodafone';
+  sheet(`<h3>${isLent?'↗ سلفة رجعتلك':'↙ سداد سلفة عليك'}</h3>
+    <div class="bsub" style="margin-bottom:12px">${esc(l.person||'بدون اسم')} · المتبقّي <b>${fmt(remaining)} ${CUR}</b></div>
+    <div class="field"><label>${isLent?'استلمت كام؟ (سيبه زي ما هو لو رجع كامل)':'سدّدت كام؟ (سيبه زي ما هو لو دفعت الكل)'}</label><input class="big" id="stlAmount" type="number" inputmode="decimal" value="${remaining}" autofocus></div>
+    <div class="field"><label>${isLent?'الفلوس نزلت في أنهي حساب؟':'اتدفعت من أنهي حساب؟'}</label><div class="chips" id="stlAccChips">${ACCOUNTS.map(a=>`<button class="chip-opt ${a[0]===account?'on':''}" data-a="${a[0]}">${a[2]} ${a[1]}</button>`).join('')}</div></div>
+    <button class="save" id="stlSave">تأكيد</button>`);
+  document.querySelectorAll('#stlAccChips .chip-opt').forEach(b=>b.onclick=()=>{account=b.dataset.a;sel('#stlAccChips',b);});
+  $('stlSave').onclick=()=>{
+    let amt=parseFloat($('stlAmount').value); if(!amt||amt<=0)return toast('اكتب مبلغ صح');
+    if(amt>remaining)amt=remaining;
+    const a=getAccounts(); a[account]=(a[account]||0)+(isLent?amt:-amt); setAccounts(a);
+    l.amount=Math.round((remaining-amt)*100)/100;
+    if(l.amount<=0){ l.amount=0; l.settled=true; l.settledTs=Date.now(); }
+    setLoans(loans); closeSheet(); renderMoney(); renderTop();
+    toast(l.settled?'تمام، اتقفلت السلفة ✓':`اتسجّل ${fmt(amt)} ج · فاضل ${fmt(l.amount)} ج`);
+  };
 }
 function deleteLoan(id){
   const loans=getLoans(),l=loans.find(x=>x.id===id);if(!l)return;if(!confirm('تحذف السلفة دي؟'))return;
@@ -2623,13 +2699,15 @@ function deleteLoan(id){
 }
 function openGoal(id){
   const goals=getMoneyGoals(),g=id?goals.find(x=>x.id===id):null;
+  const auto=g?(g.auto!==false):true;
   sheet(`<h3>🎯 ${g?'تعديل الهدف':'هدف جديد'}</h3>
     <div class="field"><label>عايز الفلوس دي علشان إيه؟</label><input id="goalName" value="${g?esc(g.name):''}" placeholder="مثلاً: سكوتر" autofocus></div>
     <div class="field"><label>المبلغ اللي عايز توصله (${CUR})</label><input class="big" id="goalTarget" type="number" inputmode="decimal" value="${g?g.target:''}" placeholder="0"></div>
-    <div class="field"><label>متحوش له كام دلوقتي؟ (${CUR})</label><input id="goalSaved" type="number" inputmode="decimal" value="${g?g.saved:0}"></div>
-    <div class="bsub" style="margin-bottom:12px">الموقع هيحسب لك موعد تقريبي للوصول للهدف من معدل دخلك ومصاريفك.</div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:12px"><input type="checkbox" id="goalAuto" ${auto?'checked':''} style="width:18px;height:18px" onchange="var f=document.getElementById('goalSavedField');if(f)f.style.display=this.checked?'none':'block'"> احسب التقدّم تلقائيًا من رصيدي الحالي</label>
+    <div class="field" id="goalSavedField" style="display:${auto?'none':'block'}"><label>متحوش له كام دلوقتي؟ (${CUR})</label><input id="goalSaved" type="number" inputmode="decimal" value="${g?g.saved||0:0}"></div>
+    <div class="bsub" style="margin-bottom:12px">لما يكون «تلقائي»، التقدّم بيتحسب من إجمالي فلوسك في كل الحسابات، والموقع بيقدّرلك موعد الوصول من دخلك ومصاريفك.</div>
     <button class="save" id="goalSave">حفظ الهدف</button>`);
-  $('goalSave').onclick=()=>{const name=$('goalName').value.trim(),target=parseFloat($('goalTarget').value),saved=Math.max(0,parseFloat($('goalSaved').value)||0);if(!name)return toast('اكتب اسم الهدف');if(!target||target<=0)return toast('اكتب مبلغ الهدف');if(g){g.name=name;g.target=target;g.saved=saved;}else goals.push({id:rid(),ts:Date.now(),name,target,saved});setMoneyGoals(goals);closeSheet();renderMoney();toast('الهدف اتحفظ 🎯');};
+  $('goalSave').onclick=()=>{const name=$('goalName').value.trim(),target=parseFloat($('goalTarget').value),autoOn=$('goalAuto').checked,saved=autoOn?0:Math.max(0,parseFloat($('goalSaved').value)||0);if(!name)return toast('اكتب اسم الهدف');if(!target||target<=0)return toast('اكتب مبلغ الهدف');if(g){g.name=name;g.target=target;g.saved=saved;g.auto=autoOn;}else goals.push({id:rid(),ts:Date.now(),name,target,saved,auto:autoOn});setMoneyGoals(goals);closeSheet();renderMoney();toast('الهدف اتحفظ 🎯');};
 }
 function addGoalSaving(id){
   const goals=getMoneyGoals(),g=goals.find(x=>x.id===id);if(!g)return;sheet(`<h3>💰 زوّد تحويش «${esc(g.name)}»</h3><div class="field"><label>هتزود كام؟ (${CUR})</label><input class="big" id="goalAdd" type="number" inputmode="decimal" placeholder="0" autofocus></div><button class="save" id="goalAddSave">إضافة</button>`);
@@ -2996,14 +3074,9 @@ function openSafety(){
   showFirstSafeAyah();
   // كمّل تحميل باقي الآيات (نص + صوت الشيخ) من المصدر وضيفها للمجموعة
   SAFE_AYAT.forEach(a=>{ if(!safeAyahCache(a.r)||!safeAudioCache(a.r)) fetchSafeAyah(a).then(o=>{ if(o&&$('safeOv').classList.contains('show')) _safePool.push(o); }); });
-  // العدّاد الإجباري
-  let left=SAFE_SECS;
-  const btn=$('safeDoneBtn'); btn.disabled=true; btn.textContent='… استنى الوقت يخلص';
-  const tEl=$('safeTimer'); const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-  tEl.textContent=fmt(left);
+  // (اتشال عدّاد الـ٥ دقايق — الزر متاح فورًا)
+  const btn=$('safeDoneBtn'); if(btn){ btn.disabled=false; btn.textContent='عدّت اللحظة بفضل الله 🤍'; }
   clearInterval(_safeQT);
-  _safeQT=setInterval(()=>{ left--; tEl.textContent=fmt(left<0?0:left);
-    if(left<=0){ clearInterval(_safeQT); btn.disabled=false; btn.textContent='عدّت اللحظة بفضل الله 🤍'; } },1000);
 }
 function powerMsg(){ return load('life:powerMsg', 'بطّل علشان نفسك، دي شهوة وهتروح، ووالله لو خلّصتها هتحسّ بضيق جدًا. اعتبرني جايلك من المستقبل، صدّقني هتتضايق. مش عايز أفضل في الدايرة المغلقة دي. تخيّل لو بطّلتها هتكون حاسس بإيه، تخيّل حياتك. مش إنت اللي قلت: لو بطّلت العادة دي هكون إنسان تاني؟ استهدي بالله، وقوم، وما تضيّعش نفسك ووقتك وطاقتك. خليك أقوى منها وأقوى من الشيطان. استعيذ بالله من الشيطان الرجيم وقوم 🌱'); }
 function closeSafety(){ clearInterval(_safeQT); clearSafeRotation(); stopSafeAudio(); const ov=$('safeOv'); if(ov)ov.classList.remove('show'); }
@@ -3056,7 +3129,6 @@ function reportHTML(targetD){
   h+=row(!!d.habits&&d.habits.adhkarAM,'أذكار الصباح');
   h+=row(!!d.habits&&d.habits.adhkarPM,'أذكار المساء');
   h+=row(!!d.habits&&d.habits.qiyam,'قيام الليل');
-  h+=row(water>=8,'المياه',`${water}/8`);
   h+=row(tasks.length>0&&tDone===tasks.length,'المهام',`${tDone}/${tasks.length}`);
   // لو تقرير اليوم الفايت: حثّ على التعويض النهاردة
   if(!isTodayReport){
@@ -3126,7 +3198,6 @@ const NOTIF_TIMES=[
   {k:'asr',h:16,m:0,prayer:'asr',msg:'صلاة العصر 🕌 — صليت؟'},
   {k:'maghrib',h:19,m:0,prayer:'maghrib',msg:'صلاة المغرب 🌇 — صليت؟'},
   {k:'isha',h:20,m:30,prayer:'isha',msg:'صلاة العشاء 🌙 — صليت؟'},
-  {k:'water_noon',h:14,m:0,check:d=>(d.water||0)<8,msg:'متنساش تشرب مية 💧'},
   {k:'adhkarPM',h:17,m:30,habit:'adhkarPM',msg:'أذكار المساء 🌙'},
   {k:'pill',h:21,m:0,habit:'pill',msg:'حبة الكولشيسين 💊'},
   {k:'review',h:22,m:0,msg:'اقفل يومك في «يومي» وسجّل اللي عملته 🌿'},
@@ -3207,7 +3278,7 @@ function v3WeeklyChallenges(){return [
   {id:'no-spend',ico:'💰',t:'أسبوع بدون مصاريف عشوائية',s:'قبل أي شراء غير ضروري، استنى 10 دقائق وفكّر.'},
   {id:'phone',ico:'📵',t:'ساعة بدون موبايل قبل النوم',s:'اقفل السوشيال قبل النوم بساعة وحافظ على هدوء آخر اليوم.'},
   {id:'quran',ico:'📖',t:'ورد كل يوم',s:'ولو صفحة واحدة — المهم الاستمرار 7 أيام.'},
-  {id:'water',ico:'💧',t:'كمل 8 كوبايات يوميًا',s:'هدف بسيط: 8 كوبايات مية كل يوم هذا الأسبوع.'}
+  {id:'salawat',ico:'🤍',t:'صلِّ على النبي كل يوم',s:'خصّص وِرد يومي من الصلاة على النبي ﷺ طوال الأسبوع.'}
 ];}
 function v3GetWeeklyChallenge(){const key='life:weekly:'+v3WeekKey();let v=load(key,null);if(!v){const pool=v3WeeklyChallenges();const idx=Math.abs(Math.floor(v3WeekStart().getTime()/604800000))%pool.length;v={id:pool[idx].id,days:{}};save(key,v);}return v;}
 function v3SetWeeklyChallenge(v){save('life:weekly:'+v3WeekKey(),v);}
@@ -3229,7 +3300,6 @@ function v3SpecificStreak(test,max=180){let s=0;let dd=todayD();if(!test(getDayD
 function v3StreakData(){return [
   {e:'🕌',l:'الصلاة',n:v3SpecificStreak(d=>PRAYERS.every(([k])=>d.prayers?.[k]))},
   {e:'📖',l:'الورد',n:v3SpecificStreak(d=>!!d.habits?.quran)},
-  {e:'💧',l:'المياه',n:v3SpecificStreak(d=>(d.water||0)>=8)},
   {e:'🥗',l:'الأكل الصحي',n:v3SpecificStreak(d=>!!d.habits?.healthy)},
   {e:'😴',l:'النوم',n:v3SpecificStreak(d=>!!d.habits?.sleep)},
   {e:'💸',l:'تسجيل الفلوس',n:v3SpecificStreak((d,dd)=>getTx().some(t=>t.date===ymd(dd)))},
@@ -3238,20 +3308,20 @@ function v3TopTasks(){const d=getDay();const ts=(d.tasks||[]).filter(t=>!t.done)
 function toggleImportantTaskV3(id){const d=getDay();const t=(d.tasks||[]).find(x=>x.id===id);if(!t)return;t.important=!t.important;setDay(d);renderTasks();renderSmartHomeV3();toast(t.important?'اتثبتت ضمن أهم المهام ⭐':'اتشالت من الأولويات');}
 
 function v3Part(){const h=new Date().getHours();if(h<12)return 'morning';if(h<18)return 'afternoon';return 'night';}
-function v3FocusData(){const p=v3Part(),d=getDay();if(p==='morning')return {e:'🌅',ey:'صباحك',t:'ابدأ بالمهم قبل ما اليوم يسرقك',s:'العبادة + الفطار + أهم مهمة؛ وبعدهم أي حاجة زيادة مكسب.',chips:[d.habits?.adhkarAM?'✓ أذكار الصباح':'🌅 أذكار الصباح',d.habits?.quran?'✓ الورد':'📖 الورد',`💧 ${d.water||0}/8 مية`]};if(p==='afternoon')return {e:'☀️',ey:'منتصف اليوم',t:'راجع طاقتك وكمّل من غير تشتت',s:'مياه، أكل، أهم مهمة متبقية، وسجّل مصروفك أول بأول.',chips:[`💧 ${d.water||0}/8 مية`,d.habits?.healthy?'✓ أكل صحي':'🥗 الأكل',`💸 ${fmt(getTx().filter(t=>t.type==='out'&&t.date===ymd(todayD())).reduce((a,t)=>a+t.amount,0))} ج اليوم`]};return {e:'🌙',ey:'آخر اليوم',t:'اقفل يومك بهدوء قبل ما تنام',s:'أذكار المساء، الورد، مراجعة سريعة، ونوم كويس لبكرة.',chips:[d.habits?.adhkarPM?'✓ أذكار المساء':'🌙 أذكار المساء',d.review?'✓ راجعت يومك':'📝 راجع يومك',d.habits?.sleep?'✓ نوم 8 ساعات':'😴 النوم']};}
+function v3FocusData(){const p=v3Part(),d=getDay();if(p==='morning')return {e:'🌅',ey:'صباحك',t:'ابدأ بالمهم قبل ما اليوم يسرقك',s:'العبادة + الفطار + أهم مهمة؛ وبعدهم أي حاجة زيادة مكسب.',chips:[d.habits?.adhkarAM?'✓ أذكار الصباح':'🌅 أذكار الصباح',d.habits?.quran?'✓ الورد':'📖 الورد']};if(p==='afternoon')return {e:'☀️',ey:'منتصف اليوم',t:'راجع طاقتك وكمّل من غير تشتت',s:'راجع طاقتك، أهم مهمة متبقية، وسجّل مصروفك أول بأول.',chips:[d.habits?.healthy?'✓ أكل صحي':'🥗 الأكل',`💸 ${fmt(getTx().filter(t=>t.type==='out'&&t.date===ymd(todayD())).reduce((a,t)=>a+t.amount,0))} ج اليوم`]};return {e:'🌙',ey:'آخر اليوم',t:'اقفل يومك بهدوء قبل ما تنام',s:'أذكار المساء، الورد، مراجعة سريعة، ونوم كويس لبكرة.',chips:[d.habits?.adhkarPM?'✓ أذكار المساء':'🌙 أذكار المساء',d.review?'✓ راجعت يومك':'📝 راجع يومك',d.habits?.sleep?'✓ نوم 8 ساعات':'😴 النوم']};}
 function renderSmartHomeV3(){
   const box=$('smartHomeV3');if(!box||!isToday()){if(box)box.innerHTML='';return;}
   const f=v3FocusData(),tasks=v3TopTasks();
   const taskHtml=tasks.length?tasks.map((t,i)=>`<div class="v3-priority"><div class="num">${i+1}</div><div class="txt">${esc(t.text)}</div><button class="go" onclick="toggleTask('${t.id}')">تم ✓</button></div>`).join(''):`<div class="v3-insight good">مفيش مهام متبقية 👏 ضيف أهم حاجة عايز تخلصها النهاردة.</div>`;
-  box.innerHTML=`<div class="v3-command"><div class="cmd-ico">⌘</div><input id="v3CommandInput" placeholder="اكتب: شربت 3 كوبايات، صرفت 150 بنزين، صليت العصر في الجامع…" onkeydown="if(event.key==='Enter')runCommandV3(this.value)"><button onclick="runCommandV3($('v3CommandInput').value)">نفّذ</button></div>
+  box.innerHTML=`<div class="v3-priorities"><div class="v3-card-head"><span class="t">🎯 أهم 3 حاجات</span><span class="m">⭐ ثبّت المهمة المهمة</span></div>${taskHtml}</div>
+    <div class="v3-quickrow"><button class="v3-q" onclick="openTx('out')"><span>💸</span>مصروف</button><button class="v3-q" onclick="openMealLogV3()"><span>🍽️</span>وجبة</button><button class="v3-q" onclick="openQuickTaskV3()"><span>✅</span>مهمة</button><button class="v3-q" onclick="openCommandSheetV3()"><span>⌘</span>اكتب</button></div>
     <div class="v3-focus"><div class="eyebrow">${f.e} ${f.ey} · ${dayPct(todayD())}% من يومك</div><div class="title">${f.t}</div><div class="sub">${f.s}</div><div class="chips">${f.chips.map(c=>`<span class="focus-chip">${c}</span>`).join('')}</div></div>
-    <div class="v3-priorities"><div class="v3-card-head"><span class="t">🎯 أهم 3 حاجات</span><span class="m">⭐ ثبّت المهمة المهمة</span></div>${taskHtml}</div>
-    <div class="v3-quickrow"><button class="v3-q" onclick="setWater(Math.min(8,(getDay().water||0)+1))"><span>💧</span>مية</button><button class="v3-q" onclick="openMealLogV3()"><span>🍽️</span>وجبة</button><button class="v3-q" onclick="openTx('out')"><span>💸</span>مصروف</button><button class="v3-q" onclick="openQuickTaskV3()"><span>✅</span>مهمة</button></div>`;
+    <div class="v3-command"><div class="cmd-ico">⌘</div><input id="v3CommandInput" placeholder="اكتب: صرفت 150 بنزين، قبضت 5000 مرتب، صليت العصر في الجامع…" onkeydown="if(event.key==='Enter')runCommandV3(this.value)"><button onclick="runCommandV3($('v3CommandInput').value)">نفّذ</button></div>`;
 }
 
 function renderWorshipSummaryV3(){const b=$('worshipSummaryV3');if(!b)return;const d=getDay();const pc=PRAYERS.filter(([k])=>d.prayers?.[k]).length;const mosque=PRAYERS.filter(([k])=>d.prayers?.[k]==='mosque').length;const am=d.habits?.adhkarAM,pm=d.habits?.adhkarPM;const st=v3SpecificStreak(x=>PRAYERS.every(([k])=>x.prayers?.[k]));b.innerHTML=`<div class="v3-worship"><div class="v3-card-head"><span class="t">عبادتك النهاردة</span><span class="m">🔥 ${st} يوم صلاة كاملة</span></div><div class="v3-worship-grid"><div class="v3-worship-item"><div class="wi">🕌</div><div class="wv">${pc}/5</div><div class="wl">الصلوات</div></div><div class="v3-worship-item"><div class="wi">🌙</div><div class="wv">${mosque}</div><div class="wl">في المسجد</div></div><div class="v3-worship-item"><div class="wi">📖</div><div class="wv">${d.habits?.quran?'✓':'—'}</div><div class="wl">الورد</div></div><div class="v3-worship-item"><div class="wi">📿</div><div class="wv">${Number(!!am)+Number(!!pm)}/2</div><div class="wl">الأذكار</div></div></div></div>`;}
 
-function openQuickAddV3(){sheet(`<h3>＋ تسجيل سريع</h3><div class="v3-quick-grid"><button onclick="closeSheet();setWater(Math.min(8,(getDay().water||0)+1))"><span>💧</span>كوباية مية</button><button onclick="closeSheet();openTx('out')"><span>💸</span>مصروف</button><button onclick="closeSheet();openTx('in')"><span>💵</span>دخل</button><button onclick="closeSheet();openLoan('lent')"><span>🤝</span>سلفة</button><button onclick="closeSheet();openMealLogV3()"><span>🍽️</span>وجبة</button><button onclick="closeSheet();openQuickTaskV3()"><span>✅</span>مهمة</button><button onclick="closeSheet();showTab('worship')"><span>🕌</span>عبادة</button><button onclick="closeSheet();openDailyReviewV3()"><span>📝</span>راجع يومك</button><button onclick="closeSheet();openCommandSheetV3()"><span>⌘</span>اكتب أمر</button></div><div class="v3-insight">تقدر كمان تكتب جملة طبيعية: <b>«صرفت 200 جنيه سوبر ماركت»</b> أو <b>«صليت المغرب في البيت»</b>.</div>`);}
+function openQuickAddV3(){sheet(`<h3>＋ تسجيل سريع</h3><div class="v3-quick-grid"><button onclick="closeSheet();openTx('out')"><span>💸</span>مصروف</button><button onclick="closeSheet();openTx('in')"><span>💵</span>دخل</button><button onclick="closeSheet();openLoan('lent')"><span>🤝</span>سلفة</button><button onclick="closeSheet();openMealLogV3()"><span>🍽️</span>وجبة</button><button onclick="closeSheet();openQuickTaskV3()"><span>✅</span>مهمة</button><button onclick="closeSheet();showTab('worship')"><span>🕌</span>عبادة</button><button onclick="closeSheet();openDailyReviewV3()"><span>📝</span>راجع يومك</button><button onclick="closeSheet();openCommandSheetV3()"><span>⌘</span>اكتب أمر</button></div><div class="v3-insight">تقدر كمان تكتب جملة طبيعية: <b>«صرفت 200 جنيه سوبر ماركت»</b> أو <b>«صليت المغرب في البيت»</b>.</div>`);}
 function openQuickTaskV3(){sheet(`<h3>✅ مهمة جديدة</h3><div class="field"><label>المهمة</label><input id="v3TaskText" placeholder="إيه أهم حاجة عايز تخلصها؟" autofocus></div><label style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:12px"><input type="checkbox" id="v3TaskImportant" checked style="width:18px;height:18px"> من أهم 3 مهام</label><button class="save" onclick="saveQuickTaskV3()">إضافة</button>`);}
 function saveQuickTaskV3(){const text=$('v3TaskText').value.trim();if(!text)return toast('اكتب المهمة');const d=getDay();d.tasks=d.tasks||[];d.tasks.push({id:rid(),text,done:false,important:$('v3TaskImportant').checked});setDay(d);closeSheet();renderTasks();renderSmartHomeV3();renderProgressTabV3();toast('اتضافت المهمة ✓');}
 function openMealLogV3(){sheet(`<h3>🍽️ أكلت إيه؟</h3><div class="field"><label>الوجبة (اختياري)</label><input id="v3MealName" placeholder="مثلاً: فول وبيض"></div><div class="field"><label>قيّم الوجبة ببساطة</label><div class="v3-quick-grid" style="grid-template-columns:repeat(3,1fr)"><button onclick="saveMealV3('healthy')"><span>🟢</span>صحي</button><button onclick="saveMealV3('medium')"><span>🟡</span>متوسط</button><button onclick="saveMealV3('off')"><span>🔴</span>لخبطت</button></div></div>`);}
@@ -3260,14 +3330,13 @@ function openCommandSheetV3(){sheet(`<h3>⌘ قول لي حصل إيه</h3><div 
 function v3GuessCat(text){if(/بنزين|مواصل|اوبر|تاكسي|عربي/.test(text))return'transport';if(/فطار/.test(text))return'breakfast';if(/اكل|أكل|مطعم|غدا|عشا/.test(text))return'outfood';if(/سوبر|ماركت|بقال/.test(text))return'market';if(/اشتراك|نتفلكس|سبوتفاي/.test(text))return'subs';if(/لعب|ترفيه|سينما|خروج/.test(text))return'fun';return'other';}
 function v3QuickExpense(amount,text){const account=load('life:quickAccount','instapay');const acc=getAccounts();acc[account]=(acc[account]||0)-amount;setAccounts(acc);const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(todayD()),type:'out',amount,cat:v3GuessCat(text),account,note:text.replace(/[0-9٠-٩,.]+/g,'').replace(/جنيه|جنية|صرف[ت]?/g,'').trim()});setTx(tx);renderMoney();renderTop();}
 function runCommandV3(raw,fromSheet=false){let text=(raw||'').trim();if(!text)return toast('اكتب حاجة الأول');const nums=text.match(/[0-9]+(?:\.[0-9]+)?/g)||[];const n=nums.length?Number(nums[nums.length-1]):0;
-  if(/شرب|مية|مياه|كوباية|كوبايات/.test(text)&&n){const d=getDay();d.water=Math.min(8,Math.max(d.water||0,n>4?n:(d.water||0)+n));setDay(d);render();toast(`المياه بقت ${d.water}/8 💧`);}
-  else if(/صليت|صلاة|صلاه/.test(text)){const map=[['الفجر','fajr'],['الظهر','dhuhr'],['العصر','asr'],['المغرب','maghrib'],['العشاء','isha']];const p=map.find(([a])=>text.includes(a));if(!p)return toast('قول اسم الصلاة');setPrayer(p[1],/جامع|مسجد/.test(text)?'mosque':'home');toast('اتسجلت الصلاة ✓');}
+  if(/صليت|صلاة|صلاه/.test(text)){const map=[['الفجر','fajr'],['الظهر','dhuhr'],['العصر','asr'],['المغرب','maghrib'],['العشاء','isha']];const p=map.find(([a])=>text.includes(a));if(!p)return toast('قول اسم الصلاة');setPrayer(p[1],/جامع|مسجد/.test(text)?'mosque':'home');toast('اتسجلت الصلاة ✓');}
   else if(/سلفت|مسلف/.test(text)&&n){const person=text.replace(/سلفت|مسلف|أنا|انا|جنيه|جنية/g,'').replace(/[0-9.,]+/g,'').trim()||'بدون اسم';const account=load('life:quickAccount','instapay');const acc=getAccounts();acc[account]=(acc[account]||0)-n;setAccounts(acc);const loans=getLoans();loans.push({id:rid(),ts:Date.now(),date:ymd(todayD()),type:'lent',person,amount:n,account,note:'تسجيل سريع',cashPosted:true,settled:false});setLoans(loans);renderMoney();renderTop();toast(`اتسجل إن ليك ${fmt(n)} ج عند ${person}`);}
   else if(/مهمة|مهمه|اعمل|لازم/.test(text)){const task=text.replace(/مهمة|مهمه|لازم|اعمل[:：]?/g,'').trim();if(!task)return toast('اكتب المهمة');const d=getDay();d.tasks=d.tasks||[];d.tasks.push({id:rid(),text:task,done:false,important:true});setDay(d);render();toast('اتضافت ضمن أهم المهام ⭐');}
   else if(/قبضت|استلمت|مرتب|راتب|بونص/.test(text)&&n){const account=load('life:quickAccount','instapay');const acc=getAccounts();acc[account]=(acc[account]||0)+n;setAccounts(acc);const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(todayD()),type:'in',amount:n,cat:null,incomeCat:'salary',account,note:text.replace(/[0-9.,]+/g,'').replace(/قبضت|استلمت|جنيه|جنية/g,'').trim()});setTx(tx);renderMoney();renderTop();toast(`اتسجل دخل ${fmt(n)} ج ✓`);}
   else if(/تصدقت|صدقة|صدقه|زكاة|زكاه/.test(text)&&n){const account=load('life:quickAccount','instapay');const acc=getAccounts();acc[account]=(acc[account]||0)-n;setAccounts(acc);const tx=getTx();tx.push({id:rid(),ts:Date.now(),date:ymd(todayD()),type:'charity',amount:n,cat:'charity',account,note:text.replace(/[0-9.,]+/g,'').replace(/تصدقت|صدقة|صدقه|جنيه|جنية/g,'').trim()});setTx(tx);renderMoney();renderTop();if(typeof renderReminder==='function')renderReminder();toast('تقبّل الله 🤍');}
   else if((/صرفت|دفعت|مصروف|جنيه|جنية/.test(text))&&n){v3QuickExpense(n,text);renderProgressTabV3();renderSmartHomeV3();toast(`اتسجل مصروف ${fmt(n)} ج ✓`);}
-  else{toast('مش فاهمها 🤔 — جرّب مثلاً: «صرفت 150 بنزين» · «شربت 2 كوباية» · «قبضت 5000 مرتب» · «تصدقت 50» · «صليت العصر في الجامع» · «مهمة اتصل بأحمد»');return;}
+  else{toast('مش فاهمها 🤔 — جرّب مثلاً: «صرفت 150 بنزين» · «قبضت 5000 مرتب» · «تصدقت 50» · «صليت العصر في الجامع» · «مهمة اتصل بأحمد»');return;}
   if(fromSheet)closeSheet();const inp=$('v3CommandInput');if(inp)inp.value='';}
 
 function openDailyReviewV3(){const d=getDay(),r=d.review||{};let mood=r.mood||0;sheet(`<h3>🌙 يومك كان عامل إيه؟</h3><div class="field"><label>مزاجك النهاردة</label><div class="v3-review-moods" id="v3MoodPick">${[1,2,3,4,5].map(n=>`<button class="v3-mood ${mood==n?'on':''}" data-m="${n}">${v3MoodEmoji(n)}</button>`).join('')}</div></div><div class="field"><label>إيه أحسن حاجة حصلت؟</label><input id="v3ReviewGood" value="${esc(r.good||'')}" placeholder="حتى لو حاجة صغيرة"></div><div class="field"><label>إيه اللي عايز تعمله أحسن بكرة؟</label><input id="v3ReviewImprove" value="${esc(r.improve||'')}" placeholder="خطوة واحدة واضحة"></div><button class="save" id="v3ReviewSave">احفظ مراجعة اليوم</button>`);document.querySelectorAll('#v3MoodPick .v3-mood').forEach(b=>b.onclick=()=>{mood=Number(b.dataset.m);document.querySelectorAll('#v3MoodPick .v3-mood').forEach(x=>x.classList.toggle('on',x===b));});$('v3ReviewSave').onclick=()=>{const d=getDay();d.review={mood:mood||3,good:$('v3ReviewGood').value.trim(),improve:$('v3ReviewImprove').value.trim(),ts:Date.now()};setDay(d);closeSheet();renderV3();toast('اتقفّل يومك ✨');};}
@@ -3278,7 +3347,7 @@ function renderWeeklyChallengeV3(){const box=$('weeklyChallengeV3');if(!box)retu
 function renderStreaksV3(){const box=$('streaksV3');if(!box)return;const st=v3StreakData();box.innerHTML=`<div class="v3-section-title"><span>🔥 الاستمرارية</span><small>أيام متتالية</small></div><div class="v3-streaks">${st.map(x=>`<div class="v3-streak"><div class="e">${x.e}</div><div class="n">${x.n}</div><div class="l">${x.l}</div></div>`).join('')}</div>`;}
 function v3WeekSpend(offset=0){const base=todayD();const start=new Date(base);start.setDate(start.getDate()-6-(offset*7));start.setHours(0,0,0,0);const end=new Date(start);end.setDate(end.getDate()+6);const a=ymd(start),b=ymd(end);return getTx().filter(t=>t.type==='out'&&t.date>=a&&t.date<=b).reduce((s,t)=>s+t.amount,0);}
 let _v3ProgTick=false;
-function renderProgressTabV3(){const sum=$('progressSummaryV3'),ins=$('progressInsightsV3');if(!sum||!ins)return;if(_v3ProgTick)return;_v3ProgTick=true;Promise.resolve().then(()=>{_v3ProgTick=false;});const m=v3Metrics(7),metrics=[['🕌','الصلاة',m.prayer],['📖','الورد',m.quran],['💧','المياه',m.water],['🥗','الأكل الصحي',m.healthy],['😴','النوم',m.sleep],['📿','الأذكار',m.adhkar]];const best=[...metrics].sort((a,b)=>b[2]-a[2])[0],need=[...metrics].sort((a,b)=>a[2]-b[2])[0];const curr=v3WeekSpend(0),prev=v3WeekSpend(1),diff=prev?Math.round((curr-prev)/prev*100):0;sum.innerHTML=`<div class="v3-metric"><div class="mi">📊</div><div class="ml">متوسط 7 أيام</div><div class="mv">${Math.round(metrics.reduce((s,x)=>s+x[2],0)/metrics.length)}%</div><div class="ms">تقدّمك العام</div></div><div class="v3-metric"><div class="mi">🔥</div><div class="ml">Streak العام</div><div class="mv">${calcStreak()}</div><div class="ms">أفضل رقم ${bestStreak()}</div></div><div class="v3-metric"><div class="mi">${v3MoodEmoji(Math.round(m.mood))}</div><div class="ml">متوسط المزاج</div><div class="mv">${m.mood?m.mood.toFixed(1):'—'}/5</div><div class="ms">من مراجعاتك</div></div><div class="v3-metric"><div class="mi">💸</div><div class="ml">صرف 7 أيام</div><div class="mv">${fmt(curr)}</div><div class="ms">${prev?(diff<=0?'أقل ':'أعلى ')+Math.abs(diff)+'% من قبل':'ابدأ المقارنة الأسبوعية'}</div></div>`;ins.innerHTML=`<div class="v3-section-title"><span>🧠 إيه اللي بيحصل معاك؟</span><small>آخر 7 أيام</small></div>${metrics.map(x=>`<div class="v3-bar-row"><div class="n">${x[0]} ${x[1]}</div><div class="v3-track"><i style="width:${x[2]}%"></i></div><div class="v">${x[2]}%</div></div>`).join('')}<div class="v3-insight good">🏆 <b>أقوى حاجة:</b> ${best[1]} بنسبة ${best[2]}%. حافظ عليها.</div><div class="v3-insight warn">🎯 <b>محتاجة اهتمام:</b> ${need[1]} بنسبة ${need[2]}%. اختار خطوة صغيرة واحدة الأسبوع ده.</div>${prev?`<div class="v3-insight">💰 صرفك الأسبوع ده ${fmt(curr)} ج، ${diff===0?'تقريبًا نفس':diff<0?'أقل بـ '+Math.abs(diff)+'% من':'أعلى بـ '+diff+'% من'} الأسبوع اللي قبله.</div>`:''}`;renderStreaksV3();renderDailyReviewV3();renderWeeklyChallengeV3();renderSyncBackupV3();}
+function renderProgressTabV3(){const sum=$('progressSummaryV3'),ins=$('progressInsightsV3');if(!sum||!ins)return;if(_v3ProgTick)return;_v3ProgTick=true;Promise.resolve().then(()=>{_v3ProgTick=false;});const m=v3Metrics(7),metrics=[['🕌','الصلاة',m.prayer],['📖','الورد',m.quran],['🥗','الأكل الصحي',m.healthy],['😴','النوم',m.sleep],['📿','الأذكار',m.adhkar]];const best=[...metrics].sort((a,b)=>b[2]-a[2])[0],need=[...metrics].sort((a,b)=>a[2]-b[2])[0];const curr=v3WeekSpend(0),prev=v3WeekSpend(1),diff=prev?Math.round((curr-prev)/prev*100):0;sum.innerHTML=`<div class="v3-metric"><div class="mi">📊</div><div class="ml">متوسط 7 أيام</div><div class="mv">${Math.round(metrics.reduce((s,x)=>s+x[2],0)/metrics.length)}%</div><div class="ms">تقدّمك العام</div></div><div class="v3-metric"><div class="mi">🔥</div><div class="ml">Streak العام</div><div class="mv">${calcStreak()}</div><div class="ms">أفضل رقم ${bestStreak()}</div></div><div class="v3-metric"><div class="mi">${v3MoodEmoji(Math.round(m.mood))}</div><div class="ml">متوسط المزاج</div><div class="mv">${m.mood?m.mood.toFixed(1):'—'}/5</div><div class="ms">من مراجعاتك</div></div><div class="v3-metric"><div class="mi">💸</div><div class="ml">صرف 7 أيام</div><div class="mv">${fmt(curr)}</div><div class="ms">${prev?(diff<=0?'أقل ':'أعلى ')+Math.abs(diff)+'% من قبل':'ابدأ المقارنة الأسبوعية'}</div></div>`;ins.innerHTML=`<div class="v3-section-title"><span>🧠 إيه اللي بيحصل معاك؟</span><small>آخر 7 أيام</small></div>${metrics.map(x=>`<div class="v3-bar-row"><div class="n">${x[0]} ${x[1]}</div><div class="v3-track"><i style="width:${x[2]}%"></i></div><div class="v">${x[2]}%</div></div>`).join('')}<div class="v3-insight good">🏆 <b>أقوى حاجة:</b> ${best[1]} بنسبة ${best[2]}%. حافظ عليها.</div><div class="v3-insight warn">🎯 <b>محتاجة اهتمام:</b> ${need[1]} بنسبة ${need[2]}%. اختار خطوة صغيرة واحدة الأسبوع ده.</div>${prev?`<div class="v3-insight">💰 صرفك الأسبوع ده ${fmt(curr)} ج، ${diff===0?'تقريبًا نفس':diff<0?'أقل بـ '+Math.abs(diff)+'% من':'أعلى بـ '+diff+'% من'} الأسبوع اللي قبله.</div>`:''}`;renderStreaksV3();renderDailyReviewV3();renderWeeklyChallengeV3();renderSyncBackupV3();}
 
 function openObligationV3(id){const list=v3GetObligations(),o=id?list.find(x=>x.id===id):null;sheet(`<h3>📅 ${o?'تعديل التزام':'التزام شهري جديد'}</h3><div class="field"><label>اسم الالتزام</label><input id="v3ObName" value="${o?esc(o.name):''}" placeholder="مثلاً: الإنترنت" autofocus></div><div class="field"><label>المبلغ (${CUR})</label><input id="v3ObAmount" type="number" inputmode="decimal" value="${o?o.amount:''}" placeholder="0"></div><div class="field"><label>يوم الاستحقاق من الشهر</label><input id="v3ObDue" type="number" min="1" max="31" value="${o?o.dueDay:1}"></div><button class="save" onclick="saveObligationV3('${id||''}')">حفظ</button>`);}
 function saveObligationV3(id){const list=v3GetObligations(),name=$('v3ObName').value.trim(),amount=Number($('v3ObAmount').value),dueDay=Math.min(31,Math.max(1,Number($('v3ObDue').value)||1));if(!name||!amount)return toast('اكتب الاسم والمبلغ');const o=id?list.find(x=>x.id===id):null;if(o){o.name=name;o.amount=amount;o.dueDay=dueDay}else list.push({id:rid(),name,amount,dueDay,paidMonths:{}});v3SetObligations(list);closeSheet();renderMoneyExtrasV3();renderProgressTabV3();toast('الالتزام اتحفظ ✓');}
@@ -3307,7 +3376,15 @@ shuffleDailyMedia=function(){const d=getDay(),p=v3GetMediaPrefs(),cur=d.mediaIdx
 // Upgrade tasks with priority pin
 renderTasks=function(){const d=getDay(),ts=d.tasks||[];let done=ts.filter(t=>t.done).length;$('tasks').innerHTML=ts.length?ts.map(t=>`<div class="task ${t.done?'done':''}"><button class="v3-important ${t.important?'on':''}" onclick="toggleImportantTaskV3('${t.id}')" title="أولوية">⭐</button><div class="tcheck" onclick="toggleTask('${t.id}')">✓</div><div class="ttext">${esc(t.text)}</div><button class="tdel" onclick="delTask('${t.id}')">✕</button></div>`).join(''):`<div class="empty">مفيش مهام لليوم ده — ضيف واحدة 🌱</div>`;$('taskMeta').textContent=done+'/'+ts.length;}
 
-function renderV3(){applyThemeV3();renderSmartHomeV3();renderWorshipSummaryV3();renderMoneyExtrasV3();renderProgressTabV3();}
+function renderFriday(){
+  const box=$('fridayCard'); if(!box)return;
+  if(new Date().getDay()!==5){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display='block';
+  const d=getDay(); const gave=getTx().some(t=>t.type==='charity'&&t.date===ymd(new Date())); const kahf=!!(d.habits&&d.habits.kahf);
+  box.innerHTML=`<div class="friday-card"><div class="fri-head">🕌 جمعة مباركة</div><div class="fri-sub">استغل بركة اليوم: سورة الكهف، الصلاة على النبي ﷺ، والصدقة.</div><div class="fri-actions"><button class="${kahf?'on':''}" onclick="toggleKahf()">${kahf?'✓ قريت الكهف':'📖 سورة الكهف'}</button><button class="${gave?'on':''}" onclick="openCharity()">${gave?'✓ تصدّقت':'🤲 صدقة'}</button><button onclick="showTab('worship')">🕌 العبادة</button></div><div class="fri-dua">«اللّهم صلِّ وسلّم على نبينا محمد» — أكثِر من الصلاة عليه اليوم 🤍</div></div>`;
+}
+function toggleKahf(){ const d=getDay(); d.habits=d.habits||{}; d.habits.kahf=!d.habits.kahf; if(!d.habits.kahf)delete d.habits.kahf; setDay(d); renderFriday(); renderTop(); if(d.habits.kahf)toast('تقبّل الله 🤍'); }
+function renderV3(){applyThemeV3();renderFriday();renderSmartHomeV3();renderWorshipSummaryV3();renderMoneyExtrasV3();renderProgressTabV3();}
 const _v3OldProgress=renderProgress;
 renderProgress=function(){_v3OldProgress();renderSmartHomeV3();renderWorshipSummaryV3();renderProgressTabV3();}
 const _v3OldMoney=renderMoney;
