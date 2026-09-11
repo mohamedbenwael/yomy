@@ -1816,18 +1816,14 @@ const BREAKFASTS=[
 
 // اقتراح مشاهدة يومي — روابط YouTube ثابتة وبتتغير حسب اليوم
 const DAILY_MEDIA=[
-  {t:'كيف تصمم حياتك وتعيش راضيًا',src:'بودكاست فنجان · ثمانية',tag:'حياة',url:'https://www.youtube.com/watch?v=MT8mUsrShEk'},
-  {t:'كيف تستثمر راتبك لتعيش غنيًا مع صلاح خاشقجي',src:'بودكاست فنجان · ثمانية',tag:'فلوس',url:'https://www.youtube.com/watch?v=4kxqvBaNmMY'},
-  {t:'كيف تنجح العلاقات مع ياسر الحزيمي',src:'بودكاست فنجان · ثمانية',tag:'علاقات',url:'https://www.youtube.com/watch?v=pJ0auP7dbcY'},
-  {t:'كيف تتغلب على مشاكل النوم',src:'بودكاست فنجان · ثمانية',tag:'صحة',url:'https://www.youtube.com/watch?v=4OcuI3PHf1M'},
-  {t:'الإنسان إيه غير شوية عادات — العادات الذرية',src:'أخضر',tag:'عادات',url:'https://www.youtube.com/watch?v=GUURUdbVNHI'},
-  {t:'كيف تقوي ذاكرتك بنسبة 500%؟',src:'دروس أونلاين · أحمد أبو زيد',tag:'تعلم',url:'https://www.youtube.com/watch?v=NeLjzv2X4t0'},
-  {t:'كيف تصبح شخص مثقف وموسوعي',src:'دروس أونلاين',tag:'معرفة',url:'https://www.youtube.com/watch?v=HETbHdyRNlk'},
-  {t:'كيف تذاكر أقل وتذاكر بذكاء؟',src:'دروس أونلاين · أحمد أبو زيد',tag:'تركيز',url:'https://www.youtube.com/watch?v=PhmxIWB4quw'},
-  {t:'كيف تدير ذاتك: 7 طوابق لفهم نفسك أكثر',src:'بودكاست أروقة',tag:'وعي',url:'https://www.youtube.com/watch?v=cmyy22kJRYM'},
-  {t:'خدعة تطوير الذات: لماذا تقرأ ولا تتغير',src:'بودكاست بترولي',tag:'تطوير',url:'https://www.youtube.com/watch?v=KCZqt_w9bnk'},
-  {t:'كيف تتناول وجبات سريعة وتنحف',src:'بودكاست فنجان · ثمانية',tag:'صحة',url:'https://www.youtube.com/watch?v=AdKDNrXwW50'},
-  {t:'أين المعنى في هذه الحياة',src:'بودكاست فنجان · ثمانية',tag:'تفكير',url:'https://www.youtube.com/watch?v=UjXvq_YyeZ0'}
+  {t:'كتاب: لا تستطيع إفساد يومي — اتحكّم في مزاجك',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'تطوير',url:'https://www.youtube.com/watch?v=Jfm7OY_TUVk'},
+  {t:'المناورات الخفية — افهم تصرفات البشر',src:'أخضر · ⏱ حوالي ١٣ دقيقة',tag:'وعي',url:'https://www.youtube.com/watch?v=l3l0XEJWBSU'},
+  {t:'كتاب: لا تثق بحدسك — علم اتخاذ القرار',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'قرارات',url:'https://www.youtube.com/watch?v=36fQTDEj-Rg'},
+  {t:'النوع الآخر من الذكاء — الذكاء العاطفي',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'مشاعر',url:'https://www.youtube.com/watch?v=_W6IOJDvid0'},
+  {t:'العادات الذرية — ابنِ عاداتك خطوة خطوة',src:'أخضر · ⏱ حوالي ١٥ دقيقة',tag:'عادات',url:'https://www.youtube.com/watch?v=GUURUdbVNHI'},
+  {t:'كيف تقوّي ذاكرتك بشكل كبير',src:'دروس أونلاين · أحمد أبو زيد',tag:'تعلّم',url:'https://www.youtube.com/watch?v=NeLjzv2X4t0'},
+  {t:'كيف تذاكر أقل وتذاكر بذكاء',src:'دروس أونلاين · أحمد أبو زيد',tag:'تركيز',url:'https://www.youtube.com/watch?v=PhmxIWB4quw'},
+  {t:'كيف تصبح شخصًا مثقفًا وموسوعيًا',src:'دروس أونلاين',tag:'معرفة',url:'https://www.youtube.com/watch?v=HETbHdyRNlk'}
 ];
 
 function dayIndex(){return Math.floor(cursor.getTime()/864e5);}
@@ -1867,7 +1863,7 @@ function renderDailyMedia(){
   const m=DAILY_MEDIA[idx];
   box.innerHTML=`
     <button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button>
-    <div class="mc-head">🎧 حاجة مفيدة تتفرج عليها النهاردة <span class="tag">${m.tag}</span></div>
+    <div class="mc-head">🎬 مقطع قصير مفيد النهاردة <span class="tag">${m.tag}</span></div>
     <div class="mc-body">${m.t}</div>
     <div class="mc-sub">${m.src}</div>
     <a class="media-watch" href="${m.url}" target="_blank" rel="noopener">▶ افتح على YouTube</a>`;
@@ -3418,7 +3414,7 @@ shuffleBreakfast=function(){const d=getDay(),prefs=v3GetFoodPrefs(),cur=d.bfIdx|
 // Media personalization
 function mediaActionV3(kind){const d=getDay(),idx=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],p=v3GetMediaPrefs();['saved','watched','disliked'].forEach(k=>p[k]=p[k]||[]);if(kind==='save'){p.saved=p.saved.includes(m.url)?p.saved.filter(x=>x!==m.url):[...p.saved,m.url]}if(kind==='watch'){if(!p.watched.includes(m.url))p.watched.push(m.url)}if(kind==='dislike'){if(!p.disliked.includes(m.url))p.disliked.push(m.url);shuffleDailyMedia();v3SetMediaPrefs(p);return}v3SetMediaPrefs(p);renderDailyMedia();}
 function rateMediaV3(n){const d=getDay(),idx=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],p=v3GetMediaPrefs();p.ratings=p.ratings||{};p.ratings[m.url]=n;v3SetMediaPrefs(p);renderDailyMedia();toast('اتسجل تقييمك ⭐');}
-renderDailyMedia=function(){const box=$('dailyMediaCard');if(!box)return;const d=getDay(),p=v3GetMediaPrefs();if(d.mediaIdx===undefined){let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;d.mediaIdx=pool[Math.abs(dayIndex())%pool.length]??0;}const idx=d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],saved=p.saved?.includes(m.url),watched=p.watched?.includes(m.url),rating=p.ratings?.[m.url]||0;box.innerHTML=`<button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button><div class="mc-head">🎧 حاجة مفيدة تتفرج عليها النهاردة <span class="tag">${m.tag}</span></div><div class="mc-body">${m.t}</div><div class="mc-sub">${m.src}</div><a class="media-watch" href="${m.url}" target="_blank" rel="noopener" onclick="mediaActionV3('watch')">▶ افتح على YouTube</a><div class="v3-media-actions"><button class="${saved?'on':''}" onclick="mediaActionV3('save')">${saved?'★ محفوظ':'♡ احفظه'}</button><button class="${watched?'on':''}" onclick="mediaActionV3('watch')">✓ شوفته</button><button onclick="mediaActionV3('dislike')">👎 مش مهتم</button></div><div class="v3-stars">${[1,2,3,4,5].map(n=>`<button class="${n<=rating?'on':''}" onclick="rateMediaV3(${n})">⭐</button>`).join('')}</div>`;}
+renderDailyMedia=function(){const box=$('dailyMediaCard');if(!box)return;const d=getDay(),p=v3GetMediaPrefs();if(d.mediaIdx===undefined){let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;d.mediaIdx=pool[Math.abs(dayIndex())%pool.length]??0;}const idx=d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],saved=p.saved?.includes(m.url),watched=p.watched?.includes(m.url),rating=p.ratings?.[m.url]||0;box.innerHTML=`<button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button><div class="mc-head">🎬 مقطع قصير مفيد النهاردة <span class="tag">${m.tag}</span></div><div class="mc-body">${m.t}</div><div class="mc-sub">${m.src}</div><a class="media-watch" href="${m.url}" target="_blank" rel="noopener" onclick="mediaActionV3('watch')">▶ افتح على YouTube</a><div class="v3-media-actions"><button class="${saved?'on':''}" onclick="mediaActionV3('save')">${saved?'★ محفوظ':'♡ احفظه'}</button><button class="${watched?'on':''}" onclick="mediaActionV3('watch')">✓ شوفته</button><button onclick="mediaActionV3('dislike')">👎 مش مهتم</button></div><div class="v3-stars">${[1,2,3,4,5].map(n=>`<button class="${n<=rating?'on':''}" onclick="rateMediaV3(${n})">⭐</button>`).join('')}</div>`;}
 shuffleDailyMedia=function(){const d=getDay(),p=v3GetMediaPrefs(),cur=d.mediaIdx===undefined?0:d.mediaIdx;let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>i!==cur&&!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;if(!pool.length)pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>i!==cur);d.mediaIdx=pool[Math.floor(Math.random()*pool.length)]??((cur+1)%DAILY_MEDIA.length);setDay(d);renderDailyMedia();}
 
 // Upgrade tasks with priority pin
