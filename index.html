@@ -2159,15 +2159,55 @@ const BREAKFASTS=[
 
 // اقتراح مشاهدة يومي — روابط YouTube ثابتة وبتتغير حسب اليوم
 const DAILY_MEDIA=[
-  {t:'كتاب: لا تستطيع إفساد يومي — اتحكّم في مزاجك',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'تطوير',url:'https://www.youtube.com/watch?v=Jfm7OY_TUVk'},
-  {t:'المناورات الخفية — افهم تصرفات البشر',src:'أخضر · ⏱ حوالي ١٣ دقيقة',tag:'وعي',url:'https://www.youtube.com/watch?v=l3l0XEJWBSU'},
-  {t:'كتاب: لا تثق بحدسك — علم اتخاذ القرار',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'قرارات',url:'https://www.youtube.com/watch?v=36fQTDEj-Rg'},
-  {t:'النوع الآخر من الذكاء — الذكاء العاطفي',src:'أخضر · ⏱ حوالي ١٢ دقيقة',tag:'مشاعر',url:'https://www.youtube.com/watch?v=_W6IOJDvid0'},
-  {t:'العادات الذرية — ابنِ عاداتك خطوة خطوة',src:'أخضر · ⏱ حوالي ١٥ دقيقة',tag:'عادات',url:'https://www.youtube.com/watch?v=GUURUdbVNHI'},
+  {t:'كتاب: لا تستطيع إفساد يومي — اتحكّم في مزاجك',src:'أخضر',tag:'تطوير',url:'https://www.youtube.com/watch?v=Jfm7OY_TUVk'},
+  {t:'العادات الذرية — ابنِ عاداتك خطوة خطوة',src:'أخضر',tag:'عادات',url:'https://www.youtube.com/watch?v=GUURUdbVNHI'},
   {t:'كيف تقوّي ذاكرتك بشكل كبير',src:'دروس أونلاين · أحمد أبو زيد',tag:'تعلّم',url:'https://www.youtube.com/watch?v=NeLjzv2X4t0'},
   {t:'كيف تذاكر أقل وتذاكر بذكاء',src:'دروس أونلاين · أحمد أبو زيد',tag:'تركيز',url:'https://www.youtube.com/watch?v=PhmxIWB4quw'},
-  {t:'كيف تصبح شخصًا مثقفًا وموسوعيًا',src:'دروس أونلاين',tag:'معرفة',url:'https://www.youtube.com/watch?v=HETbHdyRNlk'}
+  {t:'نيكولا مكيافيلي — صاحب "الغاية تبرر الوسيلة"',src:'زمكان · نايف الظفيري',tag:'تاريخ',url:'https://www.youtube.com/watch?v=NVaLTLSh5YE'},
+  {t:'صقر قريش — عبدالرحمن الداخل',src:'زمكان · نايف الظفيري',tag:'تاريخ',url:'https://www.youtube.com/watch?v=isaz2J_Ww-U'},
+  {t:'لغز يحيى عليه السلام',src:'زمكان · نايف الظفيري',tag:'تاريخ',url:'https://www.youtube.com/watch?v=xsQFZN4rkX4'},
+  {t:'إسبرطة.. كيف لجيش أن يصنع أمة؟',src:'الدحيح · أحمد الغندور',tag:'تاريخ',url:'https://www.youtube.com/watch?v=LiyObO4EUWM'},
+  {t:'لا مستحيل مع فيتامين د',src:'الدحيح · أحمد الغندور',tag:'صحة',url:'https://www.youtube.com/watch?v=8udGLej12F8'},
+  {t:'التراب.. متحف كوني كامل منه جئنا وإليه نعود',src:'الدحيح · أحمد الغندور',tag:'علوم',url:'https://www.youtube.com/watch?v=h9EuCFUWI1o'},
+  {t:'الأخطبوط.. كائن يشبه الفضائي',src:'الدحيح · أحمد الغندور',tag:'علوم',url:'https://www.youtube.com/watch?v=8rcY34IA-6I'},
+  {t:'بداية النهاية؟ لماذا يخاف العالم من قناة بنما؟',src:'المخبر الاقتصادي',tag:'اقتصاد',url:'https://youtu.be/fUGYyDtgd2Q'},
+  {t:'لماذا عملية الولادة عند البشر بهذه الصعوبة؟',src:'الإسبتالية · د. إيمان الإمام',tag:'صحة',url:'https://www.youtube.com/watch?v=bPhoHSSirs0'},
+  {t:'سؤال بـ 64 دولار حوّل أمريكا إلى محكمة تفتيش — المكارثية',src:'الدحيح · أحمد الغندور',tag:'تاريخ',url:'https://www.youtube.com/watch?v=HpR2pAM713U'},
+  {t:'هل الصمت التام راحة؟',src:'الدحيح · أحمد الغندور',tag:'علوم',url:'https://www.youtube.com/watch?v=fAd2nKfrDB8'},
+  {t:'أرقام أكبر من حجم الكون',src:'الدحيح · أحمد الغندور',tag:'رياضيات',url:'https://www.youtube.com/watch?v=ajkuJMuff30'},
+  {t:'معركة بيلوسيوم',src:'زمكان · نايف الظفيري',tag:'تاريخ',url:'https://www.youtube.com/watch?v=AZzK32-KIZM'},
+  {t:'ماذا تفعل في ليلة رأس السنة الهجرية؟',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/shorts/Khj5B2A5ts4',occasion:'1-1'},
+  {t:'دعاء وتوسل إلى الله في يوم عاشوراء',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=FZJXTF4xdbc',occasion:'1-10'},
+  {t:'الإسراء والمعراج.. رحلة الوصل بين السماء والأرض',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=d-HWiecy2xE',occasion:'7-27'},
+  {t:'فضل وثواب ليلة النصف من شعبان',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=rm5-TUQJqqQ',occasion:'8-15'},
+  {t:'البحث عن معية الله في رمضان',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=zCh7ApILAmE',occasion:'9-1'},
+  {t:'ليلة القدر.. ليلة اختيار الله لك',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=dd9XwVs2J68',occasion:'9-27'},
+  {t:'تكبيرات العيد.. كل عام وأنتم بخير',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=3-wTf7anDn4',occasion:'10-1'},
+  {t:'مولد أعظم مخلوق ﷺ',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=NFSIySlAYPw',occasion:'3-12'},
+  {t:'هل أنت مصدر أمان أم مصدر أذى؟ — خواطر العشر الأوائل من ذي الحجة',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=69Mp-u39dko',occasionRange:[12,1,8]},
+  {t:'دعاء سيدنا النبي ﷺ يوم عرفة',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=EOCK9HSiyVg',occasion:'12-9'},
+  {t:'آداب الدخول على الله — بمناسبة عيد الأضحى والعشر الأوائل',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=U7cJwgO0tz0',occasion:'12-10'}
 ];
+
+// التقويم الهجري — عشان نقدر نقترح فيديو مناسب لمناسبة النهاردة (رمضان، نص شعبان، عاشوراء... إلخ)
+// بنستخدم تقويم أم القرى (نفس التقويم الرسمي المستخدم في السعودية ومعظم الدول العربية)
+function getHijriToday(){
+  try{
+    const fmt=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric'});
+    const parts=fmt.formatToParts(cursor);
+    const m=+parts.find(p=>p.type==='month').value, d=+parts.find(p=>p.type==='day').value;
+    if(!m||!d) return null;
+    return {m,d};
+  }catch(e){return null;}
+}
+// لو النهاردة مناسبة دينية معروفة (متسجلة في DAILY_MEDIA بـ occasion أو occasionRange)، رجّع الـ index بتاعها
+function findOccasionIdx(){
+  const h=getHijriToday(); if(!h) return -1;
+  let idx=DAILY_MEDIA.findIndex(x=>x.occasion===(h.m+'-'+h.d));
+  if(idx>=0) return idx;
+  idx=DAILY_MEDIA.findIndex(x=>x.occasionRange&&x.occasionRange[0]===h.m&&h.d>=x.occasionRange[1]&&h.d<=x.occasionRange[2]);
+  return idx;
+}
 
 function dayIndex(){return Math.floor(cursor.getTime()/864e5);}
 function renderChallenge(){
@@ -3757,7 +3797,7 @@ shuffleBreakfast=function(){const d=getDay(),prefs=v3GetFoodPrefs(),cur=d.bfIdx|
 // Media personalization
 function mediaActionV3(kind){const d=getDay(),idx=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],p=v3GetMediaPrefs();['saved','watched','disliked'].forEach(k=>p[k]=p[k]||[]);if(kind==='save'){p.saved=p.saved.includes(m.url)?p.saved.filter(x=>x!==m.url):[...p.saved,m.url]}if(kind==='watch'){if(!p.watched.includes(m.url))p.watched.push(m.url)}if(kind==='dislike'){if(!p.disliked.includes(m.url))p.disliked.push(m.url);shuffleDailyMedia();v3SetMediaPrefs(p);return}v3SetMediaPrefs(p);renderDailyMedia();}
 function rateMediaV3(n){const d=getDay(),idx=d.mediaIdx===undefined?(((dayIndex()%DAILY_MEDIA.length)+DAILY_MEDIA.length)%DAILY_MEDIA.length):d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],p=v3GetMediaPrefs();p.ratings=p.ratings||{};p.ratings[m.url]=n;v3SetMediaPrefs(p);renderDailyMedia();toast('اتسجل تقييمك ⭐');}
-renderDailyMedia=function(){const box=$('dailyMediaCard');if(!box)return;const d=getDay(),p=v3GetMediaPrefs();if(d.mediaIdx===undefined){let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;d.mediaIdx=pool[Math.abs(dayIndex())%pool.length]??0;}const idx=d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],saved=p.saved?.includes(m.url),watched=p.watched?.includes(m.url),rating=p.ratings?.[m.url]||0;box.innerHTML=`<button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button><div class="mc-head">🎬 مقطع قصير مفيد النهاردة <span class="tag">${m.tag}</span></div><div class="mc-body">${m.t}</div><div class="mc-sub">${m.src}</div><a class="media-watch" href="${m.url}" target="_blank" rel="noopener" onclick="mediaActionV3('watch')">▶ افتح على YouTube</a><div class="v3-media-actions"><button class="${saved?'on':''}" onclick="mediaActionV3('save')">${saved?'★ محفوظ':'♡ احفظه'}</button><button class="${watched?'on':''}" onclick="mediaActionV3('watch')">✓ شوفته</button><button onclick="mediaActionV3('dislike')">👎 مش مهتم</button></div><div class="v3-stars">${[1,2,3,4,5].map(n=>`<button class="${n<=rating?'on':''}" onclick="rateMediaV3(${n})">⭐</button>`).join('')}</div>`;}
+renderDailyMedia=function(){const box=$('dailyMediaCard');if(!box)return;const d=getDay(),p=v3GetMediaPrefs();if(d.mediaIdx===undefined){const occIdx=findOccasionIdx();if(occIdx>=0){d.mediaIdx=occIdx;}else{let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;d.mediaIdx=pool[Math.abs(dayIndex())%pool.length]??0;}}const idx=d.mediaIdx%DAILY_MEDIA.length,m=DAILY_MEDIA[idx],saved=p.saved?.includes(m.url),watched=p.watched?.includes(m.url),rating=p.ratings?.[m.url]||0,isOccasion=!!(m.occasion||m.occasionRange);box.innerHTML=`<button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button><div class="mc-head">${isOccasion?"🕌 مناسبة النهاردة":"🎬 مقطع قصير مفيد النهاردة"} <span class="tag">${m.tag}</span></div><div class="mc-body">${m.t}</div><div class="mc-sub">${m.src}</div><a class="media-watch" href="${m.url}" target="_blank" rel="noopener" onclick="mediaActionV3('watch')">▶ افتح على YouTube</a><div class="v3-media-actions"><button class="${saved?'on':''}" onclick="mediaActionV3('save')">${saved?'★ محفوظ':'♡ احفظه'}</button><button class="${watched?'on':''}" onclick="mediaActionV3('watch')">✓ شوفته</button><button onclick="mediaActionV3('dislike')">👎 مش مهتم</button></div><div class="v3-stars">${[1,2,3,4,5].map(n=>`<button class="${n<=rating?'on':''}" onclick="rateMediaV3(${n})">⭐</button>`).join('')}</div>`;}
 shuffleDailyMedia=function(){const d=getDay(),p=v3GetMediaPrefs(),cur=d.mediaIdx===undefined?0:d.mediaIdx;let pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>i!==cur&&!p.disliked?.includes(DAILY_MEDIA[i].url));const fresh=pool.filter(i=>!p.watched?.includes(DAILY_MEDIA[i].url));if(fresh.length)pool=fresh;if(!pool.length)pool=DAILY_MEDIA.map((_,i)=>i).filter(i=>i!==cur);d.mediaIdx=pool[Math.floor(Math.random()*pool.length)]??((cur+1)%DAILY_MEDIA.length);setDay(d);renderDailyMedia();}
 
 // Upgrade tasks with priority pin
