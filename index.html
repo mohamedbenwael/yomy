@@ -3870,6 +3870,382 @@ function mushafToJuz(j){j=parseInt(j,10);if(isNaN(j)||j<1||j>JUZ_START.length)re
 function markMushafHere(){save('life:mushafPage',_mushafPage);save('quran:markPage',_mushafPage);toast('📍 علّمنا وقفتك عند صفحة '+_mushafPage);}
 function finishWardFromMushaf(){const d=getDay();d.habits=d.habits||{};d.habits.quran=true;setDay(d);closeMushaf();if(typeof render==='function')render();if(typeof renderWard==='function')renderWard();toast('تقبّل الله — خلّصت وردك ✓');}
 
+
+/* ============================================================
+   v4 — مكتبتي (القراءة اليومية) + تقييم شامل لكل حاجة في السايت
+   طبقة مستقلة فوق الكود القديم: مافيش أي تعديل على اللوجيك الأصلي
+   ============================================================ */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.v4-read{position:relative}
+.v4-top{display:flex;align-items:flex-end;gap:10px;justify-content:space-between;margin-bottom:11px}
+.v4-num{font-family:'Reem Kufi';font-size:36px;line-height:.95;color:var(--ink)}
+.v4-num span{font-size:13px;color:var(--muted);font-weight:700;font-family:inherit}
+.v4-goalbtn{border:1px solid var(--line);background:var(--surface2);color:var(--muted);border-radius:12px;padding:8px 11px;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.v4-track{height:13px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.v4-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1E9E6A,#E3C169);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.v4-hint{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:8px;line-height:1.7}
+.v4-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.v4-quick button{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:13px;padding:11px 3px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:.15s}
+.v4-quick button:active{transform:scale(.95)}
+.v4-quick button.gold{background:var(--gold-soft);border-color:#EAD9AC;color:#8A6D1E}
+.v4-cur{margin-top:13px;padding:12px;border-radius:15px;border:1px solid var(--line);background:var(--surface2)}
+.v4-cur .t{font-family:'Reem Kufi';font-size:14.5px;color:var(--ink);margin-bottom:3px}
+.v4-cur .a{font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:9px}
+.v4-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.v4-row button{flex:1;min-width:88px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;padding:9px 6px;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.v4-row button.go{background:var(--gold-soft);border-color:#EAD9AC;color:#8A6D1E}
+.v4-book{padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface2);margin-bottom:8px}
+.v4-book .bt{font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.5}
+.v4-book .ba{font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
+.v4-book .bw{font-size:11.5px;color:var(--muted);line-height:1.7;margin-top:6px}
+.v4-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.v4-lvl{font-size:10px;font-weight:800;padding:4px 8px;border-radius:99px;background:var(--gold-soft);color:#8A6D1E}
+.v4-lvl.g{background:#E6F5EE;color:#17724F}
+.v4-lvl.n{background:var(--surface);color:var(--muted);border:1px solid var(--line)}
+.v4-add{width:100%;margin-top:9px;border:none;background:linear-gradient(135deg,#1E9E6A,#0F7A50);color:#fff;border-radius:11px;padding:10px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.v4-chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:7px;margin-bottom:11px;-webkit-overflow-scrolling:touch}
+.v4-chip{white-space:nowrap;border:1px solid var(--line);background:var(--surface2);color:var(--muted);border-radius:99px;padding:8px 13px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer}
+.v4-chip.on{background:var(--grad-gold,linear-gradient(135deg,#F2A93B,#D9B65A));color:#4A3A10;border-color:transparent}
+.v4-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:16px 8px;line-height:1.9;font-weight:700}
+.v4-stars button{background:none;border:none;font-size:15px;cursor:pointer;filter:grayscale(1);opacity:.45;padding:2px}
+.v4-stars button.on{filter:none;opacity:1}
+.v4-part{display:grid;grid-template-columns:104px 1fr 62px;gap:8px;align-items:center;margin-bottom:10px}
+.v4-part .pn{font-size:12px;font-weight:800;color:var(--ink)}
+.v4-part .pv{font-size:11px;font-weight:800;color:var(--muted);text-align:left}
+.v4-ptrack{height:9px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.v4-ptrack i{display:block;height:100%;background:linear-gradient(90deg,#1E9E6A,#E3C169);transition:width .5s}
+.v4-ptrack.low i{background:linear-gradient(90deg,#E0A33B,#E8CB8A)}
+.v4-ptrack.zero i{background:#D9DEE7}
+.v4-scorehead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;border-radius:15px;background:var(--surface2);border:1px solid var(--line);margin-bottom:13px}
+.v4-scorehead .big{font-family:'Reem Kufi';font-size:30px;color:var(--ink);line-height:1}
+.v4-scorehead .lbl{font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.7}
+body.v3-dark .v4-lvl{background:#3a2f14;color:#E8D7A6}
+body.v3-dark .v4-lvl.g{background:#123526;color:#9FE3C2}
+</style>`);
+
+/* ---------- الكتب المقترحة (نص مبدئي — تقدر تضيف أي كتاب بنفسك) ---------- */
+const LIB_CATS=[['start','🌱 ابدأ بيها'],['self','🧠 تطوير وعادات'],['work','📈 شغلك'],['story','📖 روايات تشدّك'],['iman','🕌 إيمانيات']];
+const LIB_SUGGEST=[
+ {c:'start',t:'نبض',a:'أدهم شرقاوي',p:160,l:'سهل جدًا',w:'فقرات قصيرة جدًا، الصفحة مستقلة — تقدر تقرا ٥ صفحات وتقفله من غير ما تحس إنك سايب حاجة ناقصة. أحسن كتاب تكسر بيه الحاجز.'},
+ {c:'start',t:'رسائل من القرآن',a:'أدهم شرقاوي',p:190,l:'سهل جدًا',w:'كل رسالة صفحة أو اتنين. مناسب إنك تقراه بعد الفجر أو قبل النوم.'},
+ {c:'start',t:'الإنسان يبحث عن المعنى',a:'فيكتور فرانكل',p:200,l:'سهل',w:'قصة حقيقية قصيرة وقوية جدًا — بتخلص الكتاب وانت حاسس إنك اتغيرت. أول انتصار حقيقي في القراءة.'},
+ {c:'start',t:'لأنك الله',a:'علي جابر الفيفي',p:200,l:'سهل جدًا',w:'فصول قصيرة ولغة مريحة، مافيهوش تعقيد ولا حاجة محتاجة تركيز عالي.'},
+ {c:'self',t:'العادات الذرية',a:'جيمس كليير',p:330,l:'سهل',w:'الكتاب اللي بيعلّمك تبني عادة القراءة نفسها. لو قريت واحد بس من التطوير خليه هو.'},
+ {c:'self',t:'فن اللامبالاة',a:'مارك مانسون',p:220,l:'سهل',w:'أسلوب ساخر وسريع، مفيهوش وعظ — بيمشي بسرعة جدًا.'},
+ {c:'self',t:'العمل العميق',a:'كال نيوبورت',p:300,l:'متوسط',w:'مهم ليك كصانع محتوى: إزاي تشتغل ساعتين تركيز بنتيجة أحسن من ٨ ساعات تشتيت.'},
+ {c:'self',t:'قوة العادات',a:'تشارلز دويج',p:390,l:'متوسط',w:'قصص وأمثلة أكتر من قواعد — بيشرح ليه بنعمل اللي بنعمله.'},
+ {c:'work',t:'مُعدي (Contagious)',a:'جونا بيرغر',p:250,l:'سهل',w:'ليه محتوى بينتشر ومحتوى شبهه بيموت. ده حرفيًا شغلك اليومي.'},
+ {c:'work',t:'التأثير: علم نفس الإقناع',a:'روبرت تشالديني',p:350,l:'متوسط',w:'أساس أي كتابة كابشن أو كامپين بتحاول تقنع بيها حد.'},
+ {c:'work',t:'Hooked — التعلّق',a:'نير إيال',p:240,l:'متوسط',w:'إزاي المنتجات والمحتوى بيخلّوا الناس ترجع تاني. مفيد لو بتبني تطبيقات كمان.'},
+ {c:'work',t:'بناء قصة علامتك (StoryBrand)',a:'دونالد ميلر',p:240,l:'سهل',w:'قالب جاهز تحكي بيه قصة أي براند — تستخدمه في شغل الأكاديمية والسوق السعودي.'},
+ {c:'story',t:'أرض زيكولا',a:'عمرو عبد الحميد',p:300,l:'سهل',w:'فانتازيا مصرية بتشدّك من أول فصل. لو حابب الحكايات، ده هيخلّيك تقرا أكتر من هدفك بإرادتك.'},
+ {c:'story',t:'تراب الماس',a:'أحمد مراد',p:380,l:'سهل',w:'تشويق وغموض مصري — بيتقرا بسرعة غريبة.'},
+ {c:'story',t:'واحة الغروب',a:'بهاء طاهر',p:340,l:'متوسط',w:'رواية مصرية راقية لو عايز حاجة أدبية أعمق شوية.'},
+ {c:'story',t:'في قلبي أنثى عبرية',a:'خولة حمدي',p:430,l:'سهل',w:'قصة إنسانية بتمسكك — طويلة شوية فخليها بعد ما تثبّت العادة.'},
+ {c:'iman',t:'الرحيق المختوم',a:'صفي الرحمن المباركفوري',p:500,l:'متوسط',w:'السيرة كاملة ومرتبة. مشروع شهر كامل لو ١٥ صفحة في اليوم.'},
+ {c:'iman',t:'لا تحزن',a:'عائض القرني',p:500,l:'سهل',w:'فصول مستقلة قصيرة، تقدر تفتح أي صفحة — مناسب في الأيام التقيلة.'},
+];
+
+/* ---------- البيانات ---------- */
+function getBooks(){return load('life:books',[]);}
+function setBooks(v){save('life:books',v);}
+function getReadCfg(){return load('life:readCfg',{mode:'ramp',goal:10,start:ymd(todayD()),current:null});}
+function setReadCfg(v){save('life:readCfg',v);}
+function readGoalToday(){
+  const c=getReadCfg();
+  if(c.mode==='fixed')return Math.max(1,Number(c.goal)||10);
+  const st=c.start?new Date(c.start+'T00:00:00'):todayD();
+  const days=Math.floor((todayD()-st)/864e5);
+  return days<7?5:days<21?10:15;
+}
+function readGoalStage(){
+  const c=getReadCfg();
+  if(c.mode==='fixed')return 'هدف ثابت انت اخترته';
+  const st=c.start?new Date(c.start+'T00:00:00'):todayD();
+  const days=Math.floor((todayD()-st)/864e5);
+  return days<7?'أسبوع التعويد — ٥ صفحات بس (٨ دقايق)':days<21?'المرحلة ٢ — ١٠ صفحات (١٥ دقيقة)':'المرحلة ٣ — ١٥ صفحة (٢٢ دقيقة)';
+}
+function readPagesOf(day){return Number(day&&day.readPages||0);}
+function curBook(){
+  const bs=getBooks(),c=getReadCfg();
+  return bs.find(b=>b.id===c.current&&b.status!=='done')||bs.find(b=>b.status!=='done')||null;
+}
+function saveBookObj(b){const bs=getBooks(),i=bs.findIndex(x=>x.id===b.id);if(i<0)bs.push(b);else bs[i]=b;setBooks(bs);}
+
+/* ---------- تسجيل القراءة ---------- */
+function addReadPages(n){
+  n=Number(n);if(!n||isNaN(n))return;
+  const d=getDay();
+  d.readPages=Math.max(0,readPagesOf(d)+n);
+  d.readGoal=readGoalToday();
+  if(n>0){d.readLog=d.readLog||[];d.readLog.push({n,ts:Date.now()});}
+  const b=curBook();
+  if(b){
+    b.read=Math.max(0,(Number(b.read)||0)+n);
+    if(b.pages&&b.read>=b.pages&&b.status!=='done'){b.read=b.pages;b.status='done';b.finishedAt=ymd(todayD());toast('مبروك! خلّصت «'+b.title+'» 🎉');}
+    saveBookObj(b);
+  }
+  setDay(d);
+  const goal=readGoalToday();
+  if(n>0&&readPagesOf(getDay())>=goal&&readPagesOf(getDay())-n<goal)toast('كمّلت قراءة النهاردة ✓ ودخلت في التقييم 📚');
+  render();
+}
+function openReadPagesV4(){
+  const d=getDay();
+  sheet(`<h3>📚 قريت كام صفحة؟</h3>
+  <div class="field"><label>عدد الصفحات النهاردة</label><input id="v4Pages" type="number" inputmode="numeric" value="${readPagesOf(d)}" placeholder="مثال: 12"></div>
+  <div class="v4-hint">بتتسجل على اليوم اللي واقف عليه، وبتتحسب في تقييم اليوم أوتوماتيك.</div>
+  <button class="save" id="v4PagesSave">احفظ</button>`);
+  $('v4PagesSave').onclick=()=>{
+    const v=Math.max(0,Number($('v4Pages').value)||0),d2=getDay(),old=readPagesOf(d2),diff=v-old;
+    closeSheet();
+    if(diff)addReadPages(diff);else render();
+  };
+}
+function openReadGoalV4(){
+  const c=getReadCfg();
+  sheet(`<h3>🎯 هدف القراءة اليومي</h3>
+  <div class="v4-hint" style="margin-bottom:12px">انت مش بتقرا حاليًا، فالأفضل ماتبدأش بـ ٣٠ صفحة. الخطة المتدرجة بتبدأ بـ <b>٥ صفحات</b> (٨ دقايق) أول أسبوع، بعدين ١٠، بعدين ١٥ — ده اللي بيثبّت العادة.</div>
+  <div class="field"><label>الخطة</label>
+    <div class="v4-row">
+      <button class="${c.mode==='ramp'?'go':''}" onclick="setReadModeV4('ramp')">🌱 متدرجة (مُفضّلة)</button>
+      <button class="${c.mode==='fixed'?'go':''}" onclick="setReadModeV4('fixed')">🎯 رقم ثابت</button>
+    </div>
+  </div>
+  <div class="field"><label>لو رقم ثابت — كام صفحة في اليوم؟</label><input id="v4Goal" type="number" inputmode="numeric" value="${c.goal||10}"></div>
+  <button class="save" id="v4GoalSave">احفظ الهدف</button>`);
+  $('v4GoalSave').onclick=()=>{
+    const c2=getReadCfg();c2.goal=Math.max(1,Number($('v4Goal').value)||10);
+    if(!c2.start)c2.start=ymd(todayD());
+    setReadCfg(c2);closeSheet();render();toast('الهدف اتحفظ ✓');
+  };
+}
+function setReadModeV4(m){const c=getReadCfg();c.mode=m;if(!c.start)c.start=ymd(todayD());setReadCfg(c);openReadGoalV4();}
+
+/* ---------- إدارة الكتب ---------- */
+function openAddBookV4(id){
+  const b=id?getBooks().find(x=>x.id===id):null;
+  sheet(`<h3>${b?'✎ تعديل الكتاب':'➕ كتاب جديد'}</h3>
+  <div class="field"><label>اسم الكتاب</label><input id="v4BT" value="${b?esc(b.title):''}" placeholder="اسم الكتاب"></div>
+  <div class="field"><label>المؤلف</label><input id="v4BA" value="${b?esc(b.author||''):''}" placeholder="مين كاتبه"></div>
+  <div class="field"><label>عدد الصفحات</label><input id="v4BP" type="number" inputmode="numeric" value="${b?(b.pages||''):''}" placeholder="مثال: 240"></div>
+  <div class="field"><label>وصلت لصفحة كام؟</label><input id="v4BR" type="number" inputmode="numeric" value="${b?(b.read||0):0}"></div>
+  <button class="save" id="v4BSave">${b?'احفظ التعديل':'ضيفه لمكتبتي'}</button>
+  ${b?`<button class="save" style="background:#fdecea;color:#b3392b;margin-top:8px" onclick="deleteBookV4('${b.id}')">🗑 شيل الكتاب</button>`:''}`);
+  $('v4BSave').onclick=()=>{
+    const title=$('v4BT').value.trim();if(!title)return toast('اكتب اسم الكتاب');
+    const obj=b||{id:rid(),status:'reading',addedAt:ymd(todayD()),rating:0};
+    obj.title=title;obj.author=$('v4BA').value.trim();obj.pages=Number($('v4BP').value)||0;obj.read=Math.max(0,Number($('v4BR').value)||0);
+    if(obj.pages&&obj.read>=obj.pages){obj.status='done';obj.finishedAt=obj.finishedAt||ymd(todayD());}else obj.status='reading';
+    saveBookObj(obj);
+    const c=getReadCfg();if(!c.current||!getBooks().some(x=>x.id===c.current&&x.status!=='done')){c.current=obj.id;if(!c.start)c.start=ymd(todayD());setReadCfg(c);}
+    closeSheet();render();toast(b?'اتحفظ ✓':'اتضاف لمكتبتك 📚');
+  };
+}
+function addSuggestedBookV4(i){
+  const s=LIB_SUGGEST[i];if(!s)return;
+  if(getBooks().some(b=>b.title===s.t))return toast('الكتاب ده موجود في مكتبتك');
+  const obj={id:rid(),title:s.t,author:s.a,pages:s.p,read:0,status:'reading',addedAt:ymd(todayD()),rating:0};
+  saveBookObj(obj);
+  const c=getReadCfg();if(!c.current||!getBooks().some(x=>x.id===c.current&&x.status!=='done'))c.current=obj.id;
+  if(!c.start)c.start=ymd(todayD());
+  setReadCfg(c);render();
+  toast('اتضاف ✓ ابدأ بـ '+readGoalToday()+' صفحات النهاردة 📚');
+}
+function setCurrentBookV4(id){const c=getReadCfg();c.current=id;setReadCfg(c);render();toast('بقى كتابك الحالي 📖');}
+function finishBookV4(id){
+  const b=getBooks().find(x=>x.id===id);if(!b)return;
+  b.status='done';b.finishedAt=ymd(todayD());if(b.pages)b.read=b.pages;
+  saveBookObj(b);
+  const c=getReadCfg();const nxt=getBooks().find(x=>x.status!=='done');c.current=nxt?nxt.id:null;setReadCfg(c);
+  render();toast('كتاب خلص ✓ اتسجل في مكتبتك 🎉');
+}
+function reopenBookV4(id){const b=getBooks().find(x=>x.id===id);if(!b)return;b.status='reading';b.finishedAt=null;saveBookObj(b);setCurrentBookV4(id);}
+function deleteBookV4(id){
+  setBooks(getBooks().filter(b=>b.id!==id));
+  const c=getReadCfg();if(c.current===id){const n=getBooks().find(x=>x.status!=='done');c.current=n?n.id:null;setReadCfg(c);}
+  closeSheet();render();toast('اتشال');
+}
+function rateBookV4(id,n){const b=getBooks().find(x=>x.id===id);if(!b)return;b.rating=(b.rating===n?0:n);saveBookObj(b);renderLibraryV4();}
+let _libCat='start';
+function setLibCatV4(c){_libCat=c;renderLibraryV4();}
+
+/* ---------- واجهة المكتبة ---------- */
+function renderLibraryV4(){
+  const box=$('libBody');if(!box)return;
+  const d=getDay(),pages=readPagesOf(d),goal=readGoalToday(),pct=Math.min(100,Math.round(pages/goal*100));
+  const books=getBooks(),b=curBook(),reading=books.filter(x=>x.status!=='done'),done=books.filter(x=>x.status==='done');
+  const meta=$('libMeta');if(meta)meta.textContent=pages+'/'+goal+' صفحة';
+
+  let cur='';
+  if(b){
+    const bp=b.pages?Math.min(100,Math.round((b.read||0)/b.pages*100)):0;
+    const left=b.pages?Math.max(0,b.pages-(b.read||0)):0;
+    cur=`<div class="v4-cur">
+      <div class="t">📖 ${esc(b.title)}</div>
+      <div class="a">${esc(b.author||'—')} ${b.pages?`· صفحة ${b.read||0} من ${b.pages}`:''}</div>
+      <div class="v4-track"><i style="width:${bp}%"></i></div>
+      <div class="v4-hint">${b.pages?`فاضل ${left} صفحة · بمعدل ${goal} صفحة في اليوم يخلص في ${Math.max(1,Math.ceil(left/goal))} يوم`:'ماحددتش عدد صفحات الكتاب'}</div>
+      <div class="v4-row">
+        <button class="go" onclick="finishBookV4('${b.id}')">✓ خلّصته</button>
+        <button onclick="openAddBookV4('${b.id}')">✎ تعديل</button>
+        ${reading.length>1?`<button onclick="openSwitchBookV4()">🔁 بدّل الكتاب</button>`:''}
+      </div>
+    </div>`;
+  }else{
+    cur=`<div class="v4-cur"><div class="v4-empty">مافيش كتاب حالي — اختار واحد من الرفّ تحت 👇<br>الاقتراح: ابدأ بحاجة قصيرة جدًا عشان أول انتصار يجي بسرعة.</div></div>`;
+  }
+
+  const sugs=LIB_SUGGEST.map((s,i)=>({s,i})).filter(x=>x.s.c===_libCat);
+  box.innerHTML=`
+  <div class="card v4-read">
+    <div class="v4-top">
+      <div class="v4-num">${pages}<span> / ${goal} صفحة النهاردة</span></div>
+      <button class="v4-goalbtn" onclick="openReadGoalV4()">🎯 الهدف</button>
+    </div>
+    <div class="v4-track"><i style="width:${pct}%"></i></div>
+    <div class="v4-hint">${readGoalStage()} · ${pages>=goal?'كمّلت النهاردة ✓':'فاضل '+(goal-pages)+' صفحة'}</div>
+    <div class="v4-quick">
+      <button class="gold" onclick="addReadPages(2)">+٢</button>
+      <button class="gold" onclick="addReadPages(5)">+٥</button>
+      <button class="gold" onclick="addReadPages(10)">+١٠</button>
+      <button onclick="openReadPagesV4()">✎ رقم</button>
+    </div>
+    ${cur}
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="v3-section-title"><span>📚 كتبي</span><small>${reading.length} بتتقرا · ${done.length} خلصت</small></div>
+    ${books.length?'':'<div class="v4-empty">مكتبتك فاضية — ضيف كتاب من الرفّ أو بنفسك.</div>'}
+    ${reading.map(x=>{
+      const p=x.pages?Math.min(100,Math.round((x.read||0)/x.pages*100)):0;
+      return `<div class="v4-book">
+        <div class="bt">${esc(x.title)} ${b&&b.id===x.id?'<span class="v4-lvl g">الحالي</span>':''}</div>
+        <div class="ba">${esc(x.author||'—')} ${x.pages?`· ${x.read||0}/${x.pages} (${p}%)`:''}</div>
+        <div class="v4-track" style="margin-top:7px;height:8px"><i style="width:${p}%"></i></div>
+        <div class="v4-row">
+          ${b&&b.id===x.id?'':`<button class="go" onclick="setCurrentBookV4('${x.id}')">📖 اقرا فيه</button>`}
+          <button onclick="openAddBookV4('${x.id}')">✎ تعديل</button>
+          <button onclick="finishBookV4('${x.id}')">✓ خلّصته</button>
+        </div>
+      </div>`;}).join('')}
+    ${done.map(x=>`<div class="v4-book" style="opacity:.85">
+        <div class="bt">✓ ${esc(x.title)}</div>
+        <div class="ba">${esc(x.author||'—')} · خلّصته ${x.finishedAt||''}</div>
+        <div class="v4-stars" style="margin-top:6px">${[1,2,3,4,5].map(n=>`<button class="${n<=(x.rating||0)?'on':''}" onclick="rateBookV4('${x.id}',${n})">⭐</button>`).join('')}</div>
+        <div class="v4-row"><button onclick="reopenBookV4('${x.id}')">↩ رجّعه</button><button onclick="openAddBookV4('${x.id}')">✎ تعديل</button></div>
+      </div>`).join('')}
+    <button class="v4-add" onclick="openAddBookV4()">➕ ضيف كتاب بنفسي</button>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="v3-section-title"><span>🛒 رفّ مقترح ليك</span><small>مختار على مقاسك</small></div>
+    <div class="v4-chips">${LIB_CATS.map(([k,l])=>`<button class="v4-chip ${_libCat===k?'on':''}" onclick="setLibCatV4('${k}')">${l}</button>`).join('')}</div>
+    ${sugs.map(({s,i})=>{
+      const have=getBooks().some(x=>x.title===s.t);
+      return `<div class="v4-book">
+        <div class="bt">${esc(s.t)}</div>
+        <div class="ba">${esc(s.a)}</div>
+        <div class="v4-badges"><span class="v4-lvl g">${s.l}</span><span class="v4-lvl n">~${s.p} صفحة</span><span class="v4-lvl n">${Math.max(1,Math.ceil(s.p/goal))} يوم بمعدلك</span></div>
+        <div class="bw">${s.w}</div>
+        ${have?'<div class="v4-hint">✓ موجود في مكتبتك</div>':`<button class="v4-add" onclick="addSuggestedBookV4(${i})">➕ ضيفه لمكتبتي</button>`}
+      </div>`;}).join('')}
+  </div>`;
+}
+function openSwitchBookV4(){
+  const reading=getBooks().filter(x=>x.status!=='done');
+  sheet(`<h3>🔁 بدّل الكتاب الحالي</h3>${reading.map(x=>`<button class="save" style="margin-bottom:8px;background:var(--surface2);color:var(--ink);border:1px solid var(--line)" onclick="closeSheet();setCurrentBookV4('${x.id}')">${esc(x.title)}</button>`).join('')}`);
+}
+
+/* ============================================================
+   التقييم الشامل — كل حاجة بتعملها بتدخل في نسبة اليوم
+   ============================================================ */
+function v4Parts(dt){
+  const day=getDayD(dt),key=ymd(dt);
+  const pray=PRAYERS.reduce((s,[k])=>s+prayValue(day.prayers&&day.prayers[k]),0);
+  const hab=HABITS.filter(h=>day.habits&&day.habits[h.k]).length;
+  const tT=(day.tasks||[]).length,tD=(day.tasks||[]).filter(t=>t.done).length;
+  const goal=Number(day.readGoal)||readGoalToday(),pages=readPagesOf(day);
+  const money=(getTx()||[]).some(t=>t.date===key)||!!day.noSpend;
+  return [
+   {k:'pray', ico:'🕌', label:'الصلاة',        w:25, val:pray/5,              txt:(Math.round(pray*10)/10)+'/5'},
+   {k:'hab',  ico:'🌿', label:'العادات',       w:22, val:hab/HABITS.length,   txt:hab+'/'+HABITS.length},
+   {k:'task', ico:'✅', label:'المهام',        w:15, val:tT?tD/tT:null,       txt:tT?tD+'/'+tT:'مافيش'},
+   {k:'read', ico:'📚', label:'القراءة',       w:13, val:Math.min(1,pages/goal), txt:pages+'/'+goal+' ص'},
+   {k:'rev',  ico:'🌙', label:'مراجعة اليوم',  w:9,  val:day.review?1:0,      txt:day.review?'اتسجلت':'لسه'},
+   {k:'chal', ico:'⚡', label:'تحدي النهاردة', w:8,  val:day.challengeDone?1:0,txt:day.challengeDone?'اتعمل':'لسه'},
+   {k:'money',ico:'💸', label:'تسجيل الفلوس',  w:8,  val:money?1:0,           txt:money?'اتسجل':'لسه'},
+  ];
+}
+function v4Score(dt){
+  const p=v4Parts(dt).filter(x=>x.val!==null&&x.val!==undefined);
+  const W=p.reduce((s,x)=>s+x.w,0);
+  const got=p.reduce((s,x)=>s+x.w*Math.min(1,Math.max(0,x.val)),0);
+  return W?Math.round(got/W*100):0;
+}
+dayPct=function(d){return v4Score(d);};
+
+function toggleNoSpendV4(){const d=getDay();d.noSpend=!d.noSpend;setDay(d);render();toast(d.noSpend?'اتسجل: مصرفتش حاجة النهاردة ✓':'اتشال');}
+
+function renderScoreBreakdownV4(){
+  const box=$('scoreBreakdownV4');if(!box)return;
+  const parts=v4Parts(cursor),pct=v4Score(cursor);
+  const avail=parts.filter(x=>x.val!==null);
+  const W=avail.reduce((s,x)=>s+x.w,0);
+  const weak=[...avail].sort((a,b)=>(a.val*a.w)-(b.val*b.w))[0];
+  const d=getDay();
+  box.innerHTML=`<div class="v3-section-title"><span>🧮 تقييم اليوم اتحسب إزاي</span><small>كل حاجة بتعملها بتدخل</small></div>
+  <div class="v4-scorehead"><div><div class="big">${pct}%</div><div class="lbl">إنجاز ${isToday()?'النهاردة':'اليوم ده'}</div></div>
+  <div class="lbl" style="text-align:left">${avail.length} بند<br>من ${W} نقطة</div></div>
+  ${parts.map(x=>{
+    const v=x.val===null?0:Math.min(1,Math.max(0,x.val));
+    const cls=x.val===null?'zero':v>=.75?'':v>0?'low':'zero';
+    return `<div class="v4-part">
+      <div class="pn">${x.ico} ${x.label} <span style="color:var(--muted);font-weight:700">${x.w}</span></div>
+      <div class="v4-ptrack ${cls}"><i style="width:${Math.round(v*100)}%"></i></div>
+      <div class="pv">${x.txt}</div>
+    </div>`;}).join('')}
+  <div class="v3-insight ${pct>=60?'good':'warn'}">${pct>=60?'🏆 اليوم محتسب ناجح (٦٠٪ وفوق) — الـ streak ماشي.':'🎯 لسه تحت ٦٠٪ — أقرب بند يرفعك: <b>'+weak.ico+' '+weak.label+'</b>.'}</div>
+  <div class="v4-row">
+    <button class="go" onclick="showTab('day')">📚 اقرا / عاداتي</button>
+    <button onclick="openDailyReviewV3()">🌙 راجع يومك</button>
+    <button onclick="toggleNoSpendV4()">${d.noSpend?'✓ مصرفتش النهاردة':'💸 مصرفتش حاجة'}</button>
+  </div>
+  <div class="v4-hint">الأرقام الصغيرة جنب كل بند هي وزنه. لو مافيش مهام مسجّلة اليوم، بنشيل بندها وبنوزّع النسبة على الباقي — عشان ماتتظلمش.</div>`;
+}
+function openScoreSheetV4(){
+  const parts=v4Parts(cursor),pct=v4Score(cursor);
+  sheet(`<h3>🧮 تقييم اليوم = ${pct}%</h3>
+  ${parts.map(x=>{const v=x.val===null?0:Math.min(1,Math.max(0,x.val));const cls=x.val===null?'zero':v>=.75?'':v>0?'low':'zero';
+  return `<div class="v4-part"><div class="pn">${x.ico} ${x.label} <span style="color:var(--muted)">${x.w}</span></div><div class="v4-ptrack ${cls}"><i style="width:${Math.round(v*100)}%"></i></div><div class="pv">${x.txt}</div></div>`;}).join('')}
+  <div class="v4-hint">الصلاة والعادات والمهام والقراءة والمراجعة والتحدي وتسجيل الفلوس — كلهم بيدخلوا في الرقم ده.</div>`);
+}
+
+/* ---------- ربط الطبقة بالكود القديم ---------- */
+(function v4Mount(){
+  const pane=$('pane-day');
+  if(pane&&!$('libSection')){
+    const sec=document.createElement('div');
+    sec.className='section';sec.id='libSection';
+    sec.innerHTML=`<div class="section-head"><h2><span class="ico">📚</span> مكتبتي</h2><span class="meta" id="libMeta">0/0 صفحة</span></div><div id="libBody"></div>`;
+    pane.insertBefore(sec,pane.children[1]||null);
+  }
+  const ps=$('progressSummaryV3');
+  if(ps&&!$('scoreBreakdownV4')){
+    const b=document.createElement('div');b.className='v3-section';b.id='scoreBreakdownV4';
+    ps.insertAdjacentElement('afterend',b);
+  }
+  const ring=document.querySelector('.bigring');
+  if(ring){ring.style.cursor='pointer';ring.title='شوف التقييم اتحسب إزاي';ring.onclick=openScoreSheetV4;}
+})();
+
+const _v4OldRender=render;
+render=function(){_v4OldRender();renderLibraryV4();};
+const _v4OldProgTab=renderProgressTabV3;
+renderProgressTabV3=function(){_v4OldProgTab();renderScoreBreakdownV4();};
+const _v4OldStreaks=v3StreakData;
+v3StreakData=function(){const a=_v4OldStreaks();a.splice(2,0,{e:'📚',l:'القراءة',n:v3SpecificStreak(d=>readPagesOf(d)>0)});return a;};
+
 boot();
 </script>
 </body>
