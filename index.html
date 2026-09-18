@@ -4030,12 +4030,14 @@ function openAddBookV4(id){
   <div class="field"><label>المؤلف</label><input id="v4BA" value="${b?esc(b.author||''):''}" placeholder="مين كاتبه"></div>
   <div class="field"><label>عدد الصفحات</label><input id="v4BP" type="number" inputmode="numeric" value="${b?(b.pages||''):''}" placeholder="مثال: 240"></div>
   <div class="field"><label>وصلت لصفحة كام؟</label><input id="v4BR" type="number" inputmode="numeric" value="${b?(b.read||0):0}"></div>
+  <div class="field"><label>لينك الكتاب (اختياري)</label><input id="v4BL" value="${b?esc(b.link||''):''}" placeholder="لينك أبجد / PDF / جوجل بوكس"></div>
+  <div class="v4-hint">الصق اللينك هنا، وبعد كده زرار «افتح الكتاب» يفتحه على طول.</div>
   <button class="save" id="v4BSave">${b?'احفظ التعديل':'ضيفه لمكتبتي'}</button>
   ${b?`<button class="save" style="background:#fdecea;color:#b3392b;margin-top:8px" onclick="deleteBookV4('${b.id}')">🗑 شيل الكتاب</button>`:''}`);
   $('v4BSave').onclick=()=>{
     const title=$('v4BT').value.trim();if(!title)return toast('اكتب اسم الكتاب');
     const obj=b||{id:rid(),status:'reading',addedAt:ymd(todayD()),rating:0};
-    obj.title=title;obj.author=$('v4BA').value.trim();obj.pages=Number($('v4BP').value)||0;obj.read=Math.max(0,Number($('v4BR').value)||0);
+    obj.title=title;obj.author=$('v4BA').value.trim();obj.pages=Number($('v4BP').value)||0;obj.read=Math.max(0,Number($('v4BR').value)||0);obj.link=($('v4BL')?$('v4BL').value.trim():'');
     if(obj.pages&&obj.read>=obj.pages){obj.status='done';obj.finishedAt=obj.finishedAt||ymd(todayD());}else obj.status='reading';
     saveBookObj(obj);
     const c=getReadCfg();if(!c.current||!getBooks().some(x=>x.id===c.current&&x.status!=='done')){c.current=obj.id;if(!c.start)c.start=ymd(todayD());setReadCfg(c);}
@@ -4087,7 +4089,8 @@ function renderLibraryV4(){
       <div class="v4-track"><i style="width:${bp}%"></i></div>
       <div class="v4-hint">${b.pages?`فاضل ${left} صفحة · بمعدل ${goal} صفحة في اليوم يخلص في ${Math.max(1,Math.ceil(left/goal))} يوم`:'ماحددتش عدد صفحات الكتاب'}</div>
       <div class="v4-row">
-        <button class="go" onclick="finishBookV4('${b.id}')">✓ خلّصته</button>
+        <button class="go" onclick="openBookLinkV4('${b.id}')">${b.link?'📖 افتح الكتاب':'🔎 دوّر عليه'}</button>
+        <button onclick="finishBookV4('${b.id}')">✓ خلّصته</button>
         <button onclick="openAddBookV4('${b.id}')">✎ تعديل</button>
         ${reading.length>1?`<button onclick="openSwitchBookV4()">🔁 بدّل الكتاب</button>`:''}
       </div>
@@ -4124,7 +4127,8 @@ function renderLibraryV4(){
         <div class="ba">${esc(x.author||'—')} ${x.pages?`· ${x.read||0}/${x.pages} (${p}%)`:''}</div>
         <div class="v4-track" style="margin-top:7px;height:8px"><i style="width:${p}%"></i></div>
         <div class="v4-row">
-          ${b&&b.id===x.id?'':`<button class="go" onclick="setCurrentBookV4('${x.id}')">📖 اقرا فيه</button>`}
+          <button class="go" onclick="openBookLinkV4('${x.id}')">${x.link?'📖 افتح':'🔎 دوّر'}</button>
+          ${b&&b.id===x.id?'':`<button onclick="setCurrentBookV4('${x.id}')">📌 اقرا فيه</button>`}
           <button onclick="openAddBookV4('${x.id}')">✎ تعديل</button>
           <button onclick="finishBookV4('${x.id}')">✓ خلّصته</button>
         </div>
@@ -4149,8 +4153,35 @@ function renderLibraryV4(){
         <div class="v4-badges"><span class="v4-lvl g">${s.l}</span><span class="v4-lvl n">~${s.p} صفحة</span><span class="v4-lvl n">${Math.max(1,Math.ceil(s.p/goal))} يوم بمعدلك</span></div>
         <div class="bw">${s.w}</div>
         ${have?'<div class="v4-hint">✓ موجود في مكتبتك</div>':`<button class="v4-add" onclick="addSuggestedBookV4(${i})">➕ ضيفه لمكتبتي</button>`}
+        <div class="v4-row"><button onclick="openSuggestSourcesV4(${i})">🔎 فين ألاقيه؟</button></div>
       </div>`;}).join('')}
   </div>`;
+}
+function v4Q(b){return encodeURIComponent((b.title||'')+' '+(b.author||''));}
+function openBookLinkV4(id){
+  const b=getBooks().find(x=>x.id===id);if(!b)return;
+  if(b.link){window.open(b.link,'_blank','noopener');return;}
+  openBookSourcesV4(id);
+}
+function openBookSourcesV4(id){
+  const b=getBooks().find(x=>x.id===id);if(!b)return;
+  const q=v4Q(b);
+  sheet(`<h3>📖 افتح «${esc(b.title)}»</h3>
+  <div class="v4-hint" style="margin-bottom:12px">اختار مصدر — ولما تلاقيه، ارجع احفظ اللينك عشان المرة الجاية يفتح بضغطة واحدة.</div>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://www.google.com/search?q=${q}+site:abjjad.com','_blank','noopener')">📱 دوّر عليه في أبجد</button>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://www.google.com/search?q=${q}+site:hindawi.org','_blank','noopener')">📚 هنداوي (مجاني)</button>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://play.google.com/store/search?c=books&q=${q}','_blank','noopener')">🛒 جوجل بلاي بوكس</button>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://www.google.com/search?q=${q}+كتاب','_blank','noopener')">🔎 بحث عام</button>
+  <button class="save" onclick="closeSheet();openAddBookV4('${b.id}')">✎ احفظ لينك الكتاب</button>`);
+}
+function openSuggestSourcesV4(i){
+  const s=LIB_SUGGEST[i];if(!s)return;
+  const q=encodeURIComponent(s.t+' '+s.a);
+  sheet(`<h3>🔎 دوّر على «${esc(s.t)}»</h3>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://www.google.com/search?q=${q}+site:abjjad.com','_blank','noopener')">📱 أبجد</button>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://play.google.com/store/search?c=books&q=${q}','_blank','noopener')">🛒 جوجل بلاي بوكس</button>
+  <button class="save" style="background:var(--surface2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px" onclick="window.open('https://www.google.com/search?q=${q}+كتاب','_blank','noopener')">🔎 بحث عام</button>
+  <button class="save" onclick="closeSheet();addSuggestedBookV4(${i})">➕ ضيفه لمكتبتي</button>`);
 }
 function openSwitchBookV4(){
   const reading=getBooks().filter(x=>x.status!=='done');
