@@ -2178,15 +2178,14 @@ const DAILY_MEDIA=[
   {t:'معركة بيلوسيوم',src:'زمكان · نايف الظفيري',tag:'تاريخ',url:'https://www.youtube.com/watch?v=AZzK32-KIZM'},
   {t:'ماذا تفعل في ليلة رأس السنة الهجرية؟',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/shorts/Khj5B2A5ts4',occasion:'1-1'},
   {t:'دعاء وتوسل إلى الله في يوم عاشوراء',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=FZJXTF4xdbc',occasion:'1-10'},
-  {t:'الإسراء والمعراج.. رحلة الوصل بين السماء والأرض',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=d-HWiecy2xE',occasion:'7-27'},
+  {t:'قصة الإسراء والمعراج كما رواها النبي ﷺ',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=g2u47uIkDHY',occasion:'7-27'},
   {t:'فضل وثواب ليلة النصف من شعبان',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=rm5-TUQJqqQ',occasion:'8-15'},
-  {t:'البحث عن معية الله في رمضان',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=zCh7ApILAmE',occasion:'9-1'},
+  {t:'خواطر عن شهر رمضان',src:'الشيخ الشعراوي',tag:'دين',url:'https://www.youtube.com/watch?v=CJkeBHHVG_8',occasion:'9-1'},
   {t:'ليلة القدر.. ليلة اختيار الله لك',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=dd9XwVs2J68',occasion:'9-27'},
-  {t:'تكبيرات العيد.. كل عام وأنتم بخير',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=3-wTf7anDn4',occasion:'10-1'},
-  {t:'مولد أعظم مخلوق ﷺ',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=NFSIySlAYPw',occasion:'3-12'},
-  {t:'هل أنت مصدر أمان أم مصدر أذى؟ — خواطر العشر الأوائل من ذي الحجة',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=69Mp-u39dko',occasionRange:[12,1,8]},
-  {t:'دعاء سيدنا النبي ﷺ يوم عرفة',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=EOCK9HSiyVg',occasion:'12-9'},
-  {t:'آداب الدخول على الله — بمناسبة عيد الأضحى والعشر الأوائل',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=U7cJwgO0tz0',occasion:'12-10'}
+  {t:'تكبيرات العيد.. كل عام وأنتم بخير',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=3-wTf7anDn4',occasions:['10-1','12-10']},
+  {t:'السيرة النبوية — الحلقة ٢',src:'د. طارق السويدان',tag:'دين',url:'https://www.youtube.com/watch?v=QqeNhIBv2IE',occasion:'3-12'},
+  {t:'كيف تربح العشر من ذي الحجة بالكامل؟',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=2-QyybaWpa0',occasionRange:[12,1,8]},
+  {t:'كيف تقضي يوم عرفة؟',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=vNLXdEVDZk0',occasion:'12-9'}
 ];
 
 // التقويم الهجري — عشان نقدر نقترح فيديو مناسب لمناسبة النهاردة (رمضان، نص شعبان، عاشوراء... إلخ)
@@ -4288,10 +4287,18 @@ v3StreakData=function(){const a=_v4OldStreaks();a.splice(2,0,{e:'📚',l:'الق
 
 /* ---------- 1) توسيع المكتبة: محتوى ديني يومي (مش مناسبات) + قنوات تانية ---------- */
 [
-  {t:'نور — ولادة سيدنا النبي ﷺ وإزاي اتغيّرت الحياة بعد مجيئه',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=HruuCEeLDvU'},
-  {t:'رميم — حرمان الرضا بعد طول البلاء',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=o4g49mEoPuE'},
-  {t:'رميم — فقدان التوكّل على الله',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=Yc9Z4lb5HHc'},
-  {t:'أسوياء — أبو بكر الصديق رضي الله عنه',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=ixh6zjV8l48'},
+  {t:'آثار الذنوب والمعاصي — من كتاب الداء والدواء',src:'الشيخ شريف علي',tag:'دين',url:'https://www.youtube.com/watch?v=jD39XLuMEas'},
+  {t:'إيه المشكلة لو مفيش دين؟!',src:'الشيخ شريف علي',tag:'دين',url:'https://www.youtube.com/watch?v=3u5uYyGKYU8'},
+  {t:'السعادة الحقيقية في الدين',src:'أحمد عامر',tag:'دين',url:'https://www.youtube.com/watch?v=i6QoUzh3WCk'},
+  {t:'وعي ٤٥ — أهمية الأخلاق والمعاملات في الإسلام',src:'بودكاست وعي · أحمد عامر وشريف علي',tag:'دين',url:'https://www.youtube.com/watch?v=zzWhkMWlIo0'},
+  {t:'عندما يدير المعركة.. إبليس شخصيًا!',src:'بودكاست وعي · أحمد عامر وشريف علي',tag:'دين',url:'https://www.youtube.com/watch?v=Tl7l2R2xFUQ'},
+  {t:'بعد الفيديو ده مش هتبطّل صلاة في المسجد',src:'أمير منير',tag:'دين',url:'https://www.youtube.com/watch?v=NZp1q0GN_Qo'},
+  {t:'قصة توبة الشيخ محمد غليظ',src:'محمد غليظ',tag:'دين',url:'https://www.youtube.com/watch?v=1VEaa3XRv8o'},
+  {t:'معرفة الله وتوحيده بأسمائه وصفاته',src:'الشيخ سمير مصطفى',tag:'دين',url:'https://www.youtube.com/watch?v=OfxBLOJ2IRw'},
+  {t:'إذا ضُيّق عليك في الرزق',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=QhhPCdbDX40'},
+  {t:'عجائب الرزق',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=ui3rxcWQmVE'},
+  {t:'كيف نكسب الرضا في الأيام الصعبة؟',src:'عمر عبد الكافي',tag:'دين',url:'https://www.youtube.com/watch?v=QMFHtc0lWtc'},
+  {t:'السيرة النبوية — الحلقة ٣',src:'د. طارق السويدان',tag:'دين',url:'https://www.youtube.com/watch?v=Grg00H7JH4E'},
   {t:'كنوز — بر الوالدين',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=0---S8D_wYs'},
   {t:'٧ خطوات عملية تحافظ بيها على بر والديك',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=rcXESW7UQRo'},
   {t:'الذكاء العاطفي — ليه الذكاء المنطقي مش كل حاجة؟',src:'أخضر',tag:'تطوير',url:'https://www.youtube.com/watch?v=_HOYcyniFQA'},
@@ -4308,7 +4315,7 @@ function v5SetMine(a){save('life:myMedia',a);}
 function v5Pool(){return DAILY_MEDIA.concat(v5Mine().map(x=>Object.assign({mine:true},x)));}
 function v5Find(u){if(!u)return null;const k=v5Vid(u);return v5Pool().find(m=>v5Vid(m.url)===k)||null;}
 function v5Current(){return v5Find(getDay().mediaUrl);}
-function v5IsOcc(m){return !!(m.occasion||m.occasionRange);}
+function v5IsOcc(m){return !!(m.occasion||m.occasions||m.occasionRange);}
 function v5Hijri(){try{return getHijriToday();}catch(e){return null;}}
 function v5IsRamadan(){const h=v5Hijri();return !!h&&h.m===9;}
 function v5IsFriday(){return cursor.getDay()===5;}
@@ -4340,7 +4347,8 @@ function v5PickUrl(exclude,salt){
 
   // (أ) لو النهاردة مناسبة → فيديو المناسبة، وبس
   if(h){
-    const occ=pool.find(m=>m.occasion===(h.m+'-'+h.d))||
+    const today=h.m+'-'+h.d;
+    const occ=pool.find(m=>m.occasion===today||(m.occasions&&m.occasions.includes(today)))||
               pool.find(m=>m.occasionRange&&m.occasionRange[0]===h.m&&h.d>=m.occasionRange[1]&&h.d<=m.occasionRange[2]);
     if(occ&&v5Vid(occ.url)!==v5Vid(exclude||'')) return {url:occ.url,why:'🕌 النهاردة مناسبة — الفيديو مختار ليها'};
   }
