@@ -4277,6 +4277,242 @@ renderProgressTabV3=function(){_v4OldProgTab();renderScoreBreakdownV4();};
 const _v4OldStreaks=v3StreakData;
 v3StreakData=function(){const a=_v4OldStreaks();a.splice(2,0,{e:'📚',l:'القراءة',n:v3SpecificStreak(d=>readPagesOf(d)>0)});return a;};
 
+
+/* ============================================================
+   v5 — اقتراح المشاهدة الذكي
+   - المناسبات تظهر يوم المناسبة بس (كانت بتطلع في أي يوم عادي)
+   - تنويع إجباري بين القنوات والمواضيع
+   - بيتعلّم من تقييمك ⭐ ومن اللي بتحفظه وبترفضه
+   - "✓ شوفته" بقى بيدخل في تقييم اليوم
+   ============================================================ */
+
+/* ---------- 1) توسيع المكتبة: محتوى ديني يومي (مش مناسبات) + قنوات تانية ---------- */
+[
+  {t:'نور — ولادة سيدنا النبي ﷺ وإزاي اتغيّرت الحياة بعد مجيئه',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=HruuCEeLDvU'},
+  {t:'رميم — حرمان الرضا بعد طول البلاء',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=o4g49mEoPuE'},
+  {t:'رميم — فقدان التوكّل على الله',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=Yc9Z4lb5HHc'},
+  {t:'أسوياء — أبو بكر الصديق رضي الله عنه',src:'مصطفى حسني',tag:'دين',url:'https://www.youtube.com/watch?v=ixh6zjV8l48'},
+  {t:'كنوز — بر الوالدين',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=0---S8D_wYs'},
+  {t:'٧ خطوات عملية تحافظ بيها على بر والديك',src:'عمرو خالد',tag:'دين',url:'https://www.youtube.com/watch?v=rcXESW7UQRo'},
+  {t:'الذكاء العاطفي — ليه الذكاء المنطقي مش كل حاجة؟',src:'أخضر',tag:'تطوير',url:'https://www.youtube.com/watch?v=_HOYcyniFQA'},
+  {t:'إيه القوى الخفية اللي بتحرّك أسعار الذهب؟',src:'المخبر الاقتصادي',tag:'اقتصاد',url:'https://www.youtube.com/watch?v=P9ZNSfe6gLU'},
+  {t:'إزاي كسر الذهب حاجز الـ4000 دولار؟',src:'المخبر الاقتصادي',tag:'اقتصاد',url:'https://www.youtube.com/watch?v=5GeM5OcQC3g'}
+].forEach(x=>{ if(!DAILY_MEDIA.some(y=>y.url===x.url)) DAILY_MEDIA.push(x); });
+
+const V5_TAGS=['دين','تطوير','عادات','تعلّم','تركيز','تاريخ','علوم','صحة','اقتصاد','رياضيات','تقنية','لغة','فلسفة','مهارات'];
+
+/* ---------- 2) أدوات ---------- */
+function v5Vid(u){const m=(u||'').match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_\-]{6,})/);return m?m[1]:(u||'');}
+function v5Mine(){return load('life:myMedia',[]);}
+function v5SetMine(a){save('life:myMedia',a);}
+function v5Pool(){return DAILY_MEDIA.concat(v5Mine().map(x=>Object.assign({mine:true},x)));}
+function v5Find(u){if(!u)return null;const k=v5Vid(u);return v5Pool().find(m=>v5Vid(m.url)===k)||null;}
+function v5Current(){return v5Find(getDay().mediaUrl);}
+function v5IsOcc(m){return !!(m.occasion||m.occasionRange);}
+function v5Hijri(){try{return getHijriToday();}catch(e){return null;}}
+function v5IsRamadan(){const h=v5Hijri();return !!h&&h.m===9;}
+function v5IsFriday(){return cursor.getDay()===5;}
+/* عشوائية ثابتة لليوم — عشان الاقتراح ما يتغيّرش كل ما الصفحة تترسم */
+function v5Seed(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return ((h>>>0)%1000)/1000;}
+/* آخر N يوم — بنجيب اللي اتعرض فيهم عشان ما نكرّرش نفس القناة ولا نفس الموضوع */
+function v5Recent(n){const out=[];for(let i=1;i<=n;i++){const d=new Date(cursor);d.setDate(d.getDate()-i);const day=getDayD(d);const u=day&&(day.mediaUrl||(day.mediaIdx!==undefined&&DAILY_MEDIA[day.mediaIdx%DAILY_MEDIA.length]&&DAILY_MEDIA[day.mediaIdx%DAILY_MEDIA.length].url));if(u){const m=v5Find(u);if(m)out.push(m);}}return out;}
+
+/* ميولك: بنحسبها من ⭐ + المحفوظ + "مش مهتم" */
+function v5Affinity(){
+  const p=v3GetMediaPrefs(),byId={};v5Pool().forEach(m=>byId[v5Vid(m.url)]=m);
+  const tag={},src={},bump=(m,v)=>{if(!m)return;tag[m.tag]=(tag[m.tag]||0)+v;src[m.src]=(src[m.src]||0)+v;};
+  Object.entries(p.ratings||{}).forEach(([u,r])=>bump(byId[v5Vid(u)],(r-3)/2));
+  (p.saved||[]).forEach(u=>bump(byId[v5Vid(u)],.5));
+  (p.disliked||[]).forEach(u=>bump(byId[v5Vid(u)],-.8));
+  return {tag,src};
+}
+/* التغطية: شوفت كام من كل قناة وكل موضوع — اللي أقل بييجي الأول */
+function v5Coverage(){
+  const p=v3GetMediaPrefs(),pool=v5Pool(),byId={},tag={},src={},tot={tag:{},src:{}};
+  pool.forEach(m=>{byId[v5Vid(m.url)]=m;tag[m.tag]=tag[m.tag]||0;src[m.src]=src[m.src]||0;tot.tag[m.tag]=(tot.tag[m.tag]||0)+1;tot.src[m.src]=(tot.src[m.src]||0)+1;});
+  (p.watched||[]).forEach(u=>{const m=byId[v5Vid(u)];if(m){tag[m.tag]++;src[m.src]++;}});
+  return {tag,src,tot};
+}
+
+/* ---------- 3) محرّك الاختيار ---------- */
+function v5PickUrl(exclude,salt){
+  const pool=v5Pool(),p=v3GetMediaPrefs(),key=ymd(cursor),h=v5Hijri(),sa=String(salt||0);
+
+  // (أ) لو النهاردة مناسبة → فيديو المناسبة، وبس
+  if(h){
+    const occ=pool.find(m=>m.occasion===(h.m+'-'+h.d))||
+              pool.find(m=>m.occasionRange&&m.occasionRange[0]===h.m&&h.d>=m.occasionRange[1]&&h.d<=m.occasionRange[2]);
+    if(occ&&v5Vid(occ.url)!==v5Vid(exclude||'')) return {url:occ.url,why:'🕌 النهاردة مناسبة — الفيديو مختار ليها'};
+  }
+
+  // (ب) الأيام العادية: المناسبات مستبعدة تمامًا
+  const aff=v5Affinity(),cov=v5Coverage(),rec=v5Recent(5);
+  const recSrc=rec.map(m=>m.src),recTag=rec.map(m=>m.tag);
+  const maxS=Math.max(1,...Object.values(cov.src)),maxT=Math.max(1,...Object.values(cov.tag));
+  const watched=p.watched||[],disliked=p.disliked||[];
+
+  let cands=pool.filter(m=>!v5IsOcc(m)&&!disliked.includes(m.url)&&v5Vid(m.url)!==v5Vid(exclude||''));
+  if(!cands.length) cands=pool.filter(m=>!v5IsOcc(m));
+  if(!cands.length) cands=pool.slice();
+
+  const scored=cands.map(m=>{
+    let s=2,why='';
+    s+=(aff.tag[m.tag]||0)*1.2;            // بتحب الموضوع ده
+    s+=(aff.src[m.src]||0)*1.0;            // بتحب القناة دي
+    const iS=recSrc.indexOf(m.src),iT=recTag.indexOf(m.tag);
+    if(iS===0)s-=4.5; else if(iS===1)s-=2.4; else if(iS>1)s-=1;   // ما نكرّرش نفس القناة
+    if(iT===0)s-=2.2; else if(iT===1)s-=1;                         // ولا نفس الموضوع
+    const cS=1-(cov.src[m.src]||0)/maxS, cT=1-(cov.tag[m.tag]||0)/maxT;
+    s+=cS*2.4; s+=cT*1.6;                  // القنوات/المواضيع اللي لسه مستفدتش منها
+    if(watched.includes(m.url))s-=((p.ratings||{})[m.url]>=4?2:5);
+    if(m.mine)s+=1.2;                      // اللي ضايفه بنفسك ليه أولوية
+    if(m.tag==='دين'){ if(v5IsFriday())s+=3.5; else if(v5IsRamadan())s+=2.8; else s+=.6; }
+    s+=v5Seed(key+'#'+sa+'#'+v5Vid(m.url))*1.6;
+
+    if(m.tag==='دين'&&v5IsFriday())why='🤍 جمعة مباركة — محتوى إيماني';
+    else if(m.tag==='دين'&&v5IsRamadan())why='🌙 رمضان — محتوى إيماني';
+    else if(cS>=.85&&(cov.src[m.src]||0)===0)why='🆕 قناة لسه مشوفتش منها حاجة';
+    else if(cT>=.8)why='🧭 موضوع ناقصك — عشان تستفيد من كل حاجة';
+    else if((aff.tag[m.tag]||0)>.6)why='⭐ لأنك قيّمت «'+m.tag+'» كويس';
+    else if(iS<0&&iT<0)why='🔀 بعيد عن آخر اللي اتعرض عليك';
+    else why='🎬 اختيار متنوّع لليوم';
+    return {m,s,why};
+  }).sort((a,b)=>b.s-a.s);
+
+  return {url:scored[0].m.url,why:scored[0].why};
+}
+
+/* ---------- 4) الكارت ---------- */
+renderDailyMedia=function(){
+  const box=$('dailyMediaCard'); if(!box)return;
+  const d=getDay();
+  if(!d.mediaUrl){
+    const old=(d.mediaIdx!==undefined)&&DAILY_MEDIA[d.mediaIdx%DAILY_MEDIA.length];
+    if(old&&!v5IsOcc(old)){d.mediaUrl=old.url;d.mediaWhy='🎬 اختيار اليوم';}
+    else{const pk=v5PickUrl();d.mediaUrl=pk.url;d.mediaWhy=pk.why;}
+    setDay(d);
+  }
+  const m=v5Find(d.mediaUrl)||v5Pool()[0]; if(!m){box.innerHTML='';return;}
+  const p=v3GetMediaPrefs(),saved=(p.saved||[]).includes(m.url),done=!!d.mediaDone,
+        rating=(p.ratings||{})[m.url]||0,isOcc=v5IsOcc(m),cov=v5Coverage(),
+        seenSrc=Object.keys(cov.src).filter(k=>cov.src[k]>0).length,
+        seenAll=(p.watched||[]).length,poolN=v5Pool().length;
+  box.innerHTML=
+    `<button class="mc-refresh" onclick="shuffleDailyMedia()" title="اقتراح تاني">🔄</button>
+     <div class="mc-head">${isOcc?'🕌 مناسبة النهاردة':'🎬 مشاهدة النهاردة'} <span class="tag">${esc(m.tag)}</span></div>
+     <div class="mc-body">${esc(m.t)}</div>
+     <div class="mc-sub">${esc(m.src)}${m.mine?' · من مكتبتك':''}</div>
+     <div class="mc-sub" style="margin-top:7px;opacity:.9">${esc(d.mediaWhy||'🎬 اختيار اليوم')}</div>
+     <a class="media-watch" href="${m.url}" target="_blank" rel="noopener" onclick="mediaActionV3('watch')">▶ افتح على YouTube</a>
+     <div class="v3-media-actions">
+       <button class="${done?'on':''}" onclick="mediaActionV3('${done?'undo':'watch'}')">${done?'✓ شوفته — اتحسب':'✓ شوفته (+ تقييم)'}</button>
+       <button class="${saved?'on':''}" onclick="mediaActionV3('save')">${saved?'★ محفوظ':'♡ احفظه'}</button>
+       <button onclick="mediaActionV3('skip')">↷ مش دلوقتي</button>
+       <button onclick="mediaActionV3('dislike')">👎 مش مهتم</button>
+       <button onclick="openMediaLibV5()">📚 المكتبة</button>
+     </div>
+     <div class="v3-stars">${[1,2,3,4,5].map(n=>`<button class="${n<=rating?'on':''}" onclick="rateMediaV3(${n})">⭐</button>`).join('')}</div>
+     <div class="mc-sub" style="margin-top:8px">شوفت ${seenAll} من ${poolN} · ${seenSrc} قناة مختلفة</div>`;
+};
+
+shuffleDailyMedia=function(){
+  const d=getDay();
+  d.mediaSalt=(d.mediaSalt||0)+1;
+  const pk=v5PickUrl(d.mediaUrl,d.mediaSalt);
+  d.mediaUrl=pk.url; d.mediaWhy=pk.why;
+  setDay(d); renderDailyMedia();
+};
+
+mediaActionV3=function(kind){
+  const d=getDay(),m=v5Current(); if(!m)return;
+  const p=v3GetMediaPrefs(); ['saved','watched','disliked'].forEach(k=>p[k]=p[k]||[]);
+  if(kind==='save'){p.saved=p.saved.includes(m.url)?p.saved.filter(x=>x!==m.url):[...p.saved,m.url];}
+  if(kind==='watch'){
+    if(!p.watched.includes(m.url))p.watched.push(m.url);
+    const was=!!d.mediaDone; d.mediaDone=true; setDay(d);
+    if(!was){ try{feedback('big')}catch(e){} toast('اتحسبت في تقييم اليوم 🎬'); }
+  }
+  if(kind==='undo'){ p.watched=p.watched.filter(x=>x!==m.url); delete d.mediaDone; setDay(d); }
+  if(kind==='skip'){ v3SetMediaPrefs(p); shuffleDailyMedia(); renderTop(); return; }
+  if(kind==='dislike'){
+    if(!p.disliked.includes(m.url))p.disliked.push(m.url);
+    v3SetMediaPrefs(p); shuffleDailyMedia(); toast('مش هاقترح حاجة زي دي تاني 👌'); return;
+  }
+  v3SetMediaPrefs(p); renderDailyMedia(); renderTop();
+  if(typeof renderProgress==='function')renderProgress();
+  if(typeof renderHero==='function')renderHero();
+};
+
+rateMediaV3=function(n){
+  const m=v5Current(); if(!m)return;
+  const p=v3GetMediaPrefs(); p.ratings=p.ratings||{};
+  p.ratings[m.url]=(p.ratings[m.url]===n?0:n);
+  v3SetMediaPrefs(p); renderDailyMedia();
+  toast(n>=4?'تمام — هزوّد اللي زيه ⭐':'اتسجل تقييمك ⭐');
+};
+
+/* ---------- 5) المكتبة: تصفّح + ضيف فيديوهاتك ---------- */
+function openMediaLibV5(){
+  const p=v3GetMediaPrefs(),cov=v5Coverage(),pool=v5Pool();
+  const rows=Object.keys(cov.tot.tag).sort((a,b)=>(cov.tag[a]/cov.tot.tag[a])-(cov.tag[b]/cov.tot.tag[b]))
+    .map(t=>{const w=Math.round((cov.tag[t]/cov.tot.tag[t])*100);
+      return `<div class="v3-bar-row"><div class="n">${esc(t)}</div><div class="v3-track"><i style="width:${w}%"></i></div><div class="v">${cov.tag[t]}/${cov.tot.tag[t]}</div></div>`;}).join('');
+  const saved=(p.saved||[]).map(u=>v5Find(u)).filter(Boolean);
+  sheet(`<h3>📚 مكتبة المشاهدة</h3>
+  <div class="v3-insight">عندك ${pool.length} فيديو من ${Object.keys(cov.tot.src).length} قناة · شوفت ${(p.watched||[]).length}. الاقتراح بيدّي أولوية للموضوع والقناة اللي ناقصينك.</div>
+  <div class="v3-section-title"><span>🧭 تغطيتك للمواضيع</span><small>الناقص فوق</small></div>
+  ${rows}
+  <div class="v3-actions" style="margin-top:12px">
+    <button class="primary" onclick="openAddMediaV5()">➕ ضيف فيديو</button>
+    <button onclick="v5ResetDislikes()">↺ رجّع «مش مهتم»</button>
+    <button onclick="v5ManageMineV5()">🗂️ فيديوهاتي</button>
+  </div>
+  <div class="v3-section-title" style="margin-top:14px"><span>★ المحفوظات</span><small>${saved.length}</small></div>
+  ${saved.length?saved.map(m=>`<div class="v3-bar-row"><div class="n" style="flex:1">${esc(m.t)}<br><small style="color:var(--muted)">${esc(m.src)}</small></div><a class="media-watch" style="margin:0" href="${m.url}" target="_blank" rel="noopener">▶</a></div>`).join(''):'<div class="v3-insight">لسه مافيش محفوظات — دوس ♡ على أي اقتراح يعجبك.</div>'}`);
+}
+
+function v5ResetDislikes(){const p=v3GetMediaPrefs();p.disliked=[];v3SetMediaPrefs(p);closeSheet();renderDailyMedia();toast('رجّعنا كل حاجة للاقتراحات ✓');}
+
+function openAddMediaV5(){
+  sheet(`<h3>➕ ضيف فيديو لمكتبتك</h3>
+  <div class="field"><label>لينك اليوتيوب</label><input id="v5mUrl" placeholder="https://youtu.be/..." dir="ltr"></div>
+  <div class="field"><label>العنوان</label><input id="v5mT" placeholder="الفيديو بيتكلم عن إيه"></div>
+  <div class="field"><label>القناة</label><input id="v5mS" placeholder="اسم القناة"></div>
+  <div class="field"><label>التصنيف</label><div class="v3-media-actions" id="v5mTags">${V5_TAGS.map(t=>`<button data-t="${t}">${t}</button>`).join('')}</div></div>
+  <button class="save" id="v5mSave">احفظ في مكتبتي</button>`);
+  let tag='تطوير';
+  document.querySelectorAll('#v5mTags button').forEach(b=>{
+    if(b.dataset.t===tag)b.classList.add('on');
+    b.onclick=()=>{tag=b.dataset.t;document.querySelectorAll('#v5mTags button').forEach(x=>x.classList.toggle('on',x===b));};
+  });
+  $('v5mSave').onclick=()=>{
+    const url=$('v5mUrl').value.trim(),t=$('v5mT').value.trim(),s=$('v5mS').value.trim()||'قناة';
+    if(!/youtu\.?be|youtube\.com/.test(url))return toast('لازم لينك يوتيوب صح');
+    if(!t)return toast('اكتب عنوان للفيديو');
+    const mine=v5Mine();
+    if(v5Find(url))return toast('الفيديو ده موجود بالفعل');
+    mine.push({t,src:s,tag,url}); v5SetMine(mine);
+    closeSheet(); renderDailyMedia(); toast('اتضاف لمكتبتك ✓');
+  };
+}
+
+function v5ManageMineV5(){
+  const mine=v5Mine();
+  sheet(`<h3>🗂️ فيديوهاتي</h3>${mine.length?mine.map((m,i)=>`<div class="v3-bar-row"><div class="n" style="flex:1">${esc(m.t)}<br><small style="color:var(--muted)">${esc(m.src)} · ${esc(m.tag)}</small></div><button class="v3-mood" onclick="v5DelMine(${i})">🗑</button></div>`).join(''):'<div class="v3-insight">لسه مضفتش حاجة.</div>'}
+  <div class="v3-actions" style="margin-top:12px"><button class="primary" onclick="openAddMediaV5()">➕ ضيف فيديو</button></div>`);
+}
+function v5DelMine(i){const a=v5Mine();a.splice(i,1);v5SetMine(a);v5ManageMineV5();renderDailyMedia();toast('اتشال');}
+
+/* ---------- 6) دخول المشاهدة في تقييم اليوم ---------- */
+function v5ScoreSince(){let s=load('life:mediaScoreSince',null);if(!s){s=ymd(todayD());save('life:mediaScoreSince',s);}return s;}
+const _v5OldParts=v4Parts;
+v4Parts=function(dt){
+  const parts=_v5OldParts(dt),day=getDayD(dt),key=ymd(dt),since=v5ScoreSince();
+  const val=(key<since)?null:(day.mediaDone?1:0);
+  parts.splice(5,0,{k:'media',ico:'🎬',label:'مشاهدة مفيدة',w:6,val,txt:val===null?'—':(day.mediaDone?'اتشافت ✓':'لسه')});
+  return parts;
+};
+
 boot();
 </script>
 </body>
